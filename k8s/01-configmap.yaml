@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cogni-config
+  namespace: cogni-dispatch
+  labels:
+    app: cogni-dispatch
+data:
+  # Backend port
+  PORT: "5000"
+
+  # MongoDB Connection String — Replace with your Atlas or Cosmos DB URI before deploying to AKS
+  MONGODB_URI: "mongodb+srv://<user>:<password>@<cluster>.mongodb.net/cognidispatch?retryWrites=true&w=majority"
+
+  # Azure Speech Service — Central India
+  AZURE_SPEECH_KEY: "REPLACE_WITH_YOUR_REGENERATED_KEY"
+  AZURE_SPEECH_REGION: "centralindia"
+
+  # Azure OpenAI (set real values when you provision Azure OpenAI)
+  AZURE_OPENAI_ENDPOINT: "https://mock-openai.openai.azure.com/"
+  AZURE_OPENAI_KEY: "mock_openai_key"
+  AZURE_OPENAI_DEPLOYMENT: "gpt-4o"
+
+  # CORS allowed origin — replace with your Application Gateway public IP or hostname
+  ALLOWED_CLIENT_IP: "http://REPLACE_WITH_APPGW_PUBLIC_IP"
+
+  NODE_ENV: "production"

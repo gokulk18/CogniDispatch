@@ -1,0 +1,35 @@
+[
+  {
+    "id": "u_1xqhllf5l",
+    "balance": 0,
+    "email": "user1@gmail.com",
+    "name": "user1",
+    "phone": "9090909090",
+    "address": "Thumba",
+    "lat": 8.536316300925957,
+    "lng": 76.88330143640601,
+    "passwordHash": "d1b51a9f0e415dc8c211e4061f9285384cd9bc201c595c11306a462bd28cd6de00e74d4e413a14ba5e43f9dc862d21e571911d4ad61c19fe7258d87e8d3c493c"
+  },
+  {
+    "id": "u_4kqauwu1o",
+    "balance": 0,
+    "email": "gokul@gmail.com",
+    "name": "gokul",
+    "phone": "909090909",
+    "address": "kannur",
+    "lat": 8.536332045101064,
+    "lng": 76.88329416905123,
+    "passwordHash": "96771f4dba7594261b1fe8ec9ae5a1d415c16ad92c49c716013ffd17d626b94e8b3746d8801bafbeb879fecf7f9e64f61a2312fe3f04a26bc6dd6b0791fdcbd6"
+  },
+  {
+    "id": "u_7gpouiay9",
+    "balance": 0,
+    "email": "user2@gmail.com",
+    "name": "user2",
+    "phone": "9898989898",
+    "address": "kazhakoottam",
+    "lat": 8.536316300925957,
+    "lng": 76.88330143640601,
+    "passwordHash": "c4c8c819e95bc58c47b784db9d2ccaf6af4437d7eb6014b6f053d532786bfd6da1da04cb47bc111d1edb3ef4ec469f5de737f5fc78a1d0cce29121b33fd22993"
+  }
+]
