@@ -14,6 +14,27 @@ locals {
   url_path_map_name              = "appGwUrlPathMap"
 }
 
+resource "azurerm_web_application_firewall_policy" "waf" {
+  name                = "wafpolicy-${var.project_name}"
+  resource_group_name = var.app_rg_name
+  location            = var.location
+
+  policy_settings {
+    enabled                     = true
+    mode                        = "Prevention"
+    request_body_check          = true
+    file_upload_limit_in_mb     = 100
+    max_request_body_size_in_kb = 128
+  }
+
+  managed_rules {
+    managed_rule_set {
+      type    = "OWASP"
+      version = "3.2"
+    }
+  }
+}
+
 resource "azurerm_application_gateway" "appgw" {
   name                = "appgw-${var.project_name}"
   resource_group_name = var.app_rg_name
@@ -40,6 +61,9 @@ resource "azurerm_application_gateway" "appgw" {
     public_ip_address_id = var.appgw_pip_id
   }
 
+  # Link the separate WAF Policy
+  firewall_policy_id = azurerm_web_application_firewall_policy.waf.id
+
   # DEFAULT POOL (Frontend Next.js)
   backend_address_pool {
     name = local.frontend_backend_address_pool_name
@@ -62,12 +86,13 @@ resource "azurerm_application_gateway" "appgw" {
 
   # HTTP SETTINGS: Backend API
   backend_http_settings {
-    name                  = local.backend_http_setting_name
-    cookie_based_affinity = "Disabled"
-    port                  = 30500
-    protocol              = "Http"
-    request_timeout       = 300 # Long timeout for WebSockets
-    probe_name            = local.backend_probe_name
+    name                                = local.backend_http_setting_name
+    cookie_based_affinity               = "Disabled"
+    port                                = 30500
+    protocol                            = "Http"
+    request_timeout                     = 300 # Long timeout for WebSockets
+    probe_name                          = local.backend_probe_name
+    pick_host_name_from_backend_address = true
   }
 
   # PROBE: Backend API Health
@@ -81,39 +106,41 @@ resource "azurerm_application_gateway" "appgw" {
     pick_host_name_from_backend_http_settings = true
   }
 
+  # LISTENER: Frontend (MultiSite)
   http_listener {
-    name                           = local.listener_name
+    name                           = "frontendListener"
     frontend_ip_configuration_name = local.frontend_ip_configuration_name
     frontend_port_name             = local.frontend_port_name
     protocol                       = "Http"
+    host_name                      = var.frontend_domain
   }
 
-  # ROUTING RULE (Path-Based)
+  # LISTENER: Backend API (MultiSite)
+  http_listener {
+    name                           = "backendListener"
+    frontend_ip_configuration_name = local.frontend_ip_configuration_name
+    frontend_port_name             = local.frontend_port_name
+    protocol                       = "Http"
+    host_name                      = var.backend_domain
+  }
+
+  # ROUTING RULE: Frontend
   request_routing_rule {
-    name                       = local.routing_rule_name
-    rule_type                  = "PathBasedRouting"
-    http_listener_name         = local.listener_name
-    url_path_map_name          = local.url_path_map_name
+    name                       = "frontendRoutingRule"
+    rule_type                  = "Basic"
+    http_listener_name         = "frontendListener"
+    backend_address_pool_name  = local.frontend_backend_address_pool_name
+    backend_http_settings_name = local.frontend_http_setting_name
     priority                   = 100
   }
 
-  url_path_map {
-    name                               = local.url_path_map_name
-    default_backend_address_pool_name  = local.frontend_backend_address_pool_name
-    default_backend_http_settings_name = local.frontend_http_setting_name
-
-    path_rule {
-      name                       = "api-rule"
-      paths                      = ["/api/*", "/socket.io/*"]
-      backend_address_pool_name  = local.backend_address_pool_name
-      backend_http_settings_name = local.backend_http_setting_name
-    }
-  }
-
-  waf_configuration {
-    enabled          = true
-    firewall_mode    = "Prevention"
-    rule_set_type    = "OWASP"
-    rule_set_version = "3.2"
+  # ROUTING RULE: Backend API
+  request_routing_rule {
+    name                       = "backendRoutingRule"
+    rule_type                  = "Basic"
+    http_listener_name         = "backendListener"
+    backend_address_pool_name  = local.backend_address_pool_name
+    backend_http_settings_name = local.backend_http_setting_name
+    priority                   = 110
   }
 }

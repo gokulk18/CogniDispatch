@@ -20,11 +20,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type = "SystemAssigned"
   }
 
+  oidc_issuer_enabled       = true
+  workload_identity_enabled = true
+
   network_profile {
     network_plugin     = "azure"
     service_cidr       = "10.96.0.0/16"
     dns_service_ip     = "10.96.0.10"
-    docker_bridge_cidr = "172.17.0.1/16" # required property by Terraform for Azure CNI
   }
 }
 

@@ -37,6 +37,8 @@ module "appgw" {
   vnet_name       = "vnet-${var.project_name}"
   appgw_subnet_id = module.network.appgw_subnet_id
   appgw_pip_id    = module.network.appgw_pip_id
+  frontend_domain = var.frontend_domain
+  backend_domain  = var.backend_domain
 
   depends_on = [
     module.network

@@ -21,3 +21,11 @@ variable "appgw_subnet_id" {
 variable "appgw_pip_id" {
   type = string
 }
+
+variable "frontend_domain" {
+  type = string
+}
+
+variable "backend_domain" {
+  type = string
+}

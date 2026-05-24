@@ -33,3 +33,13 @@ variable "aks_node_size" {
   type        = string
   description = "VM size for AKS nodes"
 }
+
+variable "frontend_domain" {
+  type        = string
+  description = "Domain name for the frontend application"
+}
+
+variable "backend_domain" {
+  type        = string
+  description = "Domain name for the backend API"
+}
