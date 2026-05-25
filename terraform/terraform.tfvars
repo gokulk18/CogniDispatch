@@ -6,5 +6,5 @@ aks_subnet_prefix   = "10.0.4.0/22"
 aks_node_count      = 2
 aks_node_size       = "Standard_D2s_v3"
 
-frontend_domain     = "app.cognidispatch.com"
-backend_domain      = "api.cognidispatch.com"
+frontend_domain     = "cognidispatch.g0ku1.online"
+backend_domain      = "api.cognidispatch.g0ku1.online"

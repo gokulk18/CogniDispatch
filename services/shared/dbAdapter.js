@@ -89,9 +89,18 @@ const Dispatch = mongoose.model('Dispatch', DispatchSchema);
 // ─────────────────────────────────────────────────────
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cognidispatch';
 
-mongoose.connect(MONGODB_URI, {
+const isCosmosDB = MONGODB_URI.includes('cosmos.azure.com');
+
+const mongooseOptions = {
   serverSelectionTimeoutMS: 8000,
-})
+};
+
+if (isCosmosDB) {
+  mongooseOptions.tls = true;
+  mongooseOptions.retryWrites = false;
+}
+
+mongoose.connect(MONGODB_URI, mongooseOptions)
   .then(() => console.log('[CogniDispatch DB] ✅ MongoDB connected:', MONGODB_URI.split('@').pop()))
   .catch(err => {
     console.error('[CogniDispatch DB] ❌ MongoDB connection failed:', err.message);

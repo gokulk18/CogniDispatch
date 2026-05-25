@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app/auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/cognidispatch}
+
+  vendor-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app/vendor-service
+    ports:
+      - "5002:5002"
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/cognidispatch}
+
+  ai-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app/ai-service
+    ports:
+      - "5003:5003"
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/cognidispatch}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - AZURE_OPENAI_KEY=${AZURE_OPENAI_KEY}
+      - AZURE_OPENAI_DEPLOYMENT=${AZURE_OPENAI_DEPLOYMENT}
+      - AZURE_SPEECH_REGION=${AZURE_SPEECH_REGION}
+      - AZURE_SPEECH_KEY=${AZURE_SPEECH_KEY}
+
+  admin-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app/admin-service
+    ports:
+      - "5004:5004"
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/cognidispatch}
+
+  dispatch-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app/dispatch-service
+    ports:
+      - "5005:5005"
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/cognidispatch}
+
+  # For docker compose, we use a slightly modified nginx conf that points to docker hostnames
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./nginx/nginx-docker.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - auth-service
+      - vendor-service
+      - ai-service
+      - admin-service
+      - dispatch-service
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"

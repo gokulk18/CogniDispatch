@@ -24,7 +24,7 @@ export default function AIWidget({ onTranscription, onFallback, disabled }) {
           throw new Error("NEXT_PUBLIC_SERVER_IP is not defined in the environment.");
         }
         
-        const response = await axios.get(`${serverUrl}/api/speech-token`);
+        const response = await axios.get(`${serverUrl}/api/ai/speech-token`);
         if (active) {
           const { token, region } = response.data;
           setSpeechToken(token);
@@ -76,7 +76,7 @@ export default function AIWidget({ onTranscription, onFallback, disabled }) {
       if (!currentToken) {
         setInternalState('FETCHING_TOKEN');
         const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP;
-        const tokenRes = await axios.get(`${serverUrl}/api/speech-token`);
+        const tokenRes = await axios.get(`${serverUrl}/api/ai/speech-token`);
         currentToken = tokenRes.data.token;
         currentRegion = tokenRes.data.region;
         setSpeechToken(currentToken);

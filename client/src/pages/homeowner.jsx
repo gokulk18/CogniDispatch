@@ -289,7 +289,7 @@ export default function HomeownerDashboard() {
 
   const processTriage = async (transcriptText, coords) => {
     try {
-      const res = await axios.post(`${serverUrl}/api/triage`, {
+      const res = await axios.post(`${serverUrl}/api/ai/triage`, {
         transcription: transcriptText
       });
 

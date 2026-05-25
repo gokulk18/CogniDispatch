@@ -1,0 +1,9 @@
+{
+  "name": "cognidispatch-shared",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "mongoose": "^9.6.2",
+    "dotenv": "^16.3.1"
+  }
+}

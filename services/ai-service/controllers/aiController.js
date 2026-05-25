@@ -1,4 +1,5 @@
 const express = require('express');
+const dbAdapter = require('cognidispatch-shared').dbAdapter;
 const https = require('https');
 const { AzureOpenAI, OpenAIClient, AzureKeyCredential } = require('@azure/openai');
 const router = express.Router();

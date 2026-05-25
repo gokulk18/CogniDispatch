@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies (including dev, needed for Next.js build)
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # Copy all source files
 COPY . .
@@ -34,7 +34,6 @@ ENV NODE_ENV=production
 
 # Copy only what is needed to run the built app
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
