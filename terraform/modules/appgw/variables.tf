@@ -1,31 +1,34 @@
 variable "location" {
-  type = string
+  type        = string
+  description = "Azure region for the Application Gateway"
 }
 
 variable "project_name" {
-  type = string
+  type        = string
+  description = "Short project name used as resource prefix"
 }
 
-variable "app_rg_name" {
-  type = string
-}
-
-variable "vnet_name" {
-  type = string
+variable "network_rg_name" {
+  type        = string
+  description = "Network resource group name (for reference only)"
 }
 
 variable "appgw_subnet_id" {
-  type = string
+  type        = string
+  description = "Subnet ID for the Application Gateway"
 }
 
 variable "appgw_pip_id" {
-  type = string
+  type        = string
+  description = "Public IP resource ID for the Application Gateway"
 }
 
 variable "frontend_domain" {
-  type = string
+  type        = string
+  description = "Public domain name for the HTTP listener host header"
 }
 
-variable "backend_domain" {
-  type = string
+variable "app_rg_name" {
+  type        = string
+  description = "Application resource group name where AppGW is deployed"
 }

@@ -1,30 +1,45 @@
-output "application_gateway_public_ip" {
+output "appgw_public_ip" {
+  description = "Point this IP in GoDaddy DNS for cognidispatch.g0ku1.online (A record)"
   value       = module.network.appgw_pip_address
-  description = "The Public IP address of the Application Gateway"
 }
 
-output "acr_login_server" {
-  value       = module.acr.acr_login_server
-  description = "Login server for the Azure Container Registry"
+output "nat_public_ip" {
+  description = "NAT Gateway public IP — add to Cosmos DB IP allowlist"
+  value       = module.network.nat_public_ip
 }
 
-output "aks_cluster_name" {
-  value       = module.aks.aks_name
-  description = "Name of the AKS cluster"
+output "bastion_public_ip" {
+  description = "Azure Bastion public IP (use Azure Portal to connect to VMs)"
+  value       = module.network.bastion_public_ip
 }
 
-output "resource_group_app" {
-  value       = module.acr.app_rg_name
-  description = "Resource group containing the AKS cluster and ACR"
-}
-
-output "resource_group_network" {
-  value       = module.network.network_rg_name
-  description = "Resource group containing the Virtual Network and App Gateway"
-}
-
-output "aks_kube_config" {
-  value       = module.aks.kube_config_raw
+output "cosmos_connection_string" {
+  description = "Cosmos DB MongoDB connection string — copy this into terraform.tfvars mongodb_uri after first apply"
+  value       = module.cosmos.cosmos_connection_string
   sensitive   = true
-  description = "Kubeconfig for the AKS cluster"
+}
+
+output "cosmos_account_name" {
+  description = "Cosmos DB account name"
+  value       = module.cosmos.cosmos_account_name
+}
+
+output "vmss_frontend_name" {
+  description = "Frontend VMSS name"
+  value       = module.vmss_frontend.vmss_name
+}
+
+output "vmss_backend_name" {
+  description = "Backend VMSS name"
+  value       = module.vmss_backend.vmss_name
+}
+
+output "network_rg" {
+  description = "Network resource group name"
+  value       = module.network.network_rg_name
+}
+
+output "app_rg" {
+  description = "Application resource group name"
+  value       = azurerm_resource_group.app.name
 }

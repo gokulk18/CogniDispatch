@@ -1,0 +1,80 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - git
+  - nginx
+  - curl
+
+write_files:
+  - path: /etc/nginx/sites-available/frontend
+    owner: root:root
+    permissions: '0644'
+    content: |
+      server {
+          listen 80;
+          server_name _;
+
+          location / {
+              proxy_pass http://127.0.0.1:3000;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+              proxy_connect_timeout 60s;
+              proxy_read_timeout 60s;
+          }
+      }
+
+  - path: /opt/cognidispatch/client/.env
+    owner: root:root
+    permissions: '0644'
+    content: |
+      NEXT_PUBLIC_SERVER_IP=http://${frontend_domain}
+
+  - path: /opt/setup-frontend.sh
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+
+      # Install Node.js 20
+      curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+      apt-get install -y nodejs
+
+      # Install pm2 globally
+      npm install -g pm2
+
+      # Clone repository
+      git clone ${git_repo_url} /opt/cognidispatch || true
+
+      # Write frontend env (ensure it exists after clone)
+      cat > /opt/cognidispatch/client/.env <<'ENVEOF'
+      NEXT_PUBLIC_SERVER_IP=http://${frontend_domain}
+      ENVEOF
+
+      # Install dependencies and build Next.js
+      cd /opt/cognidispatch/client
+      npm install
+      npm run build
+
+      # Start with pm2
+      cd /opt/cognidispatch/client
+      pm2 start npm --name frontend -- start
+
+      # Save pm2 process list
+      pm2 save
+
+      # Configure pm2 to start on boot
+      env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u root --hp /root | tail -1 | bash
+      systemctl enable pm2-root || true
+
+      # Configure nginx
+      ln -sf /etc/nginx/sites-available/frontend /etc/nginx/sites-enabled/frontend
+      rm -f /etc/nginx/sites-enabled/default
+      nginx -t && systemctl enable nginx && systemctl restart nginx
+
+runcmd:
+  - bash /opt/setup-frontend.sh >> /var/log/setup-frontend.log 2>&1

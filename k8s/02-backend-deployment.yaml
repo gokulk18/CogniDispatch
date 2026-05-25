@@ -24,7 +24,12 @@ spec:
     spec:
       containers:
         - name: cogni-backend
+<<<<<<< HEAD
           image: acrcogniutrawi.azurecr.io/cogni-backend:v1
+=======
+          # Replace acrcognidispatch with your ACR name
+          image: acrcogni74p5p7.azurecr.io/cogni-backend:latest
+>>>>>>> 095b5f2f866cdf641521791ef6311daf2a58a9ec
           imagePullPolicy: Always
           ports:
             - containerPort: 5000

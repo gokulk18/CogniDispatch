@@ -1,19 +1,19 @@
 variable "location" {
-  type = string
+  type        = string
+  description = "Azure region for all network resources"
 }
 
 variable "project_name" {
-  type = string
+  type        = string
+  description = "Short project name used as resource prefix"
 }
 
-variable "vnet_address_space" {
-  type = list(string)
+variable "hub_vnet_address_space" {
+  type        = list(string)
+  description = "Address space for the Hub VNet"
 }
 
-variable "appgw_subnet_prefix" {
-  type = string
-}
-
-variable "aks_subnet_prefix" {
-  type = string
+variable "spoke_vnet_address_space" {
+  type        = list(string)
+  description = "Address space for the Spoke VNet"
 }

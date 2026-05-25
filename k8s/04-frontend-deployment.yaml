@@ -26,7 +26,11 @@ spec:
         - name: cogni-frontend
           # Replace acrcognidispatch with your ACR name
           # IMPORTANT: This image must be built with --build-arg NEXT_PUBLIC_SERVER_IP=http://<APPGW_PUBLIC_IP>
+<<<<<<< HEAD
           image: acrcogniutrawi.azurecr.io/cogni-frontend:v1
+=======
+          image: acrcogni74p5p7.azurecr.io/cogni-frontend:latest
+>>>>>>> 095b5f2f866cdf641521791ef6311daf2a58a9ec
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

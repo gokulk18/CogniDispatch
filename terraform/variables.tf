@@ -1,45 +1,79 @@
 variable "location" {
   type        = string
-  description = "Azure region for deployment"
+  default     = "centralindia"
+  description = "Azure region for all resources"
 }
 
 variable "project_name" {
   type        = string
-  description = "Base project name (used for naming resources)"
-  default     = "cognidispatch"
+  default     = "cogni"
+  description = "Short project name used as prefix for all resources"
 }
 
-variable "vnet_address_space" {
+variable "hub_vnet_address_space" {
   type        = list(string)
-  description = "VNet address space"
+  default     = ["10.0.0.0/16"]
+  description = "Address space for the Hub VNet"
 }
 
-variable "appgw_subnet_prefix" {
+variable "spoke_vnet_address_space" {
+  type        = list(string)
+  default     = ["10.1.0.0/16"]
+  description = "Address space for the Spoke VNet"
+}
+
+variable "vm_ssh_public_key" {
   type        = string
-  description = "Address prefix for App Gateway subnet"
-}
-
-variable "aks_subnet_prefix" {
-  type        = string
-  description = "Address prefix for AKS subnet"
-}
-
-variable "aks_node_count" {
-  type        = number
-  description = "Number of nodes in the default AKS node pool"
-}
-
-variable "aks_node_size" {
-  type        = string
-  description = "VM size for AKS nodes"
+  default     = ""
+  description = "SSH public key for VMSS instances (optional, automatically generated if left blank)"
 }
 
 variable "frontend_domain" {
   type        = string
-  description = "Domain name for the frontend application"
+  default     = "cognidispatch.g0ku1.online"
+  description = "Public domain name for the application"
 }
 
-variable "backend_domain" {
+variable "git_repo_url" {
   type        = string
-  description = "Domain name for the backend API"
+  default     = "https://github.com/gokulk18/Cogni-Dispatch"
+  description = "GitHub repository URL for CogniDispatch"
+}
+
+variable "mongodb_uri" {
+  type        = string
+  sensitive   = true
+  description = "MongoDB/CosmosDB connection string"
+}
+
+variable "azure_openai_endpoint" {
+  type        = string
+  default     = ""
+  description = "Azure OpenAI endpoint URL"
+}
+
+variable "azure_openai_key" {
+  type        = string
+  sensitive   = true
+  default     = ""
+  description = "Azure OpenAI API key"
+}
+
+variable "azure_openai_deployment" {
+  type        = string
+  default     = "gpt-4o"
+  description = "Azure OpenAI deployment name"
+}
+
+variable "azure_speech_region" {
+  type        = string
+  default     = "centralindia"
+  description = "Azure Cognitive Services Speech region"
+}
+
+variable "azure_speech_key" {
+  type        = string
+  sensitive   = true
+  default     = ""
+  description = "Azure Cognitive Services Speech API key"
 }
