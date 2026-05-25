@@ -22,11 +22,7 @@ variable "spoke_vnet_address_space" {
   description = "Address space for the Spoke VNet"
 }
 
-variable "vm_ssh_public_key" {
-  type        = string
-  default     = ""
-  description = "SSH public key for VMSS instances (optional, automatically generated if left blank)"
-}
+
 
 variable "frontend_domain" {
   type        = string

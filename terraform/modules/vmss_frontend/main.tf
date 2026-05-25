@@ -5,15 +5,12 @@ resource "azurerm_linux_virtual_machine_scale_set" "frontend" {
   name                = "vmss-frontend-${var.project_name}"
   resource_group_name = var.app_rg_name
   location            = var.location
-  sku                 = "Standard_DS2_v5"
+  sku                 = "Standard_D2s_v5"
   instances           = 1
-  admin_username      = "adminuser"
-  upgrade_mode        = "Automatic"
-
-  admin_ssh_key {
-    username   = "adminuser"
-    public_key = var.ssh_public_key
-  }
+  admin_username                  = "azure"
+  admin_password                  = "Azureuser@123"
+  disable_password_authentication = false
+  upgrade_mode                    = "Automatic"
 
   custom_data = base64encode(templatefile("${path.module}/cloud-init-frontend.yaml", {
     git_repo_url    = var.git_repo_url

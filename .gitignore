@@ -12,6 +12,11 @@ coverage/
 .terraform.lock.hcl
 .terraform.tfstate.lock.info
 
-# OS
-.DS_Store
-Thumbs.db
+# Secrets and Credentials
+*.tfvars
+*.tfvars.json
+*.pfx
+*.pem
+*.key
+tfplan
+

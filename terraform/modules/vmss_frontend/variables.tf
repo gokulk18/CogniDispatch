@@ -20,7 +20,8 @@ variable "frontend_subnet_id" {
 
 variable "ssh_public_key" {
   type        = string
-  description = "SSH public key for VM access via Bastion"
+  default     = ""
+  description = "SSH public key for VM access via Bastion (optional)"
 }
 
 variable "git_repo_url" {

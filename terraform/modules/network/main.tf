@@ -83,6 +83,18 @@ resource "azurerm_virtual_network_peering" "hub_to_spoke" {
   allow_forwarded_traffic      = true
   allow_gateway_transit        = false
   use_remote_gateways          = false
+
+  depends_on = [
+    azurerm_subnet.bastion,
+    azurerm_subnet.appgw,
+    azurerm_subnet.frontend,
+    azurerm_subnet.backend,
+    azurerm_subnet_network_security_group_association.appgw,
+    azurerm_subnet_network_security_group_association.bastion,
+    azurerm_subnet_network_security_group_association.frontend,
+    azurerm_subnet_network_security_group_association.backend,
+    azurerm_bastion_host.main
+  ]
 }
 
 resource "azurerm_virtual_network_peering" "spoke_to_hub" {
@@ -95,6 +107,18 @@ resource "azurerm_virtual_network_peering" "spoke_to_hub" {
   allow_forwarded_traffic      = true
   allow_gateway_transit        = false
   use_remote_gateways          = false
+
+  depends_on = [
+    azurerm_subnet.bastion,
+    azurerm_subnet.appgw,
+    azurerm_subnet.frontend,
+    azurerm_subnet.backend,
+    azurerm_subnet_network_security_group_association.appgw,
+    azurerm_subnet_network_security_group_association.bastion,
+    azurerm_subnet_network_security_group_association.frontend,
+    azurerm_subnet_network_security_group_association.backend,
+    azurerm_bastion_host.main
+  ]
 }
 
 # ---------------------------------------------------------------------------

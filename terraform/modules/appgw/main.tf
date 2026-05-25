@@ -45,6 +45,11 @@ resource "azurerm_application_gateway" "main" {
     max_capacity = 2
   }
 
+  ssl_policy {
+    policy_type = "Predefined"
+    policy_name = "AppGwSslPolicy20220101"
+  }
+
   gateway_ip_configuration {
     name      = "appgw-ip-config"
     subnet_id = var.appgw_subnet_id
@@ -55,9 +60,28 @@ resource "azurerm_application_gateway" "main" {
     port = 80
   }
 
+  frontend_port {
+    name = "port-443"
+    port = 443
+  }
+
   frontend_ip_configuration {
     name                 = "appgw-frontend-ip"
     public_ip_address_id = var.appgw_pip_id
+  }
+
+  ssl_certificate {
+    name     = "cogni-ssl-cert"
+    data     = filebase64("${path.module}/../../cert.pfx")
+    password = "Azureuser@123"
+  }
+
+  redirect_configuration {
+    name                 = "http-to-https-redirect"
+    redirect_type        = "Permanent"
+    target_listener_name = "cogni-https-listener"
+    include_path         = true
+    include_query_string = true
   }
 
   # -------------------------------------------------------------------------
@@ -123,7 +147,7 @@ resource "azurerm_application_gateway" "main" {
   }
 
   # -------------------------------------------------------------------------
-  # HTTP Listener
+  # HTTP & HTTPS Listeners
   # -------------------------------------------------------------------------
   http_listener {
     name                           = "cogni-http-listener"
@@ -131,6 +155,15 @@ resource "azurerm_application_gateway" "main" {
     frontend_port_name             = "port-80"
     protocol                       = "Http"
     host_name                      = var.frontend_domain
+  }
+
+  http_listener {
+    name                           = "cogni-https-listener"
+    frontend_ip_configuration_name = "appgw-frontend-ip"
+    frontend_port_name             = "port-443"
+    protocol                       = "Https"
+    host_name                      = var.frontend_domain
+    ssl_certificate_name           = "cogni-ssl-cert"
   }
 
   # -------------------------------------------------------------------------
@@ -192,12 +225,20 @@ resource "azurerm_application_gateway" "main" {
   }
 
   # -------------------------------------------------------------------------
-  # Request Routing Rule
+  # Request Routing Rules (HTTP Redirect & HTTPS Routing)
   # -------------------------------------------------------------------------
   request_routing_rule {
-    name                       = "cogni-routing-rule"
+    name                        = "cogni-http-routing-rule"
+    rule_type                   = "Basic"
+    http_listener_name          = "cogni-http-listener"
+    redirect_configuration_name = "http-to-https-redirect"
+    priority                    = 110
+  }
+
+  request_routing_rule {
+    name                       = "cogni-https-routing-rule"
     rule_type                  = "PathBasedRouting"
-    http_listener_name         = "cogni-http-listener"
+    http_listener_name         = "cogni-https-listener"
     url_path_map_name          = "cogni-path-map"
     priority                   = 100
   }

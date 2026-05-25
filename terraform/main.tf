@@ -1,21 +1,3 @@
-# ---------------------------------------------------------------------------
-# Automated SSH Key Generation
-# ---------------------------------------------------------------------------
-resource "tls_private_key" "vm_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "local_file" "private_key" {
-  content         = tls_private_key.vm_key.private_key_pem
-  filename        = "${path.module}/cogni_vm_key.pem"
-  file_permission = "0600"
-}
-
-locals {
-  ssh_public_key = var.vm_ssh_public_key != "" ? var.vm_ssh_public_key : tls_private_key.vm_key.public_key_openssh
-}
-
 resource "azurerm_resource_group" "app" {
   name     = "rg-${var.project_name}-app"
   location = var.location
@@ -68,7 +50,7 @@ module "vmss_frontend" {
   project_name             = var.project_name
   app_rg_name              = azurerm_resource_group.app.name
   frontend_subnet_id       = module.network.frontend_subnet_id
-  ssh_public_key           = local.ssh_public_key
+  ssh_public_key           = ""
   git_repo_url             = var.git_repo_url
   frontend_domain          = var.frontend_domain
   appgw_frontend_pool_id   = module.appgw.frontend_backend_pool_id
@@ -83,7 +65,7 @@ module "vmss_backend" {
   project_name              = var.project_name
   app_rg_name               = azurerm_resource_group.app.name
   backend_subnet_id         = module.network.backend_subnet_id
-  ssh_public_key            = local.ssh_public_key
+  ssh_public_key            = ""
   git_repo_url              = var.git_repo_url
   mongodb_uri               = var.mongodb_uri
   azure_openai_endpoint     = var.azure_openai_endpoint

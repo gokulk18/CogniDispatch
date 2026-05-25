@@ -1,9 +1,9 @@
 output "vmss_name" {
-  value       = azurerm_linux_virtual_machine_scale_set.backend.name
-  description = "Backend VMSS name"
+  value       = azurerm_linux_virtual_machine.backend.name
+  description = "Backend VM name"
 }
 
 output "vmss_id" {
-  value       = azurerm_linux_virtual_machine_scale_set.backend.id
-  description = "Backend VMSS resource ID"
+  value       = azurerm_linux_virtual_machine.backend.id
+  description = "Backend VM resource ID"
 }

@@ -1,11 +1,38 @@
-resource "azurerm_linux_virtual_machine_scale_set" "backend" {
-  name                = "vmss-backend-${var.project_name}"
-  resource_group_name = var.app_rg_name
+# ---------------------------------------------------------------------------
+# Backend Network Interface
+# ---------------------------------------------------------------------------
+resource "azurerm_network_interface" "backend" {
+  name                = "nic-backend-${var.project_name}"
   location            = var.location
-  sku                 = "Standard_DS2_v5"
-  instances           = 1
-  admin_username      = "adminuser"
-  upgrade_mode        = "Automatic"
+  resource_group_name = var.app_rg_name
+
+  ip_configuration {
+    name                          = "ipconfig-backend"
+    subnet_id                     = var.backend_subnet_id
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  tags = {
+    project = var.project_name
+    role    = "backend"
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Standalone Backend VM
+# ---------------------------------------------------------------------------
+resource "azurerm_linux_virtual_machine" "backend" {
+  name                            = "vm-backend-${var.project_name}"
+  resource_group_name             = var.app_rg_name
+  location                        = var.location
+  size                            = "Standard_D2s_v5"
+  admin_username                  = "azure"
+  admin_password                  = "Azureuser@123"
+  disable_password_authentication = false
+
+  network_interface_ids = [
+    azurerm_network_interface.backend.id
+  ]
 
   custom_data = base64encode(templatefile("${path.module}/cloud-init-backend.yaml", {
     git_repo_url            = var.git_repo_url
@@ -16,11 +43,6 @@ resource "azurerm_linux_virtual_machine_scale_set" "backend" {
     azure_speech_region     = var.azure_speech_region
     azure_speech_key        = var.azure_speech_key
   }))
-
-  admin_ssh_key {
-    username   = "adminuser"
-    public_key = var.ssh_public_key
-  }
 
   source_image_reference {
     publisher = "Canonical"
@@ -34,79 +56,17 @@ resource "azurerm_linux_virtual_machine_scale_set" "backend" {
     storage_account_type = "Premium_LRS"
   }
 
-  network_interface {
-    name    = "nic-backend"
-    primary = true
-
-    ip_configuration {
-      name                                         = "ipconfig-backend"
-      primary                                      = true
-      subnet_id                                    = var.backend_subnet_id
-      application_gateway_backend_address_pool_ids = [var.appgw_backend_pool_id]
-    }
-  }
-
   tags = {
     project = var.project_name
     role    = "backend"
   }
 }
 
-resource "azurerm_monitor_autoscale_setting" "backend" {
-  name                = "autoscale-backend-${var.project_name}"
-  resource_group_name = var.app_rg_name
-  location            = var.location
-  target_resource_id  = azurerm_linux_virtual_machine_scale_set.backend.id
-
-  profile {
-    name = "default-profile"
-
-    capacity {
-      minimum = "1"
-      maximum = "2"
-      default = "1"
-    }
-
-    # Scale out when CPU > 70%
-    rule {
-      metric_trigger {
-        metric_name        = "Percentage CPU"
-        metric_resource_id = azurerm_linux_virtual_machine_scale_set.backend.id
-        time_grain         = "PT1M"
-        statistic          = "Average"
-        time_window        = "PT5M"
-        time_aggregation   = "Average"
-        operator           = "GreaterThan"
-        threshold          = 70
-      }
-
-      scale_action {
-        direction = "Increase"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT5M"
-      }
-    }
-
-    # Scale in when CPU < 30%
-    rule {
-      metric_trigger {
-        metric_name        = "Percentage CPU"
-        metric_resource_id = azurerm_linux_virtual_machine_scale_set.backend.id
-        time_grain         = "PT1M"
-        statistic          = "Average"
-        time_window        = "PT10M"
-        time_aggregation   = "Average"
-        operator           = "LessThan"
-        threshold          = 30
-      }
-
-      scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT10M"
-      }
-    }
-  }
+# ---------------------------------------------------------------------------
+# Application Gateway Backend Pool Association
+# ---------------------------------------------------------------------------
+resource "azurerm_network_interface_application_gateway_backend_address_pool_association" "backend" {
+  network_interface_id    = azurerm_network_interface.backend.id
+  ip_configuration_name   = "ipconfig-backend"
+  backend_address_pool_id = var.appgw_backend_pool_id
 }

@@ -27,11 +27,7 @@ write_files:
           }
       }
 
-  - path: /opt/cognidispatch/client/.env
-    owner: root:root
-    permissions: '0644'
-    content: |
-      NEXT_PUBLIC_SERVER_IP=http://${frontend_domain}
+
 
   - path: /opt/setup-frontend.sh
     owner: root:root
@@ -52,12 +48,12 @@ write_files:
 
       # Write frontend env (ensure it exists after clone)
       cat > /opt/cognidispatch/client/.env <<'ENVEOF'
-      NEXT_PUBLIC_SERVER_IP=http://${frontend_domain}
+      NEXT_PUBLIC_SERVER_IP=https://${frontend_domain}
       ENVEOF
 
       # Install dependencies and build Next.js
       cd /opt/cognidispatch/client
-      npm install
+      npm install --legacy-peer-deps
       npm run build
 
       # Start with pm2
