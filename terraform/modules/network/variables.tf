@@ -17,3 +17,8 @@ variable "spoke_vnet_address_space" {
   type        = list(string)
   description = "Address space for the Spoke VNet"
 }
+
+variable "resource_group_name" {
+  type        = string
+  description = "The single resource group name to deploy all resources in"
+}

@@ -1,23 +1,9 @@
 # ---------------------------------------------------------------------------
-# Resource Group
-# ---------------------------------------------------------------------------
-resource "azurerm_resource_group" "network" {
-  name     = "rg-${var.project_name}-network"
-  location = var.location
-
-  tags = {
-    project     = var.project_name
-    environment = "production"
-    managed_by  = "terraform"
-  }
-}
-
-# ---------------------------------------------------------------------------
 # Hub VNet + Subnets
 # ---------------------------------------------------------------------------
 resource "azurerm_virtual_network" "hub" {
   name                = "vnet-hub-${var.project_name}"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   address_space       = var.hub_vnet_address_space
 
@@ -29,14 +15,14 @@ resource "azurerm_virtual_network" "hub" {
 
 resource "azurerm_subnet" "bastion" {
   name                 = "AzureBastionSubnet"
-  resource_group_name  = azurerm_resource_group.network.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.hub.name
   address_prefixes     = ["10.0.0.0/26"]
 }
 
 resource "azurerm_subnet" "appgw" {
   name                 = "snet-appgw"
-  resource_group_name  = azurerm_resource_group.network.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.hub.name
   address_prefixes     = ["10.0.1.0/24"]
 }
@@ -46,7 +32,7 @@ resource "azurerm_subnet" "appgw" {
 # ---------------------------------------------------------------------------
 resource "azurerm_virtual_network" "spoke" {
   name                = "vnet-spoke-${var.project_name}"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   address_space       = var.spoke_vnet_address_space
 
@@ -58,16 +44,32 @@ resource "azurerm_virtual_network" "spoke" {
 
 resource "azurerm_subnet" "frontend" {
   name                 = "snet-frontend"
-  resource_group_name  = azurerm_resource_group.network.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.spoke.name
   address_prefixes     = ["10.1.1.0/24"]
+
+  delegation {
+    name = "appservice-frontend-delegation"
+    service_delegation {
+      name    = "Microsoft.Web/serverfarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 resource "azurerm_subnet" "backend" {
   name                 = "snet-backend"
-  resource_group_name  = azurerm_resource_group.network.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.spoke.name
   address_prefixes     = ["10.1.2.0/24"]
+
+  delegation {
+    name = "appservice-backend-delegation"
+    service_delegation {
+      name    = "Microsoft.Web/serverfarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
 }
 
 # ---------------------------------------------------------------------------
@@ -75,7 +77,7 @@ resource "azurerm_subnet" "backend" {
 # ---------------------------------------------------------------------------
 resource "azurerm_virtual_network_peering" "hub_to_spoke" {
   name                      = "peer-hub-to-spoke"
-  resource_group_name       = azurerm_resource_group.network.name
+  resource_group_name       = var.resource_group_name
   virtual_network_name      = azurerm_virtual_network.hub.name
   remote_virtual_network_id = azurerm_virtual_network.spoke.id
 
@@ -99,7 +101,7 @@ resource "azurerm_virtual_network_peering" "hub_to_spoke" {
 
 resource "azurerm_virtual_network_peering" "spoke_to_hub" {
   name                      = "peer-spoke-to-hub"
-  resource_group_name       = azurerm_resource_group.network.name
+  resource_group_name       = var.resource_group_name
   virtual_network_name      = azurerm_virtual_network.spoke.name
   remote_virtual_network_id = azurerm_virtual_network.hub.id
 
@@ -126,7 +128,7 @@ resource "azurerm_virtual_network_peering" "spoke_to_hub" {
 # ---------------------------------------------------------------------------
 resource "azurerm_public_ip" "bastion" {
   name                = "pip-bastion-${var.project_name}"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   allocation_method   = "Static"
   sku                 = "Standard"
@@ -138,7 +140,7 @@ resource "azurerm_public_ip" "bastion" {
 
 resource "azurerm_public_ip" "nat" {
   name                = "pip-natgw-${var.project_name}"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   allocation_method   = "Static"
   sku                 = "Standard"
@@ -150,7 +152,7 @@ resource "azurerm_public_ip" "nat" {
 
 resource "azurerm_public_ip" "appgw" {
   name                = "pip-appgw-${var.project_name}"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   allocation_method   = "Static"
   sku                 = "Standard"
@@ -166,7 +168,7 @@ resource "azurerm_public_ip" "appgw" {
 # ---------------------------------------------------------------------------
 resource "azurerm_bastion_host" "main" {
   name                = "bastion-${var.project_name}"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   sku                 = "Standard"
 
@@ -186,7 +188,7 @@ resource "azurerm_bastion_host" "main" {
 # ---------------------------------------------------------------------------
 resource "azurerm_nat_gateway" "main" {
   name                    = "natgw-${var.project_name}"
-  resource_group_name     = azurerm_resource_group.network.name
+  resource_group_name     = var.resource_group_name
   location                = var.location
   sku_name                = "Standard"
   idle_timeout_in_minutes = 10
@@ -216,7 +218,7 @@ resource "azurerm_subnet_nat_gateway_association" "backend" {
 # ---------------------------------------------------------------------------
 resource "azurerm_network_security_group" "appgw" {
   name                = "nsg-appgw"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
 
   security_rule {
@@ -294,7 +296,7 @@ resource "azurerm_subnet_network_security_group_association" "appgw" {
 # ---------------------------------------------------------------------------
 resource "azurerm_network_security_group" "bastion" {
   name                = "nsg-bastion"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
 
   # Inbound rules
@@ -410,7 +412,7 @@ resource "azurerm_subnet_network_security_group_association" "bastion" {
 # ---------------------------------------------------------------------------
 resource "azurerm_network_security_group" "frontend" {
   name                = "nsg-frontend"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
 
   security_rule {
@@ -464,7 +466,7 @@ resource "azurerm_subnet_network_security_group_association" "frontend" {
 # ---------------------------------------------------------------------------
 resource "azurerm_network_security_group" "backend" {
   name                = "nsg-backend"
-  resource_group_name = azurerm_resource_group.network.name
+  resource_group_name = var.resource_group_name
   location            = var.location
 
   security_rule {

@@ -87,31 +87,100 @@ resource "azurerm_application_gateway" "main" {
   # -------------------------------------------------------------------------
   # Backend Address Pools (empty — VMSS registers automatically)
   # -------------------------------------------------------------------------
+  # -------------------------------------------------------------------------
+  # Backend Address Pools (Pointing to FQDNs of App Services)
+  # -------------------------------------------------------------------------
   backend_address_pool {
-    name = "frontend-pool"
+    name  = "frontend-pool"
+    fqdns = [var.frontend_hostname]
   }
 
   backend_address_pool {
-    name = "backend-pool"
+    name  = "auth-pool"
+    fqdns = [var.auth_hostname]
+  }
+
+  backend_address_pool {
+    name  = "vendor-pool"
+    fqdns = [var.vendor_hostname]
+  }
+
+  backend_address_pool {
+    name  = "ai-pool"
+    fqdns = [var.ai_hostname]
+  }
+
+  backend_address_pool {
+    name  = "admin-pool"
+    fqdns = [var.admin_hostname]
+  }
+
+  backend_address_pool {
+    name  = "dispatch-pool"
+    fqdns = [var.dispatch_hostname]
   }
 
   # -------------------------------------------------------------------------
-  # Health Probe for backend services
+  # Health Probes for Backend Services
   # -------------------------------------------------------------------------
   probe {
-    name                                      = "backend-health-probe"
-    protocol                                  = "Http"
-    path                                      = "/api/health"
-    host                                      = "127.0.0.1"
+    name                                      = "frontend-health-probe"
+    protocol                                  = "Https"
+    path                                      = "/"
     interval                                  = 30
     timeout                                   = 30
     unhealthy_threshold                       = 3
-    pick_host_name_from_backend_http_settings = false
+    pick_host_name_from_backend_http_settings = true
+  }
 
-    match {
-      body        = ""
-      status_code = ["200-399"]
-    }
+  probe {
+    name                                      = "auth-health-probe"
+    protocol                                  = "Https"
+    path                                      = "/api/auth/health"
+    interval                                  = 30
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
+    pick_host_name_from_backend_http_settings = true
+  }
+
+  probe {
+    name                                      = "vendor-health-probe"
+    protocol                                  = "Https"
+    path                                      = "/api/vendors/health"
+    interval                                  = 30
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
+    pick_host_name_from_backend_http_settings = true
+  }
+
+  probe {
+    name                                      = "ai-health-probe"
+    protocol                                  = "Https"
+    path                                      = "/api/ai/health"
+    interval                                  = 30
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
+    pick_host_name_from_backend_http_settings = true
+  }
+
+  probe {
+    name                                      = "admin-health-probe"
+    protocol                                  = "Https"
+    path                                      = "/api/admin/health"
+    interval                                  = 30
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
+    pick_host_name_from_backend_http_settings = true
+  }
+
+  probe {
+    name                                      = "dispatch-health-probe"
+    protocol                                  = "Https"
+    path                                      = "/api/dispatches/health"
+    interval                                  = 30
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
+    pick_host_name_from_backend_http_settings = true
   }
 
   # -------------------------------------------------------------------------
@@ -120,30 +189,72 @@ resource "azurerm_application_gateway" "main" {
   backend_http_settings {
     name                                = "frontend-http-settings"
     cookie_based_affinity               = "Disabled"
-    port                                = 80
-    protocol                            = "Http"
+    port                                = 443
+    protocol                            = "Https"
     request_timeout                     = 60
-    pick_host_name_from_backend_address = false
+    pick_host_name_from_backend_address = true
+    probe_name                          = "frontend-health-probe"
   }
 
   backend_http_settings {
-    name                                = "backend-api-settings"
+    name                                = "auth-http-settings"
     cookie_based_affinity               = "Disabled"
-    port                                = 80
-    protocol                            = "Http"
+    port                                = 443
+    protocol                            = "Https"
+    request_timeout                     = 60
+    pick_host_name_from_backend_address = true
+    probe_name                          = "auth-health-probe"
+  }
+
+  backend_http_settings {
+    name                                = "vendor-http-settings"
+    cookie_based_affinity               = "Disabled"
+    port                                = 443
+    protocol                            = "Https"
+    request_timeout                     = 60
+    pick_host_name_from_backend_address = true
+    probe_name                          = "vendor-health-probe"
+  }
+
+  backend_http_settings {
+    name                                = "ai-http-settings"
+    cookie_based_affinity               = "Disabled"
+    port                                = 443
+    protocol                            = "Https"
     request_timeout                     = 120
-    pick_host_name_from_backend_address = false
-    probe_name                          = "backend-health-probe"
+    pick_host_name_from_backend_address = true
+    probe_name                          = "ai-health-probe"
   }
 
   backend_http_settings {
-    name                                = "backend-ws-settings"
+    name                                = "admin-http-settings"
     cookie_based_affinity               = "Disabled"
-    port                                = 80
-    protocol                            = "Http"
+    port                                = 443
+    protocol                            = "Https"
+    request_timeout                     = 60
+    pick_host_name_from_backend_address = true
+    probe_name                          = "admin-health-probe"
+  }
+
+  backend_http_settings {
+    name                                = "dispatch-http-settings"
+    cookie_based_affinity               = "Disabled"
+    port                                = 443
+    protocol                            = "Https"
+    request_timeout                     = 120
+    pick_host_name_from_backend_address = true
+    probe_name                          = "dispatch-health-probe"
+  }
+
+  backend_http_settings {
+    name                                = "dispatch-ws-settings"
+    cookie_based_affinity               = "Enabled"
+    affinity_cookie_name                = "ARRAffinity"
+    port                                = 443
+    protocol                            = "Https"
     request_timeout                     = 3600
-    pick_host_name_from_backend_address = false
-    probe_name                          = "backend-health-probe"
+    pick_host_name_from_backend_address = true
+    probe_name                          = "dispatch-health-probe"
   }
 
   # -------------------------------------------------------------------------
@@ -177,43 +288,43 @@ resource "azurerm_application_gateway" "main" {
     path_rule {
       name                       = "auth-rule"
       paths                      = ["/api/auth/*"]
-      backend_address_pool_name  = "backend-pool"
-      backend_http_settings_name = "backend-api-settings"
+      backend_address_pool_name  = "auth-pool"
+      backend_http_settings_name = "auth-http-settings"
     }
 
     path_rule {
       name                       = "vendors-rule"
       paths                      = ["/api/vendors/*"]
-      backend_address_pool_name  = "backend-pool"
-      backend_http_settings_name = "backend-api-settings"
+      backend_address_pool_name  = "vendor-pool"
+      backend_http_settings_name = "vendor-http-settings"
     }
 
     path_rule {
       name                       = "ai-rule"
       paths                      = ["/api/ai/*"]
-      backend_address_pool_name  = "backend-pool"
-      backend_http_settings_name = "backend-api-settings"
+      backend_address_pool_name  = "ai-pool"
+      backend_http_settings_name = "ai-http-settings"
     }
 
     path_rule {
       name                       = "admin-rule"
       paths                      = ["/api/admin/*"]
-      backend_address_pool_name  = "backend-pool"
-      backend_http_settings_name = "backend-api-settings"
+      backend_address_pool_name  = "admin-pool"
+      backend_http_settings_name = "admin-http-settings"
     }
 
     path_rule {
       name                       = "dispatches-rule"
       paths                      = ["/api/dispatches/*"]
-      backend_address_pool_name  = "backend-pool"
-      backend_http_settings_name = "backend-api-settings"
+      backend_address_pool_name  = "dispatch-pool"
+      backend_http_settings_name = "dispatch-http-settings"
     }
 
     path_rule {
       name                       = "socketio-rule"
       paths                      = ["/socket.io/*"]
-      backend_address_pool_name  = "backend-pool"
-      backend_http_settings_name = "backend-ws-settings"
+      backend_address_pool_name  = "dispatch-pool"
+      backend_http_settings_name = "dispatch-ws-settings"
     }
 
     path_rule {

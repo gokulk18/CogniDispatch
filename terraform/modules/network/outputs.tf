@@ -1,6 +1,6 @@
 output "network_rg_name" {
   description = "Network resource group name"
-  value       = azurerm_resource_group.network.name
+  value       = var.resource_group_name
 }
 
 output "hub_vnet_id" {

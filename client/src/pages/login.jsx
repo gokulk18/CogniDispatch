@@ -13,14 +13,57 @@ export default function LoginPortal() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Check if already logged in
   useEffect(() => {
+    // Check if we came from an Easy Auth redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const isEasyAuth = urlParams.get('easyauth') === 'true';
+
+    if (isEasyAuth) {
+      setLoading(true);
+      fetch('/.auth/me')
+        .then((res) => {
+          if (!res.ok) throw new Error("Easy Auth session not found");
+          return res.json();
+        })
+        .then((data) => {
+          if (data && data[0]) {
+            const user = data[0];
+            const emailClaim = user.user_claims.find(c => c.typ === "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" || c.typ === "preferred_username");
+            const nameClaim = user.user_claims.find(c => c.typ === "name" || c.typ === "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name");
+            
+            const userEmail = emailClaim ? emailClaim.val : user.user_id;
+            const userName = nameClaim ? nameClaim.val : userEmail.split('@')[0];
+            
+            const session = {
+              id: userEmail,
+              role: 'HOMEOWNER', // Default to HOMEOWNER for Entra ID logins
+              name: userName,
+              email: userEmail,
+              coords: { lat: 8.53633, lng: 76.88329 }
+            };
+            
+            localStorage.setItem('cogi_session', JSON.stringify(session));
+            redirectByRole('HOMEOWNER');
+          } else {
+            setErrorMsg("Microsoft Entra ID session is empty.");
+          }
+        })
+        .catch((err) => {
+          console.error("Easy Auth check failed:", err);
+          setErrorMsg("Failed to authenticate with Microsoft Entra ID.");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+      return;
+    }
+
     const session = localStorage.getItem('cogi_session');
     if (session) {
       const parsed = JSON.parse(session);
       redirectByRole(parsed.role);
     }
-  }, []);
+  }, [router.query]);
 
   const redirectByRole = (userRole) => {
     if (userRole === 'HOMEOWNER') router.push('/homeowner');
@@ -216,6 +259,15 @@ export default function LoginPortal() {
             >
               {loading ? 'Establishing Link...' : 'Connect to Operations'}
             </button>
+
+            {role !== 'ADMIN' && (
+              <a
+                href="/.auth/login/aad?post_login_redirect_uri=/login?easyauth=true"
+                className="w-full py-4 px-6 rounded-xl text-white font-extrabold uppercase tracking-widest text-[10px] text-center border border-slate-800 bg-[#0f172a]/60 hover:bg-[#1e293b]/70 hover:border-slate-700 transition duration-300 font-mono-data mt-2 shadow-sm flex items-center justify-center gap-3"
+              >
+                <span>🛡️</span> Sign in with Microsoft (Entra ID)
+              </a>
+            )}
           </form>
 
           {/* Registration Hook */}

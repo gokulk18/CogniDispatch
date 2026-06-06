@@ -32,3 +32,33 @@ variable "app_rg_name" {
   type        = string
   description = "Application resource group name where AppGW is deployed"
 }
+
+variable "frontend_hostname" {
+  type        = string
+  description = "Default hostname of the frontend app service"
+}
+
+variable "auth_hostname" {
+  type        = string
+  description = "Default hostname of the auth microservice"
+}
+
+variable "vendor_hostname" {
+  type        = string
+  description = "Default hostname of the vendor microservice"
+}
+
+variable "ai_hostname" {
+  type        = string
+  description = "Default hostname of the ai microservice"
+}
+
+variable "admin_hostname" {
+  type        = string
+  description = "Default hostname of the admin microservice"
+}
+
+variable "dispatch_hostname" {
+  type        = string
+  description = "Default hostname of the dispatch microservice"
+}

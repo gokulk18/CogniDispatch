@@ -24,14 +24,14 @@ output "cosmos_account_name" {
   value       = module.cosmos.cosmos_account_name
 }
 
-output "vmss_frontend_name" {
-  description = "Frontend VMSS name"
-  value       = module.vmss_frontend.vmss_name
+output "frontend_app_url" {
+  description = "Public URL of the Next.js Frontend App Service"
+  value       = module.app_services.frontend_hostname
 }
 
-output "vmss_backend_name" {
-  description = "Backend VMSS name"
-  value       = module.vmss_backend.vmss_name
+output "dispatch_service_url" {
+  description = "Default domain of the Dispatch socket service"
+  value       = module.app_services.dispatch_hostname
 }
 
 output "network_rg" {

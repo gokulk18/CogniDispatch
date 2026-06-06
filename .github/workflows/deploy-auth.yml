@@ -1,0 +1,36 @@
+name: Build and Deploy Auth Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/auth-service/**'
+      - 'services/shared/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'services/auth-service/package-lock.json'
+
+      - name: Build dependencies
+        run: |
+          cd services/shared && npm install
+          cd ../auth-service && npm install
+        
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'cognidispatch-auth'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_AUTH_PUBLISH_PROFILE }}
+          package: './services'
