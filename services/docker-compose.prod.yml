@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  auth-service:
+    image: acrcogniutrawi.azurecr.io/cogni-auth-service:v1
+    restart: always
+    ports:
+      - "5001:5001"
+
+  vendor-service:
+    image: acrcogniutrawi.azurecr.io/cogni-vendor-service:v1
+    restart: always
+    ports:
+      - "5002:5002"
+
+  ai-service:
+    image: acrcogniutrawi.azurecr.io/cogni-ai-service:v1
+    restart: always
+    ports:
+      - "5003:5003"
+
+  admin-service:
+    image: acrcogniutrawi.azurecr.io/cogni-admin-service:v1
+    restart: always
+    ports:
+      - "5004:5004"
+
+  dispatch-service:
+    image: acrcogniutrawi.azurecr.io/cogni-dispatch-service:v1
+    restart: always
+    ports:
+      - "5005:5005"
+
+  nginx:
+    image: acrcogniutrawi.azurecr.io/cogni-nginx:v1
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - auth-service
+      - vendor-service
+      - ai-service
+      - admin-service
+      - dispatch-service

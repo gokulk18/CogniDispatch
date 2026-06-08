@@ -1,45 +1,58 @@
-output "appgw_public_ip" {
-  description = "Point this IP in GoDaddy DNS for cognidispatch.g0ku1.online (A record)"
-  value       = module.network.appgw_pip_address
+# =============================================================
+# Root Outputs
+# =============================================================
+
+output "resource_group_name" {
+  description = "The resource group all resources are deployed into."
+  value       = azurerm_resource_group.main.name
 }
 
-output "nat_public_ip" {
-  description = "NAT Gateway public IP — add to Cosmos DB IP allowlist"
-  value       = module.network.nat_public_ip
+output "application_gateway_public_ip" {
+  description = "Public IP address of the Application Gateway (point DNS here)."
+  value       = module.app_gateway.public_ip_address
 }
 
-output "bastion_public_ip" {
-  description = "Azure Bastion public IP (use Azure Portal to connect to VMs)"
-  value       = module.network.bastion_public_ip
+output "app_gateway_fqdn" {
+  description = "Azure-provided FQDN of the App Gateway public IP."
+  value       = module.app_gateway.public_ip_fqdn
 }
 
-output "cosmos_connection_string" {
-  description = "Cosmos DB MongoDB connection string — copy this into terraform.tfvars mongodb_uri after first apply"
-  value       = module.cosmos.cosmos_connection_string
-  sensitive   = true
+output "frontend_url" {
+  description = "Direct URL of the frontend App Service (bypasses App Gateway)."
+  value       = "https://${module.app_service.frontend_fqdn}"
 }
 
-output "cosmos_account_name" {
-  description = "Cosmos DB account name"
-  value       = module.cosmos.cosmos_account_name
+output "backend_url" {
+  description = "Direct URL of the backend App Service (bypasses App Gateway)."
+  value       = "https://${module.app_service.backend_fqdn}"
 }
 
-output "frontend_app_url" {
-  description = "Public URL of the Next.js Frontend App Service"
-  value       = module.app_services.frontend_hostname
+output "acr_login_server" {
+  description = "ACR login server for docker push/pull commands."
+  value       = module.acr.login_server
 }
 
-output "dispatch_service_url" {
-  description = "Default domain of the Dispatch socket service"
-  value       = module.app_services.dispatch_hostname
+output "cosmos_endpoint" {
+  description = "Cosmos DB document endpoint."
+  value       = module.cosmos_db.endpoint
 }
 
-output "network_rg" {
-  description = "Network resource group name"
-  value       = module.network.network_rg_name
+output "key_vault_uri" {
+  description = "Key Vault URI for retrieving secrets."
+  value       = module.key_vault.vault_uri
 }
 
-output "app_rg" {
-  description = "Application resource group name"
-  value       = azurerm_resource_group.app.name
+output "backend_managed_identity_principal_id" {
+  description = "Principal ID of the Backend App Service Managed Identity."
+  value       = module.app_service.backend_principal_id
+}
+
+output "workspace" {
+  description = "Current Terraform workspace (environment)."
+  value       = terraform.workspace
+}
+
+output "app_service_sku" {
+  description = "App Service Plan SKU in use for this workspace."
+  value       = local.app_service_sku
 }

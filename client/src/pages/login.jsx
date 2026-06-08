@@ -36,14 +36,14 @@ export default function LoginPortal() {
             
             const session = {
               id: userEmail,
-              role: 'HOMEOWNER', // Default to HOMEOWNER for Entra ID logins
+              role: 'ADMIN', // Set to ADMIN for Entra ID logins
               name: userName,
               email: userEmail,
               coords: { lat: 8.53633, lng: 76.88329 }
             };
             
             localStorage.setItem('cogi_session', JSON.stringify(session));
-            redirectByRole('HOMEOWNER');
+            redirectByRole('ADMIN');
           } else {
             setErrorMsg("Microsoft Entra ID session is empty.");
           }
@@ -185,87 +185,91 @@ export default function LoginPortal() {
           {/* Login Form */}
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             
-            {/* Conditional Input based on role */}
-            {role === 'HOMEOWNER' || role === 'ADMIN' ? (
-              <div className="flex flex-col gap-2">
-                <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
-                  {role === 'ADMIN' ? 'Command Email Address' : 'Account Email Address'}
-                </label>
-                <div className="relative flex items-center">
-                  <span className="absolute left-4 text-sm text-slate-500">✉️</span>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={role === 'ADMIN' ? 'admin@cognidispatch.com' : 'client@cognidispatch.com'}
-                    className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
-                  Specialist Phone Identifier
-                </label>
-                <div className="relative flex items-center">
-                  <span className="absolute left-4 text-sm text-slate-500">📞</span>
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="e.g., +91 98765 43210"
-                    className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="flex flex-col gap-2">
-              <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
-                Secure Passcode
-              </label>
-              <div className="relative flex items-center">
-                <span className="absolute left-4 text-sm text-slate-500">🔑</span>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
-                />
-              </div>
-            </div>
-
-            {errorMsg && (
-              <div className="text-[10px] text-rose-400 bg-rose-950/10 border border-rose-900/30 rounded-xl p-3 font-mono-data leading-relaxed flex gap-2 items-start">
-                <span>⚠️</span>
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-4 px-6 rounded-xl text-white font-extrabold uppercase tracking-widest text-[10px] transition duration-300 disabled:opacity-50 font-mono-data mt-2 shadow-md ${
-                role === 'HOMEOWNER' 
-                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 shadow-emerald-950/20' 
-                  : role === 'TECHNICIAN' 
-                    ? 'bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-amber-950/20' 
-                    : 'bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 shadow-cyan-950/20'
-              }`}
-            >
-              {loading ? 'Establishing Link...' : 'Connect to Operations'}
-            </button>
-
+            {/* Only show password login for non-admins */}
             {role !== 'ADMIN' && (
+              <>
+                {/* Conditional Input based on role */}
+                {role === 'HOMEOWNER' ? (
+                  <div className="flex flex-col gap-2">
+                    <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
+                      Account Email Address
+                    </label>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-4 text-sm text-slate-500">✉️</span>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="client@cognidispatch.com"
+                        className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
+                      Specialist Phone Identifier
+                    </label>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-4 text-sm text-slate-500">📞</span>
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="e.g., +91 98765 43210"
+                        className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-2">
+                  <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
+                    Secure Passcode
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-4 text-sm text-slate-500">🔑</span>
+                    <input
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
+                    />
+                  </div>
+                </div>
+
+                {errorMsg && (
+                  <div className="text-[10px] text-rose-400 bg-rose-950/10 border border-rose-900/30 rounded-xl p-3 font-mono-data leading-relaxed flex gap-2 items-start">
+                    <span>⚠️</span>
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full py-4 px-6 rounded-xl text-white font-extrabold uppercase tracking-widest text-[10px] transition duration-300 disabled:opacity-50 font-mono-data mt-2 shadow-md ${
+                    role === 'HOMEOWNER' 
+                      ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 shadow-emerald-950/20' 
+                      : 'bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-amber-950/20'
+                  }`}
+                >
+                  {loading ? 'Establishing Link...' : 'Connect to Operations'}
+                </button>
+              </>
+            )}
+
+            {/* Only show Entra ID button for Admins */}
+            {role === 'ADMIN' && (
               <a
                 href="/.auth/login/aad?post_login_redirect_uri=/login?easyauth=true"
-                className="w-full py-4 px-6 rounded-xl text-white font-extrabold uppercase tracking-widest text-[10px] text-center border border-slate-800 bg-[#0f172a]/60 hover:bg-[#1e293b]/70 hover:border-slate-700 transition duration-300 font-mono-data mt-2 shadow-sm flex items-center justify-center gap-3"
+                className="w-full py-4 px-6 rounded-xl text-white font-extrabold uppercase tracking-widest text-[10px] text-center border border-cyan-900 bg-cyan-950/40 hover:bg-cyan-900/60 hover:border-cyan-500 transition duration-300 font-mono-data mt-2 shadow-[0_0_15px_rgba(6,182,212,0.15)] flex items-center justify-center gap-3"
               >
-                <span>🛡️</span> Sign in with Microsoft (Entra ID)
+                <span className="text-lg">🏢</span> Secure Microsoft SSO Login
               </a>
             )}
           </form>
@@ -282,13 +286,6 @@ export default function LoginPortal() {
               >
                 Create Account
               </span>
-            </div>
-          )}
-
-          {role === 'ADMIN' && (
-            <div className="text-center text-[9px] text-slate-500 font-mono-data select-none border-t border-slate-800/80 pt-4 leading-relaxed">
-              * Default administrative session key:<br />
-              <span className="text-slate-400 font-semibold font-mono-data">admin@cognidispatch.com / admin123</span>
             </div>
           )}
 

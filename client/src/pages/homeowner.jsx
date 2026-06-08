@@ -52,6 +52,7 @@ export default function HomeownerDashboard() {
   const [cardCvv, setCardCvv] = useState('123');
 
   const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'http://localhost:5000';
+  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_IP || serverUrl;
 
   // 1. Session Verification
   useEffect(() => {
@@ -171,7 +172,7 @@ export default function HomeownerDashboard() {
         triggerFallback(`System is unable to reach the main emergency servers. Check local gateway connectivity.`);
       });
 
-    const socketInstance = io(serverUrl, {
+    const socketInstance = io(socketUrl, {
       reconnectionAttempts: 5,
       timeout: 10000
     });

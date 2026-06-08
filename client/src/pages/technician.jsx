@@ -36,6 +36,7 @@ export default function TechnicianDashboard() {
   const [showOtpGate, setShowOtpGate] = useState(false);
 
   const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'http://localhost:5000';
+  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_IP || serverUrl;
 
   // 1. Session Verification & Profile Fetch
   useEffect(() => {
@@ -81,7 +82,7 @@ export default function TechnicianDashboard() {
         setBackendOnline(false);
       });
 
-    const socketInstance = io(serverUrl, {
+    const socketInstance = io(socketUrl, {
       reconnectionAttempts: 5,
       timeout: 10000
     });

@@ -1,70 +1,107 @@
-resource "azurerm_resource_group" "app" {
-  name     = "rg-${var.project_name}-app"
+# =============================================================
+# Root main.tf — Orchestrates all modules
+# =============================================================
+
+# ── Resource Group ───────────────────────────────────────────
+resource "azurerm_resource_group" "main" {
+  name     = var.resource_group_name
   location = var.location
-
-  tags = {
-    project     = var.project_name
-    environment = "production"
-    managed_by  = "terraform"
-  }
+  tags     = local.common_tags
 }
 
-module "network" {
-  source = "./modules/network"
+# ── Networking Module ────────────────────────────────────────
+module "networking" {
+  source = "./modules/networking"
 
-  location                 = var.location
-  project_name             = var.project_name
-  hub_vnet_address_space   = var.hub_vnet_address_space
-  spoke_vnet_address_space = var.spoke_vnet_address_space
-  resource_group_name      = azurerm_resource_group.app.name
+  resource_group_name    = azurerm_resource_group.main.name
+  location               = var.location
+  vnet_name              = var.vnet_name
+  vnet_address_space     = var.vnet_address_space
+  subnet_appgw_cidr      = var.subnet_appgw_cidr
+  subnet_frontend_cidr   = var.subnet_frontend_cidr
+  subnet_backend_cidr    = var.subnet_backend_cidr
+  subnet_private_ep_cidr = var.subnet_private_ep_cidr
+  tags                   = local.common_tags
 }
 
-module "cosmos" {
-  source = "./modules/cosmos"
+# ── ACR Module ───────────────────────────────────────────────
+module "acr" {
+  source = "./modules/acr"
 
-  location      = var.location
-  project_name  = var.project_name
-  app_rg_name   = azurerm_resource_group.app.name
-  nat_public_ip = module.network.nat_public_ip
-
-  depends_on = [module.network]
+  resource_group_name = azurerm_resource_group.main.name
+  location            = var.location
+  acr_name            = var.acr_name
+  acr_sku             = var.acr_sku
+  tags                = local.common_tags
 }
 
-module "app_services" {
-  source = "./modules/app_services"
+# ── Cosmos DB Module ─────────────────────────────────────────
+module "cosmos_db" {
+  source = "./modules/cosmos_db"
 
-  location                = var.location
-  project_name            = var.project_name
-  resource_group_name     = azurerm_resource_group.app.name
-  frontend_subnet_id      = module.network.frontend_subnet_id
-  backend_subnet_id       = module.network.backend_subnet_id
-  appgw_subnet_id         = module.network.appgw_subnet_id
-  mongodb_uri             = var.mongodb_uri
-  azure_openai_endpoint   = var.azure_openai_endpoint
-  azure_openai_key        = var.azure_openai_key
-  azure_openai_deployment = var.azure_openai_deployment
-  azure_speech_region     = var.azure_speech_region
-  azure_speech_key        = var.azure_speech_key
-
-  depends_on = [module.network]
+  resource_group_name        = azurerm_resource_group.main.name
+  location                   = var.location
+  cosmos_account_name        = var.cosmos_account_name
+  cosmos_database_name       = var.cosmos_database_name
+  private_endpoint_subnet_id = module.networking.private_ep_subnet_id
+  cosmos_private_dns_zone_id = module.networking.cosmos_private_dns_zone_id
+  vnet_id                    = module.networking.vnet_id
+  cosmos_max_throughput      = local.cosmos_max_throughput
+  tags                       = local.common_tags
 }
 
-module "appgw" {
-  source = "./modules/appgw"
+# ── Key Vault Module ─────────────────────────────────────────
+module "key_vault" {
+  source = "./modules/key_vault"
 
-  location          = var.location
-  project_name      = var.project_name
-  network_rg_name   = module.network.network_rg_name
-  appgw_subnet_id   = module.network.appgw_subnet_id
-  appgw_pip_id      = module.network.appgw_pip_id
-  frontend_domain   = var.frontend_domain
-  app_rg_name       = azurerm_resource_group.app.name
-  frontend_hostname = module.app_services.frontend_hostname
-  auth_hostname     = module.app_services.auth_hostname
-  vendor_hostname   = module.app_services.vendor_hostname
-  ai_hostname       = module.app_services.ai_hostname
-  admin_hostname    = module.app_services.admin_hostname
-  dispatch_hostname = module.app_services.dispatch_hostname
+  resource_group_name          = azurerm_resource_group.main.name
+  location                     = var.location
+  key_vault_name               = var.key_vault_name
+  tenant_id                    = var.tenant_id
+  private_endpoint_subnet_id   = module.networking.private_ep_subnet_id
+  keyvault_private_dns_zone_id = module.networking.keyvault_private_dns_zone_id
+  vnet_id                      = module.networking.vnet_id
+  mongodb_uri                  = module.cosmos_db.primary_mongodb_connection_string
+  backend_app_principal_id     = module.app_service.backend_principal_id
+  tags                         = local.common_tags
 
-  depends_on = [module.network, module.app_services]
+  depends_on = [module.cosmos_db, module.app_service]
+}
+
+# ── App Service Module ───────────────────────────────────────
+module "app_service" {
+  source = "./modules/app_service"
+
+  resource_group_name  = azurerm_resource_group.main.name
+  location             = var.location
+  app_plan_name        = var.app_plan_name
+  app_service_sku      = local.app_service_sku
+  frontend_app_name    = var.frontend_app_name
+  backend_app_name     = var.backend_app_name
+  frontend_subnet_id   = module.networking.frontend_subnet_id
+  backend_subnet_id    = module.networking.backend_subnet_id
+  acr_login_server     = module.acr.login_server
+  acr_id               = module.acr.acr_id
+  docker_compose_file  = var.docker_compose_file
+  frontend_image       = var.frontend_image
+  mongodb_uri          = module.cosmos_db.primary_mongodb_connection_string
+  tags                 = local.common_tags
+}
+
+# ── Application Gateway Module ───────────────────────────────
+module "app_gateway" {
+  source = "./modules/app_gateway"
+
+  resource_group_name    = azurerm_resource_group.main.name
+  location               = var.location
+  appgw_name             = var.appgw_name
+  appgw_public_ip_name   = var.appgw_public_ip_name
+  appgw_subnet_id        = module.networking.appgw_subnet_id
+  frontend_fqdn          = module.app_service.frontend_fqdn
+  backend_fqdn           = module.app_service.backend_fqdn
+  appgw_capacity         = local.appgw_capacity
+  waf_mode               = local.waf_mode
+  tags                   = local.common_tags
+
+  depends_on = [module.app_service]
 }
