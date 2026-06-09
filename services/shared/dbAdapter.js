@@ -103,7 +103,7 @@ if (isCosmosDB) {
 mongoose.connect(MONGODB_URI, mongooseOptions)
   .then(() => console.log('[CogniDispatch DB] ✅ MongoDB connected:', MONGODB_URI.split('@').pop()))
   .catch(err => {
-    console.error('[CogniDispatch DB] ❌ MongoDB connection failed:', err.message);
+    console.error('[CogniDispatch DB] ❌ MongoDB connection failed:', err.stack);
     process.exit(1);
   });
 

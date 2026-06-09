@@ -2,40 +2,51 @@ version: '3.8'
 
 services:
   auth-service:
-    image: acrcogniutrawi.azurecr.io/cogni-auth-service:v1
-    restart: always
+    image: acrcogniutrawi.azurecr.io/services-auth-service:latest
     ports:
       - "5001:5001"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
 
   vendor-service:
-    image: acrcogniutrawi.azurecr.io/cogni-vendor-service:v1
-    restart: always
+    image: acrcogniutrawi.azurecr.io/services-vendor-service:latest
     ports:
       - "5002:5002"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
 
   ai-service:
-    image: acrcogniutrawi.azurecr.io/cogni-ai-service:v1
-    restart: always
+    image: acrcogniutrawi.azurecr.io/services-ai-service:latest
     ports:
       - "5003:5003"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - AZURE_OPENAI_KEY=${AZURE_OPENAI_KEY}
+      - AZURE_OPENAI_DEPLOYMENT=${AZURE_OPENAI_DEPLOYMENT}
+      - AZURE_SPEECH_REGION=${AZURE_SPEECH_REGION}
+      - AZURE_SPEECH_KEY=${AZURE_SPEECH_KEY}
 
   admin-service:
-    image: acrcogniutrawi.azurecr.io/cogni-admin-service:v1
-    restart: always
+    image: acrcogniutrawi.azurecr.io/services-admin-service:latest
     ports:
       - "5004:5004"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
 
   dispatch-service:
-    image: acrcogniutrawi.azurecr.io/cogni-dispatch-service:v1
-    restart: always
+    image: acrcogniutrawi.azurecr.io/services-dispatch-service:latest
     ports:
       - "5005:5005"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
 
   nginx:
-    image: acrcogniutrawi.azurecr.io/cogni-nginx:v1
-    restart: always
+    image: nginx:alpine
     ports:
-      - "5000:5000"
+      - "80:80"
+    volumes:
+      - ${WEBAPP_STORAGE_HOME}/site/wwwroot/nginx-prod.conf:/etc/nginx/nginx.conf
     depends_on:
       - auth-service
       - vendor-service
