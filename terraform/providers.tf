@@ -1,28 +1,32 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.100"
+# =============================================================
+# providers.tf — Azure Provider Configuration
+# Authentication: Service Principal via environment variables:
+#   ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_SUBSCRIPTION_ID, ARM_TENANT_ID
+#   (or use OIDC / Managed Identity in CI/CD)
+# =============================================================
+
+provider "azurerm" {
+  features {
+    key_vault {
+      purge_soft_delete_on_destroy    = false
+      recover_soft_deleted_key_vaults = true
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.0"
+    resource_group {
+      prevent_deletion_if_contains_resources = false
     }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~> 4.0"
+    virtual_machine {
+      delete_os_disk_on_deletion     = true
+      graceful_shutdown              = false
+      skip_shutdown_and_force_delete = false
     }
-    local = {
-      source  = "hashicorp/local"
-      version = "~> 2.0"
+    app_configuration {
+      purge_soft_delete_on_destroy = true
     }
   }
 }
 
-provider "azurerm" {
-  features {
-    resource_group {
-      prevent_deletion_if_contains_resources = false
-    }
-  }
-}
+provider "azuread" {}
+
+provider "random" {}
+
+provider "null" {}

@@ -1,21 +1,29 @@
 # =============================================================
 # Module: app_gateway — Application Gateway WAF v2
-# Path-based routing: /api/* + /socket.io/* → Backend
-#                     Default                → Frontend
+#
+# Routing strategy:
+#   /api/*      → Backend App Service (microservices via nginx)
+#   /socket.io/* → Backend App Service (Socket.IO WebSockets)
+#   default     → Frontend App Service (Next.js)
+#
+# Health probe strategy:
+#   Frontend: GET / → expects 200-399
+#   Backend:  GET /api/health → expects 200-399
+#             (nginx gateway in backend compose serves this)
 # =============================================================
 
-# ── Public IP ────────────────────────────────────────────────
+# ── Public IP ─────────────────────────────────────────────────
 resource "azurerm_public_ip" "appgw" {
   name                = var.appgw_public_ip_name
   location            = var.location
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
-  zones               = [] # No AZ for japanwest (not AZ-supported)
+  zones               = [] # japanwest does not support AZs
   tags                = var.tags
 }
 
-# ── Application Gateway ───────────────────────────────────────
+# ── Application Gateway WAF v2 ────────────────────────────────
 resource "azurerm_application_gateway" "main" {
   name                = var.appgw_name
   location            = var.location
@@ -40,7 +48,7 @@ resource "azurerm_application_gateway" "main" {
     subnet_id = var.appgw_subnet_id
   }
 
-  # ── Frontend IP ─────────────────────────────────────────────
+  # ── Frontend IPs ─────────────────────────────────────────────
   frontend_ip_configuration {
     name                 = "appgw-frontend-ip"
     public_ip_address_id = azurerm_public_ip.appgw.id
@@ -56,7 +64,7 @@ resource "azurerm_application_gateway" "main" {
     port = 443
   }
 
-  # ── Backend Address Pools ────────────────────────────────────
+  # ── Backend Pools ─────────────────────────────────────────────
   backend_address_pool {
     name  = "pool-frontend"
     fqdns = [var.frontend_fqdn]
@@ -67,7 +75,7 @@ resource "azurerm_application_gateway" "main" {
     fqdns = [var.backend_fqdn]
   }
 
-  # ── HTTP Settings — Frontend ─────────────────────────────────
+  # ── HTTP Settings ─────────────────────────────────────────────
   backend_http_settings {
     name                                = "http-settings-frontend"
     cookie_based_affinity               = "Disabled"
@@ -78,18 +86,23 @@ resource "azurerm_application_gateway" "main" {
     probe_name                          = "probe-frontend"
   }
 
-  # ── HTTP Settings — Backend ──────────────────────────────────
   backend_http_settings {
     name                                = "http-settings-backend"
     cookie_based_affinity               = "Disabled"
     port                                = 443
     protocol                            = "Https"
-    request_timeout                     = 60
+    request_timeout                     = 120 # Longer timeout for API calls
     pick_host_name_from_backend_address = true
     probe_name                          = "probe-backend"
+
+    # Connection draining — allows in-flight requests to complete during deployments
+    connection_draining {
+      enabled           = true
+      drain_timeout_sec = 30
+    }
   }
 
-  # ── Health Probes ────────────────────────────────────────────
+  # ── Health Probes ─────────────────────────────────────────────
   probe {
     name                                      = "probe-frontend"
     protocol                                  = "Https"
@@ -118,7 +131,7 @@ resource "azurerm_application_gateway" "main" {
     }
   }
 
-  # ── HTTP Listener (port 80) ──────────────────────────────────
+  # ── HTTP Listener (port 80) ───────────────────────────────────
   http_listener {
     name                           = "listener-http"
     frontend_ip_configuration_name = "appgw-frontend-ip"
@@ -126,16 +139,16 @@ resource "azurerm_application_gateway" "main" {
     protocol                       = "Http"
   }
 
-  # ── Request Routing Rule — HTTP (redirect or route) ──────────
+  # ── Routing Rule — HTTP ───────────────────────────────────────
   request_routing_rule {
-    name                       = "rule-http"
-    rule_type                  = "PathBasedRouting"
-    http_listener_name         = "listener-http"
-    url_path_map_name          = "pathmap-main"
-    priority                   = 100
+    name               = "rule-http"
+    rule_type          = "PathBasedRouting"
+    http_listener_name = "listener-http"
+    url_path_map_name  = "pathmap-main"
+    priority           = 100
   }
 
-  # ── URL Path Map ─────────────────────────────────────────────
+  # ── URL Path Map ──────────────────────────────────────────────
   url_path_map {
     name                               = "pathmap-main"
     default_backend_address_pool_name  = "pool-frontend"
@@ -157,7 +170,11 @@ resource "azurerm_application_gateway" "main" {
   }
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = [
+      tags,
+      # CI/CD may update backend pool FQDNs on blue/green deployments
+      backend_address_pool,
+    ]
   }
 
   depends_on = [azurerm_public_ip.appgw]

@@ -1,7 +1,20 @@
-output "vault_id"  { value = azurerm_key_vault.main.id }
-output "vault_uri" { value = azurerm_key_vault.main.vault_uri }
+output "vault_id" {
+  description = "Key Vault resource ID."
+  value       = azurerm_key_vault.main.id
+}
+
+output "vault_uri" {
+  description = "Key Vault URI (e.g. https://kv-cognidispatch.vault.azure.net/)."
+  value       = azurerm_key_vault.main.vault_uri
+}
+
+output "vault_name" {
+  description = "Key Vault name."
+  value       = azurerm_key_vault.main.name
+}
 
 output "mongodb_uri_secret_id" {
-  description = "Key Vault secret URI for MONGODB-URI (use in App Service appsettings)."
-  value       = "${azurerm_key_vault.main.vault_uri}secrets/MONGODB-URI/"
+  description = "Key Vault Secret ID for MONGODB-URI (versioned URI)."
+  value       = azurerm_key_vault_secret.mongodb_uri.id
+  sensitive   = true
 }

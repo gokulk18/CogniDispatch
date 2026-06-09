@@ -1,22 +1,51 @@
 node_modules/
 .env
+.env.local
+.env.*.local
 .next/
 dist/
 build/
 coverage/
 
-# Terraform
+# ── Terraform ──────────────────────────────────────────────────
 .terraform/
 *.tfstate
-*.tfstate.backup
+*.tfstate.*
+*.tfstate.lock.info
 .terraform.lock.hcl
-.terraform.tfstate.lock.info
 
-# Secrets and Credentials
-*.tfvars
-*.tfvars.json
+# Terraform plan files (contain secrets)
+tfplan
+*.bin
+tfplan-*.bin
+
+# Sensitive tfvars (only base terraform.tfvars is tracked)
+# envs/ files ARE tracked (no secrets — tenant_id via env var)
+# DO NOT commit: overrides.tfvars, local.auto.tfvars
+*.auto.tfvars
+overrides.tfvars
+
+# Terraform crash log
+crash.log
+crash.*.log
+
+# ── Secrets & Certificates ────────────────────────────────────
 *.pfx
 *.pem
 *.key
-tfplan
+*.p12
+*.cer
+
+# ── OS & IDE ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+*.swp
+*.swo
+
+# ── Build artifacts ───────────────────────────────────────────
+backend_logs*/
+
+# ── Local settings (may contain secrets) ─────────────────────
+settings.json
 

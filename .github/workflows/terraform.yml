@@ -1,0 +1,337 @@
+name: "Terraform — CogniDispatch Infrastructure"
+
+on:
+  push:
+    branches:
+      - main        # Auto-deploy to prod on main branch merge
+      - develop     # Auto-plan for dev on develop push
+    paths:
+      - "terraform/**"
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - "terraform/**"
+  workflow_dispatch:
+    inputs:
+      workspace:
+        description: "Target workspace"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - prod
+      action:
+        description: "Terraform action"
+        required: true
+        default: "plan"
+        type: choice
+        options:
+          - plan
+          - apply
+          - drift-check
+
+env:
+  TF_VERSION: "1.7.5"
+  TF_WORKING_DIR: "./terraform"
+  ARM_CLIENT_ID:       ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET:   ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID:       ${{ secrets.ARM_TENANT_ID }}
+  TF_VAR_tenant_id:    ${{ secrets.ARM_TENANT_ID }}
+
+jobs:
+  # ── Validate & Security Scan ─────────────────────────────────
+  validate:
+    name: "Validate & Lint"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init (validate only)
+        run: |
+          terraform init -backend=false
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Run tfsec (security scan)
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: ${{ env.TF_WORKING_DIR }}
+          soft_fail: true
+
+  # ── Dev Plan ─────────────────────────────────────────────────
+  plan-dev:
+    name: "Plan — dev"
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+    env:
+      TF_WORKSPACE: dev
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=rg-terraform-state" \
+            -backend-config="storage_account_name=sttfstatecognidispatch" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=cognidispatch-dev.tfstate"
+
+      - name: Select Dev Workspace
+        run: |
+          terraform workspace select dev || terraform workspace new dev
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan \
+            -var-file=envs/dev.tfvars \
+            -out=tfplan-dev.bin \
+            -no-color \
+            2>&1 | tee plan-dev.txt
+
+      - name: Post Plan to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('${{ env.TF_WORKING_DIR }}/plan-dev.txt', 'utf8');
+            const output = `### Terraform Plan — DEV 🔍\n\`\`\`\n${plan.slice(0, 60000)}\n\`\`\``;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      - name: Upload Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-dev
+          path: ${{ env.TF_WORKING_DIR }}/tfplan-dev.bin
+          retention-days: 5
+
+  # ── Prod Plan ─────────────────────────────────────────────────
+  plan-prod:
+    name: "Plan — prod"
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+    env:
+      TF_WORKSPACE: prod
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=rg-terraform-state" \
+            -backend-config="storage_account_name=sttfstatecognidispatch" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=cognidispatch-prod.tfstate"
+
+      - name: Select Prod Workspace
+        run: |
+          terraform workspace select prod || terraform workspace new prod
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan \
+            -var-file=envs/prod.tfvars \
+            -out=tfplan-prod.bin \
+            -no-color \
+            2>&1 | tee plan-prod.txt
+
+      - name: Post Plan to PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('${{ env.TF_WORKING_DIR }}/plan-prod.txt', 'utf8');
+            const output = `### Terraform Plan — PROD ⚠️\n\`\`\`\n${plan.slice(0, 60000)}\n\`\`\``;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      - name: Upload Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-prod
+          path: ${{ env.TF_WORKING_DIR }}/tfplan-prod.bin
+          retention-days: 5
+
+  # ── Apply Dev ─────────────────────────────────────────────────
+  apply-dev:
+    name: "Apply — dev"
+    needs: plan-dev
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    environment:
+      name: dev
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-dev
+          path: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=rg-terraform-state" \
+            -backend-config="storage_account_name=sttfstatecognidispatch" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=cognidispatch-dev.tfstate"
+
+      - name: Select Dev Workspace
+        run: terraform workspace select dev
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan-dev.bin
+
+  # ── Apply Prod ────────────────────────────────────────────────
+  apply-prod:
+    name: "Apply — prod"
+    needs: plan-prod
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: prod    # Requires manual approval in GitHub environment settings
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-prod
+          path: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=rg-terraform-state" \
+            -backend-config="storage_account_name=sttfstatecognidispatch" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=cognidispatch-prod.tfstate"
+
+      - name: Select Prod Workspace
+        run: terraform workspace select prod
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan-prod.bin
+
+  # ── Scheduled Drift Check ─────────────────────────────────────
+  drift-check:
+    name: "Drift Check — prod"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'drift-check')
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=rg-terraform-state" \
+            -backend-config="storage_account_name=sttfstatecognidispatch" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=cognidispatch-prod.tfstate"
+
+      - name: Select Prod Workspace
+        run: terraform workspace select prod
+
+      - name: Terraform Plan (drift detection)
+        id: drift
+        run: |
+          terraform plan \
+            -var-file=envs/prod.tfvars \
+            -detailed-exitcode \
+            -refresh=true \
+            -no-color \
+            2>&1 | tee drift-report.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Upload Drift Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report-prod
+          path: ${{ env.TF_WORKING_DIR }}/drift-report.txt
+          retention-days: 30
+
+      - name: Notify on Drift
+        if: steps.drift.outputs.exit_code == '2'
+        run: |
+          echo "::warning::DRIFT DETECTED in prod environment! Review drift-report.txt artifact."
+
+on:
+  schedule:
+    - cron: "0 2 * * *"  # Daily drift check at 2AM UTC
