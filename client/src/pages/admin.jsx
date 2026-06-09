@@ -35,7 +35,7 @@ export default function AdminConsoleDashboard() {
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'http://localhost:5000';
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
 
   // 1. Session Verification
   useEffect(() => {

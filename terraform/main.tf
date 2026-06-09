@@ -47,12 +47,14 @@ module "identity" {
 
 # Data Module (ACR, Cosmos DB, Key Vault)
 module "data" {
-  source              = "./modules/data"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  vnet_id             = module.network.vnet_id
-  snet_private_ep_id  = module.network.snet_private_ep_id
-  snet_back_vnet_id   = module.network.snet_back_vnet_id
+  source                     = "./modules/data"
+  resource_group_name        = azurerm_resource_group.rg.name
+  location                   = azurerm_resource_group.rg.location
+  vnet_id                    = module.network.vnet_id
+  snet_private_ep_id         = module.network.snet_private_ep_id
+  snet_back_vnet_id          = module.network.snet_back_vnet_id
+  private_dns_zone_cosmos_id = module.network.dns_cosmos_id
+  private_dns_zone_kv_id     = module.network.dns_kv_id
 }
 
 # Compute Module (App Services)

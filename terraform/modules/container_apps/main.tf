@@ -46,8 +46,9 @@ resource "azurerm_container_app" "auth" {
   }
 
   ingress {
-    external_enabled = false
-    target_port      = 5001
+    external_enabled           = false
+    target_port                = 5001
+    allow_insecure_connections = true
     traffic_weight {
       percentage      = 100
       latest_revision = true
@@ -93,8 +94,9 @@ resource "azurerm_container_app" "vendor" {
   }
 
   ingress {
-    external_enabled = false
-    target_port      = 5002
+    external_enabled           = false
+    target_port                = 5002
+    allow_insecure_connections = true
     traffic_weight {
       percentage      = 100
       latest_revision = true
@@ -140,8 +142,9 @@ resource "azurerm_container_app" "ai" {
   }
 
   ingress {
-    external_enabled = false
-    target_port      = 5003
+    external_enabled           = false
+    target_port                = 5003
+    allow_insecure_connections = true
     traffic_weight {
       percentage      = 100
       latest_revision = true
@@ -208,8 +211,9 @@ resource "azurerm_container_app" "admin" {
   }
 
   ingress {
-    external_enabled = false
-    target_port      = 5004
+    external_enabled           = false
+    target_port                = 5004
+    allow_insecure_connections = true
     traffic_weight {
       percentage      = 100
       latest_revision = true
@@ -255,8 +259,9 @@ resource "azurerm_container_app" "dispatch" {
   }
 
   ingress {
-    external_enabled = false
-    target_port      = 5005
+    external_enabled           = false
+    target_port                = 5005
+    allow_insecure_connections = true
     traffic_weight {
       percentage      = 100
       latest_revision = true

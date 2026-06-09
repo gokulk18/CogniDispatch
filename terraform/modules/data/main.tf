@@ -3,6 +3,8 @@ variable "location" {}
 variable "vnet_id" {}
 variable "snet_private_ep_id" {}
 variable "snet_back_vnet_id" {}
+variable "private_dns_zone_cosmos_id" {}
+variable "private_dns_zone_kv_id" {}
 
 data "azurerm_client_config" "current" {}
 
@@ -60,6 +62,11 @@ resource "azurerm_private_endpoint" "pe_cosmos" {
     is_manual_connection           = false
     subresource_names              = ["MongoDB"]
   }
+
+  private_dns_zone_group {
+    name                 = "cosmos-dns-zone-group"
+    private_dns_zone_ids = [var.private_dns_zone_cosmos_id]
+  }
 }
 
 # Key Vault
@@ -108,6 +115,11 @@ resource "azurerm_private_endpoint" "pe_kv" {
     private_connection_resource_id = azurerm_key_vault.kv.id
     is_manual_connection           = false
     subresource_names              = ["vault"]
+  }
+
+  private_dns_zone_group {
+    name                 = "kv-dns-zone-group"
+    private_dns_zone_ids = [var.private_dns_zone_kv_id]
   }
 }
 

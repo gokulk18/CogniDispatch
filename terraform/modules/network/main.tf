@@ -122,3 +122,5 @@ output "snet_front_vnet_id" { value = azurerm_subnet.snet_front_vnet.id }
 output "snet_back_vnet_id" { value = azurerm_subnet.snet_back_vnet.id }
 output "snet_private_ep_id" { value = azurerm_subnet.snet_private_ep.id }
 output "snet_aca_id" { value = azurerm_subnet.snet_aca.id }
+output "dns_cosmos_id" { value = azurerm_private_dns_zone.dns_cosmos.id }
+output "dns_kv_id" { value = azurerm_private_dns_zone.dns_kv.id }

@@ -19,7 +19,7 @@ COPY . .
 # IMPORTANT: NEXT_PUBLIC_SERVER_IP must be set at BUILD time.
 # It becomes the Application Gateway public URL visible to browsers.
 # Pass via: docker build --build-arg NEXT_PUBLIC_SERVER_IP=http://<APPGW_PUBLIC_IP>
-ARG NEXT_PUBLIC_SERVER_IP=http://localhost:5000
+ARG NEXT_PUBLIC_SERVER_IP=https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io
 ENV NEXT_PUBLIC_SERVER_IP=$NEXT_PUBLIC_SERVER_IP
 
 # Build the production Next.js bundle

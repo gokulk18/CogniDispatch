@@ -35,7 +35,7 @@ export default function TechnicianDashboard() {
   const [otpVerifying, setOtpVerifying] = useState(false);
   const [showOtpGate, setShowOtpGate] = useState(false);
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'http://localhost:5000';
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
   const socketUrl = process.env.NEXT_PUBLIC_SOCKET_IP || serverUrl;
 
   // 1. Session Verification & Profile Fetch

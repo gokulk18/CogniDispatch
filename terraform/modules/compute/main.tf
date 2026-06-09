@@ -35,7 +35,7 @@ resource "azurerm_linux_web_app" "frontend" {
     always_on                               = true
     container_registry_use_managed_identity = true
     application_stack {
-      docker_image_name   = "cogni-frontend:v2"
+      docker_image_name   = "cogni-frontend:v6"
       docker_registry_url = "https://${var.acr_login_server}"
     }
   }

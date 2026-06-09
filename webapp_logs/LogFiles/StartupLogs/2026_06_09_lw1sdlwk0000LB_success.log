@@ -1,0 +1,360 @@
+2026-06-09T18:07:10.3370275+00:00 ContainerStatus: State: Starting, Action: EstablishingSiteNetworks, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T18:07:21.0503891+00:00 ContainerStatus: State: Starting, Action: StartingSiteContainers, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T18:07:21.0993226+00:00 ContainerStatus: Container start method called.
+2026-06-09T18:07:21.1549769+00:00 ContainerStatus: State: Starting, Action: PullingImage, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pulling image 10.1.0.5:13209/appsvc/node:20-lts_20260504.4.tuxprod for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T18:07:21.1552642+00:00 ContainerStatus: Establishing network.
+2026-06-09T18:07:21.1553949+00:00 ContainerStatus: Pulling image: appsvc/node:20-lts_20260504.4.tuxprod.
+2026-06-09T18:07:22.8377214+00:00 ContainerStatus: Image appsvc/node:20-lts_20260504.4.tuxprod is pulled from registry 10.1.0.5:13209
+2026-06-09T18:07:22.8378809+00:00 ContainerStatus: Container is starting.
+2026-06-09T18:07:22.8380948+00:00 ContainerStatus: State: Starting, Action: MountingVolumes, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Mounting volumes for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T18:07:22.8591186+00:00 ContainerStatus: Establishing user namespace if not established already.
+2026-06-09T18:07:22.9066822+00:00 ContainerStatus: Establishing network if not established already.
+2026-06-09T18:07:22.9079207+00:00 ContainerStatus: Mounting volumes.
+2026-06-09T18:07:22.9084275+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T18:07:22.9375485+00:00 ContainerStatus: Nested mountpoint volatile/logs
+2026-06-09T18:07:23.0068093+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T18:07:23.1195240+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T18:07:23.1903327+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T18:07:23.3745556+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T18:07:24.6466851+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Finished pulling container image and mounting volumes for web-cogni-frontend-99. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-06-09T18:07:24.6486037+00:00 ContainerStatus: Creating container.
+2026-06-09T18:07:24.6492912+00:00 ContainerStatus: Creating pipes for streaming container io.
+2026-06-09T18:07:24.6497357+00:00 ContainerStatus: Creating stdout named pipe at /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stdout_d4eca98c5be64ef794d10ab6231f3fa0.
+2026-06-09T18:07:24.6574017+00:00 ContainerStatus: Successfully created stdout named pipe at: /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stdout_d4eca98c5be64ef794d10ab6231f3fa0.
+2026-06-09T18:07:24.6768623+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stdout_d4eca98c5be64ef794d10ab6231f3fa0 for reading in non-blocking mode.
+2026-06-09T18:07:24.6772163+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stdout_d4eca98c5be64ef794d10ab6231f3fa0.
+2026-06-09T18:07:24.6773217+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stdout_d4eca98c5be64ef794d10ab6231f3fa0.
+2026-06-09T18:07:24.6774766+00:00 ContainerStatus: Creating stderr named pipe at /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stderr_31188c85177b4793b0e2679cae40a49b.
+2026-06-09T18:07:24.6776254+00:00 ContainerStatus: Successfully created stderr named pipe at: /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stderr_31188c85177b4793b0e2679cae40a49b.
+2026-06-09T18:07:24.6777067+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stderr_31188c85177b4793b0e2679cae40a49b for reading in non-blocking mode.
+2026-06-09T18:07:24.6778156+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stderr_31188c85177b4793b0e2679cae40a49b.
+2026-06-09T18:07:24.6778926+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/e6b84f8b0bba_web-cogni-frontend-99/stderr_31188c85177b4793b0e2679cae40a49b.
+2026-06-09T18:07:24.6780022+00:00 ContainerStatus: Creating container with image: appsvc/node:20-lts_20260504.4.tuxprod from registry: 10.1.0.5:13209 and fully qualified image name: 10.1.0.5:13209/appsvc/node:20-lts_20260504.4.tuxprod
+2026-06-09T18:07:28.1150283+00:00 ContainerStatus: Container get mounts received unexpected exception.
+2026-06-09T18:07:28.3161666+00:00 ContainerStatus: Container get processes received unexpected exception.
+2026-06-09T18:07:29.9002074+00:00 ContainerStatus: Starting container: e6b84f8b0bba_web-cogni-frontend-99.
+2026-06-09T18:07:30.9297148+00:00 ContainerStatus: Starting watchers and probes.
+2026-06-09T18:07:31.1691654+00:00 ContainerStatus: Starting metrics collection.
+2026-06-09T18:07:31.2790256+00:00 ContainerStatus: Container is running.
+2026-06-09T18:07:31.2874181+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T18:07:32.1409852+00:00 ContainerStream:    _____                               
+2026-06-09T18:07:32.3595887+00:00 ContainerStream:   /  _  \ __________ _________   ____  
+2026-06-09T18:07:32.3596384+00:00 ContainerStream:  /  /_\  \\___   /  |  \_  __ \_/ __ \ 
+2026-06-09T18:07:32.3596433+00:00 ContainerStream: /    |    \/    /|  |  /|  | \/\  ___/ 
+2026-06-09T18:07:32.3596473+00:00 ContainerStream: \____|__  /_____ \____/ |__|    \___  >
+2026-06-09T18:07:32.3596569+00:00 ContainerStream:         \/      \/                  \/ 
+2026-06-09T18:07:32.3596841+00:00 ContainerStream: A P P   S E R V I C E   O N   L I N U X
+2026-06-09T18:07:32.3596873+00:00 ContainerStream: 
+2026-06-09T18:07:32.3596935+00:00 ContainerStream: Documentation    : http://aka.ms/webapp-linux
+2026-06-09T18:07:32.3596976+00:00 ContainerStream: NodeJS quickstart: https://aka.ms/node-qs
+2026-06-09T18:07:32.3597018+00:00 ContainerStream: NodeJS Version   : v20.20.2
+2026-06-09T18:07:32.3597076+00:00 ContainerStream: Instance Name    : lw1sdlwk0000LB
+2026-06-09T18:07:32.3597140+00:00 ContainerStream: Instance Id      : 1ee2374aefa12caef11eeed6a61f4727830535d05fa9d268a8c7dfa5ea048242
+2026-06-09T18:07:32.3597171+00:00 ContainerStream: 
+2026-06-09T18:07:32.3597211+00:00 ContainerStream: Note: Any data outside '/home' is not persisted
+2026-06-09T18:07:34.4250663+00:00 ContainerStatus: Container start method finished after 13325 ms.
+2026-06-09T18:07:34.5233822+00:00 ContainerStatus: State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T18:07:34.6304421+00:00 ContainerStatus: State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-06-09T18:07:42.3137690+00:00 ContainerStream: Starting OpenBSD Secure Shell server: sshd.
+2026-06-09T18:07:42.3716570+00:00 ContainerStream: WEBSITES_INCLUDE_CLOUD_CERTS is not set to true.
+2026-06-09T18:07:42.5451995+00:00 ContainerStream: Updating certificates in /etc/ssl/certs...
+2026-06-09T18:08:28.0500891+00:00 ContainerStream: rehash: warning: skipping duplicate certificate in azl_SSL.com_TLS_ECC_Root_CA_2022.pem
+2026-06-09T18:08:28.0501548+00:00 ContainerStream: rehash: warning: skipping duplicate certificate in azl_SSL.com_TLS_RSA_Root_CA_2022.pem
+2026-06-09T18:08:31.7827547+00:00 ContainerStream: rehash: warning: skipping ca-certificates.crt,it does not contain exactly one certificate or CRL
+2026-06-09T18:08:32.3064723+00:00 ContainerStream: 4 added, 0 removed; done.
+2026-06-09T18:08:32.3065314+00:00 ContainerStream: Running hooks in /etc/ca-certificates/update.d...
+2026-06-09T18:08:32.3632811+00:00 ContainerStream: done.
+2026-06-09T18:08:32.6465963+00:00 ContainerStream: CA certificates copied and updated successfully.
+2026-06-09T18:08:33.6957665+00:00 ContainerStream: Starting periodic command scheduler: cron.
+2026-06-09T18:08:34.9465414+00:00 ContainerStream: Could not find build manifest file at '/home/site/wwwroot/oryx-manifest.toml'
+2026-06-09T18:08:35.0215076+00:00 ContainerStream: Could not find operation ID in manifest. Generating an operation id...
+2026-06-09T18:08:35.0215299+00:00 ContainerStream: Build Operation ID: 281234bf-a7b1-4341-9c0c-024095fb6381
+2026-06-09T18:08:37.8550728+00:00 ContainerStream: Environment Variables for Application Insight's IPA Codeless Configuration exists..
+2026-06-09T18:08:37.9895776+00:00 ContainerStream: Writing output script to '/opt/startup/startup.sh'
+2026-06-09T18:08:38.2882640+00:00 ContainerStream: Running #!/bin/sh
+2026-06-09T18:08:38.2883277+00:00 ContainerStream: 
+2026-06-09T18:08:38.2883419+00:00 ContainerStream: # Enter the source directory to make sure the script runs where the user expects
+2026-06-09T18:08:38.2883523+00:00 ContainerStream: cd "/home/site/wwwroot"
+2026-06-09T18:08:38.2883557+00:00 ContainerStream: 
+2026-06-09T18:08:38.2883607+00:00 ContainerStream: export NODE_PATH=/usr/local/lib/node_modules:$NODE_PATH
+2026-06-09T18:08:38.2883645+00:00 ContainerStream: if [ -z "$PORT" ]; then
+2026-06-09T18:08:38.2883681+00:00 ContainerStream: 		export PORT=8080
+2026-06-09T18:08:38.2883758+00:00 ContainerStream: fi
+2026-06-09T18:08:38.2883819+00:00 ContainerStream: 
+2026-06-09T18:08:38.2883883+00:00 ContainerStream: node /opt/startup/default-static-site.js
+2026-06-09T18:08:48.0277799+00:00 ContainerStatus: Site startup probe succeeded after 73.2539096 seconds.
+2026-06-09T18:08:48.5948899+00:00 ContainerStatus: State: Starting, Action: WarmUpProbeSucceeded, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site startup probe succeeded after 73.2539096 seconds., DetailsLevel: INFO
+2026-06-09T18:08:49.8570642+00:00 ContainerStatus: Site started.
+2026-06-09T18:08:49.8573397+00:00 ContainerStatus: State: Started, Action: None, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site started at 06/09/2026 18:08:49 (UTC), DetailsLevel: INFO
+2026-06-09T18:08:50.7910312+00:00 ContainerStatus: Site is running with patch version NODE-20.20.2
+========== New Cold Start Attempt (2026-06-09T19:30:26.7345680+00:00) ==========
+2026-06-09T19:30:26.7345680+00:00 ContainerStatus: State: Starting, Action: EstablishingSiteNetworks, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 06/09/2026 19:31:40, DetailsLevel: WARN
+2026-06-09T19:30:31.7148540+00:00 ContainerStatus: State: Starting, Action: StartingMsiContainer, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 06/09/2026 19:31:40, DetailsLevel: WARN
+2026-06-09T19:30:51.3483804+00:00 ContainerStatus: State: Starting, Action: StartingSiteContainers, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Site is blocked due to multiple, consecutive cold start failures. Site scheduled to be unblocked at 06/09/2026 19:31:40, DetailsLevel: WARN
+2026-06-09T19:30:51.3484979+00:00 ContainerStatus: Container start method called.
+2026-06-09T19:30:51.3485348+00:00 ContainerStatus: State: Starting, Action: PullingImage, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Pulling image acrcogniutrawi.azurecr.io/cogni-frontend:v2 for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T19:30:51.3486071+00:00 ContainerStatus: Establishing network.
+2026-06-09T19:30:51.3486995+00:00 ContainerStatus: Pulling image: acrcogniutrawi.azurecr.io/cogni-frontend:v2.
+2026-06-09T19:31:22.4797944+00:00 ContainerStatus: Image acrcogniutrawi.azurecr.io/cogni-frontend:v2 is pulled from registry acrcogniutrawi.azurecr.io
+2026-06-09T19:31:22.4806792+00:00 ContainerStatus: Container is starting.
+2026-06-09T19:31:22.5175395+00:00 ContainerStatus: State: Starting, Action: MountingVolumes, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Mounting volumes for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T19:31:22.5180294+00:00 ContainerStatus: Establishing user namespace if not established already.
+2026-06-09T19:31:22.5263575+00:00 ContainerStatus: Establishing network if not established already.
+2026-06-09T19:31:22.5266281+00:00 ContainerStatus: Mounting volumes.
+2026-06-09T19:31:22.5269342+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T19:31:22.6137709+00:00 ContainerStatus: Nested mountpoint volatile/logs
+2026-06-09T19:31:22.6831144+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T19:31:22.7813689+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T19:31:23.0474314+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Finished pulling container image and mounting volumes for web-cogni-frontend-99. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-06-09T19:31:23.0704214+00:00 ContainerStatus: Creating container.
+2026-06-09T19:31:23.0707063+00:00 ContainerStatus: Creating pipes for streaming container io.
+2026-06-09T19:31:23.0708355+00:00 ContainerStatus: Creating stdout named pipe at /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stdout_67cfc4e9b64d47ffa4fd0bd73842c9d8.
+2026-06-09T19:31:23.1591571+00:00 ContainerStatus: Successfully created stdout named pipe at: /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stdout_67cfc4e9b64d47ffa4fd0bd73842c9d8.
+2026-06-09T19:31:23.1592619+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stdout_67cfc4e9b64d47ffa4fd0bd73842c9d8 for reading in non-blocking mode.
+2026-06-09T19:31:23.1593628+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stdout_67cfc4e9b64d47ffa4fd0bd73842c9d8.
+2026-06-09T19:31:23.1594371+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stdout_67cfc4e9b64d47ffa4fd0bd73842c9d8.
+2026-06-09T19:31:23.1595446+00:00 ContainerStatus: Creating stderr named pipe at /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stderr_e8df284049bc49db85bc4aeac3130ad5.
+2026-06-09T19:31:23.1604301+00:00 ContainerStatus: Successfully created stderr named pipe at: /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stderr_e8df284049bc49db85bc4aeac3130ad5.
+2026-06-09T19:31:23.1606041+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stderr_e8df284049bc49db85bc4aeac3130ad5 for reading in non-blocking mode.
+2026-06-09T19:31:23.1607538+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stderr_e8df284049bc49db85bc4aeac3130ad5.
+2026-06-09T19:31:23.1701741+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/732412ed2ead_web-cogni-frontend-99/stderr_e8df284049bc49db85bc4aeac3130ad5.
+2026-06-09T19:31:23.1705009+00:00 ContainerStatus: Creating container with image: acrcogniutrawi.azurecr.io/cogni-frontend:v2 from registry: acrcogniutrawi.azurecr.io and fully qualified image name: acrcogniutrawi.azurecr.io/cogni-frontend:v2
+2026-06-09T19:31:24.6864278+00:00 ContainerStatus: Starting container: 732412ed2ead_web-cogni-frontend-99.
+2026-06-09T19:31:24.7949139+00:00 ContainerStatus: Starting watchers and probes.
+2026-06-09T19:31:24.7953649+00:00 ContainerStatus: Starting metrics collection.
+2026-06-09T19:31:24.7961635+00:00 ContainerStatus: Container is running.
+2026-06-09T19:31:24.7965431+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T19:31:24.9566987+00:00 ContainerStatus: Container start method finished after 33577 ms.
+2026-06-09T19:31:25.0064321+00:00 ContainerStatus: State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T19:31:25.0253856+00:00 ContainerStatus: State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-06-09T19:31:28.8370600+00:00 ContainerStream: 
+2026-06-09T19:31:28.8372617+00:00 ContainerStream: > rescuhome-client@1.0.0 start
+2026-06-09T19:31:28.8372717+00:00 ContainerStream: > next start
+2026-06-09T19:31:28.8372740+00:00 ContainerStream: 
+2026-06-09T19:31:30.8516165+00:00 ContainerStream:   ▲ Next.js 14.2.35
+2026-06-09T19:31:30.8683409+00:00 ContainerStream:   - Local:        http://localhost:3000
+2026-06-09T19:31:30.8683832+00:00 ContainerStream: 
+2026-06-09T19:31:30.8683881+00:00 ContainerStream:  ✓ Starting...
+2026-06-09T19:31:32.3579008+00:00 ContainerStream:  ✓ Ready in 2.7s
+2026-06-09T19:31:32.4833213+00:00 ContainerStatus: Site startup probe succeeded after 7.4563028 seconds.
+2026-06-09T19:31:32.6289129+00:00 ContainerStatus: State: Starting, Action: WarmUpProbeSucceeded, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Site startup probe succeeded after 7.4563028 seconds., DetailsLevel: INFO
+2026-06-09T19:31:32.9716209+00:00 ContainerStatus: Site started.
+2026-06-09T19:31:32.9725111+00:00 ContainerStatus: State: Started, Action: None, LastError: ACRTokenRetrievalFailure, LastErrorTimestamp: 06/09/2026 19:27:39, LastErrorDetails: Could not resolve the ACR token with the specified managed identity due to the following: Fetching Acr token failed -- response status indicates failure. Status Code:Unauthorized, Details: Site started at 06/09/2026 19:31:32 (UTC), DetailsLevel: INFO
+========== New Cold Start Attempt (2026-06-09T19:44:36.3503376+00:00) ==========
+2026-06-09T19:44:36.3503376+00:00 ContainerStatus: State: Starting, Action: EstablishingSiteNetworks, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T19:44:40.9683110+00:00 ContainerStatus: State: Starting, Action: StartingMsiContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T19:45:06.4256045+00:00 ContainerStatus: State: Starting, Action: StartingSiteContainers, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T19:45:06.4257698+00:00 ContainerStatus: Container start method called.
+2026-06-09T19:45:06.4260211+00:00 ContainerStatus: State: Starting, Action: PullingImage, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pulling image acrcogniutrawi.azurecr.io/cogni-frontend:v2 for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T19:45:06.4261797+00:00 ContainerStatus: Establishing network.
+2026-06-09T19:45:06.4340390+00:00 ContainerStatus: Pulling image: acrcogniutrawi.azurecr.io/cogni-frontend:v2.
+2026-06-09T19:45:40.9519533+00:00 ContainerStatus: Image acrcogniutrawi.azurecr.io/cogni-frontend:v2 is pulled from registry acrcogniutrawi.azurecr.io
+2026-06-09T19:45:40.9597888+00:00 ContainerStatus: Container is starting.
+2026-06-09T19:45:40.9947892+00:00 ContainerStatus: State: Starting, Action: MountingVolumes, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Mounting volumes for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T19:45:40.9953430+00:00 ContainerStatus: Establishing user namespace if not established already.
+2026-06-09T19:45:40.9954969+00:00 ContainerStatus: Establishing network if not established already.
+2026-06-09T19:45:40.9956202+00:00 ContainerStatus: Mounting volumes.
+2026-06-09T19:45:40.9958325+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T19:45:41.0121792+00:00 ContainerStatus: Nested mountpoint volatile/logs
+2026-06-09T19:45:41.0341489+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T19:45:41.0448423+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T19:45:41.0844220+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Finished pulling container image and mounting volumes for web-cogni-frontend-99. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-06-09T19:45:41.0845613+00:00 ContainerStatus: Creating container.
+2026-06-09T19:45:41.0846477+00:00 ContainerStatus: Creating pipes for streaming container io.
+2026-06-09T19:45:41.0847232+00:00 ContainerStatus: Creating stdout named pipe at /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stdout_e82987ea02e14739815b66af54378afa.
+2026-06-09T19:45:41.1248551+00:00 ContainerStatus: Successfully created stdout named pipe at: /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stdout_e82987ea02e14739815b66af54378afa.
+2026-06-09T19:45:41.1252102+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stdout_e82987ea02e14739815b66af54378afa for reading in non-blocking mode.
+2026-06-09T19:45:41.1527244+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stdout_e82987ea02e14739815b66af54378afa.
+2026-06-09T19:45:41.1539031+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stdout_e82987ea02e14739815b66af54378afa.
+2026-06-09T19:45:41.1542059+00:00 ContainerStatus: Creating stderr named pipe at /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stderr_5b3a5acd83a14fb0a99d79cea3f9dae9.
+2026-06-09T19:45:41.1546607+00:00 ContainerStatus: Successfully created stderr named pipe at: /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stderr_5b3a5acd83a14fb0a99d79cea3f9dae9.
+2026-06-09T19:45:41.1547513+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stderr_5b3a5acd83a14fb0a99d79cea3f9dae9 for reading in non-blocking mode.
+2026-06-09T19:45:41.1548520+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stderr_5b3a5acd83a14fb0a99d79cea3f9dae9.
+2026-06-09T19:45:41.1549224+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/1e75452c9f53_web-cogni-frontend-99/stderr_5b3a5acd83a14fb0a99d79cea3f9dae9.
+2026-06-09T19:45:41.1552735+00:00 ContainerStatus: Creating container with image: acrcogniutrawi.azurecr.io/cogni-frontend:v2 from registry: acrcogniutrawi.azurecr.io and fully qualified image name: acrcogniutrawi.azurecr.io/cogni-frontend:v2
+2026-06-09T19:45:42.5366935+00:00 ContainerStatus: Starting container: 1e75452c9f53_web-cogni-frontend-99.
+2026-06-09T19:45:42.6007706+00:00 ContainerStatus: Starting watchers and probes.
+2026-06-09T19:45:42.6109164+00:00 ContainerStatus: Starting metrics collection.
+2026-06-09T19:45:42.6699545+00:00 ContainerStatus: Container is running.
+2026-06-09T19:45:42.6700929+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T19:45:42.9029687+00:00 ContainerStatus: Container start method finished after 36469 ms.
+2026-06-09T19:45:42.9321427+00:00 ContainerStatus: State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T19:45:42.9520205+00:00 ContainerStatus: State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-06-09T19:45:46.7090138+00:00 ContainerStream: 
+2026-06-09T19:45:46.7272050+00:00 ContainerStream: > rescuhome-client@1.0.0 start
+2026-06-09T19:45:46.7272310+00:00 ContainerStream: > next start
+2026-06-09T19:45:46.7272337+00:00 ContainerStream: 
+2026-06-09T19:45:48.9278089+00:00 ContainerStream:   ▲ Next.js 14.2.35
+2026-06-09T19:45:48.9361570+00:00 ContainerStream:   - Local:        http://localhost:3000
+2026-06-09T19:45:48.9372804+00:00 ContainerStream: 
+2026-06-09T19:45:48.9382984+00:00 ContainerStream:  ✓ Starting...
+2026-06-09T19:45:50.0689970+00:00 ContainerStream:  ✓ Ready in 2.5s
+2026-06-09T19:45:50.2169591+00:00 ContainerStatus: Site startup probe succeeded after 7.206755 seconds.
+2026-06-09T19:45:50.4266115+00:00 ContainerStatus: State: Starting, Action: WarmUpProbeSucceeded, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site startup probe succeeded after 7.206755 seconds., DetailsLevel: INFO
+========== New Cold Start Attempt (2026-06-09T19:56:39.1505126+00:00) ==========
+2026-06-09T19:56:39.1505126+00:00 ContainerStatus: Site container: web-cogni-frontend-99_managedIdentity terminated. Stopping the entire site.
+2026-06-09T19:56:39.1506572+00:00 ContainerStatus: State: Stopping, Action: StoppingSite, LastError: SiteStartupCancelled, LastErrorTimestamp: 06/09/2026 19:56:38, LastErrorDetails: , Details: , DetailsLevel: WARN
+2026-06-09T19:56:39.4873689+00:00 ContainerStatus: State: Stopping, Action: StoppingSiteContainers, LastError: SiteStartupCancelled, LastErrorTimestamp: 06/09/2026 19:56:38, LastErrorDetails: , Details: , DetailsLevel: WARN
+2026-06-09T19:56:39.4873924+00:00 ContainerStatus: Site: web-cogni-frontend-99 stopped.
+2026-06-09T19:56:42.4266196+00:00 ContainerStatus: State: Starting, Action: EstablishingSiteNetworks, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T19:56:51.9696684+00:00 ContainerStatus: State: Starting, Action: StartingMsiContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T19:57:31.4639662+00:00 ContainerStatus: State: Starting, Action: StartingSiteContainers, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T19:57:31.4642977+00:00 ContainerStatus: Container start method called.
+2026-06-09T19:57:31.4643817+00:00 ContainerStatus: State: Starting, Action: PullingImage, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pulling image acrcogniutrawi.azurecr.io/cogni-frontend:v3 for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T19:57:31.4644809+00:00 ContainerStatus: Establishing network.
+2026-06-09T19:57:31.4645963+00:00 ContainerStatus: Pulling image: acrcogniutrawi.azurecr.io/cogni-frontend:v3.
+2026-06-09T19:57:38.8017644+00:00 ContainerStatus: Image acrcogniutrawi.azurecr.io/cogni-frontend:v3 is pulled from registry acrcogniutrawi.azurecr.io
+2026-06-09T19:57:38.8022344+00:00 ContainerStatus: Container is starting.
+2026-06-09T19:57:38.8024323+00:00 ContainerStatus: State: Starting, Action: MountingVolumes, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Mounting volumes for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T19:57:38.8025904+00:00 ContainerStatus: Establishing user namespace if not established already.
+2026-06-09T19:57:38.8410284+00:00 ContainerStatus: Establishing network if not established already.
+2026-06-09T19:57:38.8412771+00:00 ContainerStatus: Mounting volumes.
+2026-06-09T19:57:38.8414666+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T19:57:38.8703079+00:00 ContainerStatus: Nested mountpoint volatile/logs
+2026-06-09T19:57:39.0357816+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T19:57:39.1842223+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T19:57:39.9993891+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Finished pulling container image and mounting volumes for web-cogni-frontend-99. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-06-09T19:57:39.9997182+00:00 ContainerStatus: Creating container.
+2026-06-09T19:57:39.9998548+00:00 ContainerStatus: Creating pipes for streaming container io.
+2026-06-09T19:57:40.0078500+00:00 ContainerStatus: Creating stdout named pipe at /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stdout_5cd67965719f47a78722ecded425395a.
+2026-06-09T19:57:40.0081289+00:00 ContainerStatus: Successfully created stdout named pipe at: /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stdout_5cd67965719f47a78722ecded425395a.
+2026-06-09T19:57:40.0083617+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stdout_5cd67965719f47a78722ecded425395a for reading in non-blocking mode.
+2026-06-09T19:57:40.0179386+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stdout_5cd67965719f47a78722ecded425395a.
+2026-06-09T19:57:40.0181349+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stdout_5cd67965719f47a78722ecded425395a.
+2026-06-09T19:57:40.0182563+00:00 ContainerStatus: Creating stderr named pipe at /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stderr_78c35bb4596e480a9a25740edf16a48c.
+2026-06-09T19:57:40.0184074+00:00 ContainerStatus: Successfully created stderr named pipe at: /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stderr_78c35bb4596e480a9a25740edf16a48c.
+2026-06-09T19:57:40.0184819+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stderr_78c35bb4596e480a9a25740edf16a48c for reading in non-blocking mode.
+2026-06-09T19:57:40.0189773+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stderr_78c35bb4596e480a9a25740edf16a48c.
+2026-06-09T19:57:40.0190828+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/6368d2ab8873_web-cogni-frontend-99/stderr_78c35bb4596e480a9a25740edf16a48c.
+2026-06-09T19:57:40.0194554+00:00 ContainerStatus: Creating container with image: acrcogniutrawi.azurecr.io/cogni-frontend:v3 from registry: acrcogniutrawi.azurecr.io and fully qualified image name: acrcogniutrawi.azurecr.io/cogni-frontend:v3
+2026-06-09T19:57:44.5135075+00:00 ContainerStatus: Starting container: 6368d2ab8873_web-cogni-frontend-99.
+2026-06-09T19:57:45.1876161+00:00 ContainerStatus: Starting watchers and probes.
+2026-06-09T19:57:45.1881520+00:00 ContainerStatus: Starting metrics collection.
+2026-06-09T19:57:45.1995204+00:00 ContainerStatus: Container is running.
+2026-06-09T19:57:45.1997841+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T19:57:45.5439903+00:00 ContainerStatus: Container start method finished after 14079 ms.
+2026-06-09T19:57:45.5441553+00:00 ContainerStatus: State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T19:57:45.5441759+00:00 ContainerStatus: State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-06-09T19:58:06.4797356+00:00 ContainerStream: 
+2026-06-09T19:58:06.4799228+00:00 ContainerStream: > rescuhome-client@1.0.0 start
+2026-06-09T19:58:06.4799277+00:00 ContainerStream: > next start
+2026-06-09T19:58:06.4799299+00:00 ContainerStream: 
+2026-06-09T19:58:15.6663961+00:00 ContainerStream:   ▲ Next.js 14.2.35
+2026-06-09T19:58:15.7220345+00:00 ContainerStream:   - Local:        http://localhost:3000
+2026-06-09T19:58:15.7220713+00:00 ContainerStream: 
+2026-06-09T19:58:15.7220755+00:00 ContainerStream:  ✓ Starting...
+2026-06-09T19:58:18.2051674+00:00 ContainerStream:  ✓ Ready in 9.3s
+2026-06-09T19:58:18.4122187+00:00 ContainerStatus: Site startup probe succeeded after 32.7785273 seconds.
+2026-06-09T19:58:18.6586725+00:00 ContainerStatus: State: Starting, Action: WarmUpProbeSucceeded, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site startup probe succeeded after 32.7785273 seconds., DetailsLevel: INFO
+2026-06-09T19:58:19.1682516+00:00 ContainerStatus: Site started.
+2026-06-09T19:58:19.1799096+00:00 ContainerStatus: State: Started, Action: None, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site started at 06/09/2026 19:58:19 (UTC), DetailsLevel: INFO
+========== New Cold Start Attempt (2026-06-09T20:02:29.7598103+00:00) ==========
+2026-06-09T20:02:29.7598103+00:00 ContainerStatus: Site container: web-cogni-frontend-99_managedIdentity terminated. Stopping the entire site.
+2026-06-09T20:02:29.7793353+00:00 ContainerStatus: State: Stopping, Action: StoppingSite, LastError: SiteStartupCancelled, LastErrorTimestamp: 06/09/2026 20:02:28, LastErrorDetails: , Details: , DetailsLevel: WARN
+2026-06-09T20:02:29.7796497+00:00 ContainerStatus: State: Stopping, Action: StoppingSiteContainers, LastError: SiteStartupCancelled, LastErrorTimestamp: 06/09/2026 20:02:28, LastErrorDetails: , Details: , DetailsLevel: WARN
+2026-06-09T20:02:29.7796989+00:00 ContainerStatus: Site: web-cogni-frontend-99 stopped.
+2026-06-09T20:02:34.8770966+00:00 ContainerStatus: State: Starting, Action: EstablishingSiteNetworks, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T20:02:47.4259695+00:00 ContainerStatus: State: Starting, Action: StartingMsiContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T20:03:36.8108322+00:00 ContainerStatus: State: Starting, Action: StartingSiteContainers, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T20:03:36.8113084+00:00 ContainerStatus: Container start method called.
+2026-06-09T20:03:36.8114260+00:00 ContainerStatus: State: Starting, Action: PullingImage, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pulling image acrcogniutrawi.azurecr.io/cogni-frontend:v4 for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T20:03:36.8115560+00:00 ContainerStatus: Establishing network.
+2026-06-09T20:03:36.8119300+00:00 ContainerStatus: Pulling image: acrcogniutrawi.azurecr.io/cogni-frontend:v4.
+2026-06-09T20:04:14.2745587+00:00 ContainerStatus: Image acrcogniutrawi.azurecr.io/cogni-frontend:v4 is pulled from registry acrcogniutrawi.azurecr.io
+2026-06-09T20:04:14.2747277+00:00 ContainerStatus: Container is starting.
+2026-06-09T20:04:14.3003602+00:00 ContainerStatus: State: Starting, Action: MountingVolumes, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Mounting volumes for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T20:04:14.3007121+00:00 ContainerStatus: Establishing user namespace if not established already.
+2026-06-09T20:04:14.3008272+00:00 ContainerStatus: Establishing network if not established already.
+2026-06-09T20:04:14.3009595+00:00 ContainerStatus: Mounting volumes.
+2026-06-09T20:04:14.3011173+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T20:04:14.4359640+00:00 ContainerStatus: Nested mountpoint volatile/logs
+2026-06-09T20:04:14.7117313+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T20:04:14.7125349+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T20:04:15.7433655+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Finished pulling container image and mounting volumes for web-cogni-frontend-99. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-06-09T20:04:15.7808943+00:00 ContainerStatus: Creating container.
+2026-06-09T20:04:15.7901844+00:00 ContainerStatus: Creating pipes for streaming container io.
+2026-06-09T20:04:15.7910166+00:00 ContainerStatus: Creating stdout named pipe at /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stdout_9e7e26c83fcc4c0fa6bf0a227f852d1d.
+2026-06-09T20:04:15.8475198+00:00 ContainerStatus: Successfully created stdout named pipe at: /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stdout_9e7e26c83fcc4c0fa6bf0a227f852d1d.
+2026-06-09T20:04:15.8476236+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stdout_9e7e26c83fcc4c0fa6bf0a227f852d1d for reading in non-blocking mode.
+2026-06-09T20:04:15.8488727+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stdout_9e7e26c83fcc4c0fa6bf0a227f852d1d.
+2026-06-09T20:04:15.8490901+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stdout_9e7e26c83fcc4c0fa6bf0a227f852d1d.
+2026-06-09T20:04:15.8495912+00:00 ContainerStatus: Creating stderr named pipe at /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stderr_9bf7d499ebe54dfab5e3252b6c8585ae.
+2026-06-09T20:04:15.8497337+00:00 ContainerStatus: Successfully created stderr named pipe at: /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stderr_9bf7d499ebe54dfab5e3252b6c8585ae.
+2026-06-09T20:04:15.8773889+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stderr_9bf7d499ebe54dfab5e3252b6c8585ae for reading in non-blocking mode.
+2026-06-09T20:04:15.8777847+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stderr_9bf7d499ebe54dfab5e3252b6c8585ae.
+2026-06-09T20:04:15.8783654+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/a65cfc65ef49_web-cogni-frontend-99/stderr_9bf7d499ebe54dfab5e3252b6c8585ae.
+2026-06-09T20:04:15.8785107+00:00 ContainerStatus: Creating container with image: acrcogniutrawi.azurecr.io/cogni-frontend:v4 from registry: acrcogniutrawi.azurecr.io and fully qualified image name: acrcogniutrawi.azurecr.io/cogni-frontend:v4
+2026-06-09T20:04:17.1819750+00:00 ContainerStatus: Starting container: a65cfc65ef49_web-cogni-frontend-99.
+2026-06-09T20:04:17.4087006+00:00 ContainerStatus: Starting watchers and probes.
+2026-06-09T20:04:17.4098880+00:00 ContainerStatus: Starting metrics collection.
+2026-06-09T20:04:17.4100587+00:00 ContainerStatus: Container is running.
+2026-06-09T20:04:17.4104384+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T20:04:17.8698954+00:00 ContainerStatus: Container start method finished after 41058 ms.
+2026-06-09T20:04:17.8700633+00:00 ContainerStatus: State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T20:04:17.8700847+00:00 ContainerStatus: State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-06-09T20:04:24.1021136+00:00 ContainerStream: 
+2026-06-09T20:04:24.1023257+00:00 ContainerStream: > rescuhome-client@1.0.0 start
+2026-06-09T20:04:24.1023304+00:00 ContainerStream: > next start
+2026-06-09T20:04:24.1023327+00:00 ContainerStream: 
+2026-06-09T20:04:26.1658077+00:00 ContainerStream:   ▲ Next.js 14.2.35
+2026-06-09T20:04:26.1746409+00:00 ContainerStream:   - Local:        http://localhost:3000
+2026-06-09T20:04:26.1754168+00:00 ContainerStream: 
+2026-06-09T20:04:26.1842320+00:00 ContainerStream:  ✓ Starting...
+2026-06-09T20:04:28.3560053+00:00 ContainerStream:  ✓ Ready in 3.6s
+2026-06-09T20:04:28.9908270+00:00 ContainerStatus: Site startup probe succeeded after 11.1202085 seconds.
+2026-06-09T20:04:29.7116136+00:00 ContainerStatus: State: Starting, Action: WarmUpProbeSucceeded, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site startup probe succeeded after 11.1202085 seconds., DetailsLevel: INFO
+2026-06-09T20:04:30.4099303+00:00 ContainerStatus: Site started.
+2026-06-09T20:04:30.4180850+00:00 ContainerStatus: State: Started, Action: None, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site started at 06/09/2026 20:04:30 (UTC), DetailsLevel: INFO
+========== New Cold Start Attempt (2026-06-09T20:19:12.1023904+00:00) ==========
+2026-06-09T20:19:12.1023904+00:00 ContainerStatus: State: Starting, Action: EstablishingSiteNetworks, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T20:19:26.9742233+00:00 ContainerStatus: State: Starting, Action: StartingMsiContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T20:20:00.6531227+00:00 ContainerStatus: State: Starting, Action: StartingSiteContainers, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: , DetailsLevel: INFO
+2026-06-09T20:20:00.6532337+00:00 ContainerStatus: Container start method called.
+2026-06-09T20:20:00.6532674+00:00 ContainerStatus: State: Starting, Action: PullingImage, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pulling image acrcogniutrawi.azurecr.io/cogni-frontend:v5 for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T20:20:00.6533403+00:00 ContainerStatus: Establishing network.
+2026-06-09T20:20:00.6534327+00:00 ContainerStatus: Pulling image: acrcogniutrawi.azurecr.io/cogni-frontend:v5.
+2026-06-09T20:20:51.7205928+00:00 ContainerStatus: Image acrcogniutrawi.azurecr.io/cogni-frontend:v5 is pulled from registry acrcogniutrawi.azurecr.io
+2026-06-09T20:20:51.7296184+00:00 ContainerStatus: Container is starting.
+2026-06-09T20:20:51.7306459+00:00 ContainerStatus: State: Starting, Action: MountingVolumes, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Mounting volumes for web-cogni-frontend-99., DetailsLevel: INFO
+2026-06-09T20:20:51.7311988+00:00 ContainerStatus: Establishing user namespace if not established already.
+2026-06-09T20:20:51.7314455+00:00 ContainerStatus: Establishing network if not established already.
+2026-06-09T20:20:51.7317301+00:00 ContainerStatus: Mounting volumes.
+2026-06-09T20:20:51.7320019+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T20:20:51.8681183+00:00 ContainerStatus: Nested mountpoint volatile/logs
+2026-06-09T20:20:51.9274677+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T20:20:52.0026638+00:00 ContainerStatus: Nested mountpoint 
+2026-06-09T20:20:52.1378935+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Finished pulling container image and mounting volumes for web-cogni-frontend-99. Allocatinng the rest of the container resources to finish container creation., DetailsLevel: INFO
+2026-06-09T20:20:52.1380073+00:00 ContainerStatus: Creating container.
+2026-06-09T20:20:52.1380835+00:00 ContainerStatus: Creating pipes for streaming container io.
+2026-06-09T20:20:52.1381542+00:00 ContainerStatus: Creating stdout named pipe at /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stdout_9dfe6d0c75204750957fcd131b29dd7d.
+2026-06-09T20:20:52.1973661+00:00 ContainerStatus: Successfully created stdout named pipe at: /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stdout_9dfe6d0c75204750957fcd131b29dd7d.
+2026-06-09T20:20:52.1974835+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stdout_9dfe6d0c75204750957fcd131b29dd7d for reading in non-blocking mode.
+2026-06-09T20:20:52.1975861+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stdout_9dfe6d0c75204750957fcd131b29dd7d.
+2026-06-09T20:20:52.1976661+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stdout_9dfe6d0c75204750957fcd131b29dd7d.
+2026-06-09T20:20:52.2554119+00:00 ContainerStatus: Creating stderr named pipe at /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stderr_781465edf628400097b2f92dfd6e03fb.
+2026-06-09T20:20:52.3046929+00:00 ContainerStatus: Successfully created stderr named pipe at: /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stderr_781465edf628400097b2f92dfd6e03fb.
+2026-06-09T20:20:52.3230596+00:00 ContainerStatus: Opening named pipe /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stderr_781465edf628400097b2f92dfd6e03fb for reading in non-blocking mode.
+2026-06-09T20:20:52.3234696+00:00 ContainerStatus: Successfully opened named pipe: /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stderr_781465edf628400097b2f92dfd6e03fb.
+2026-06-09T20:20:52.4260262+00:00 ContainerStatus: Successfully removed non-blocking flag from /podr/container/pipe/6c88a1cb7561_web-cogni-frontend-99/stderr_781465edf628400097b2f92dfd6e03fb.
+2026-06-09T20:20:52.4262025+00:00 ContainerStatus: Creating container with image: acrcogniutrawi.azurecr.io/cogni-frontend:v5 from registry: acrcogniutrawi.azurecr.io and fully qualified image name: acrcogniutrawi.azurecr.io/cogni-frontend:v5
+2026-06-09T20:20:54.7961870+00:00 ContainerStatus: Starting container: 6c88a1cb7561_web-cogni-frontend-99.
+2026-06-09T20:20:55.0017876+00:00 ContainerStatus: Starting watchers and probes.
+2026-06-09T20:20:55.1578968+00:00 ContainerStatus: Starting metrics collection.
+2026-06-09T20:20:55.1582276+00:00 ContainerStatus: Container is running.
+2026-06-09T20:20:55.1583356+00:00 ContainerStatus: State: Starting, Action: CreatingContainer, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T20:20:55.3930210+00:00 ContainerStatus: Container start method finished after 54739 ms.
+2026-06-09T20:20:55.3938313+00:00 ContainerStatus: State: Starting, Action: InitiatingSiteWarmUpProbe, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Container web-cogni-frontend-99 successfully created and is running., DetailsLevel: INFO
+2026-06-09T20:20:55.3943594+00:00 ContainerStatus: State: Starting, Action: WaitingForSiteWarmUpProbeSuccess, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Pinging warmup path to ensure container is ready to receive requests., DetailsLevel: INFO
+2026-06-09T20:21:02.0081662+00:00 ContainerStream: 
+2026-06-09T20:21:02.0153484+00:00 ContainerStream: > rescuhome-client@1.0.0 start
+2026-06-09T20:21:02.0153765+00:00 ContainerStream: > next start
+2026-06-09T20:21:02.0153790+00:00 ContainerStream: 
+2026-06-09T20:21:05.7328886+00:00 ContainerStream:   ▲ Next.js 14.2.35
+2026-06-09T20:21:05.7344413+00:00 ContainerStream:   - Local:        http://localhost:3000
+2026-06-09T20:21:05.7349840+00:00 ContainerStream: 
+2026-06-09T20:21:05.7353110+00:00 ContainerStream:  ✓ Starting...
+2026-06-09T20:21:07.7410797+00:00 ContainerStream:  ✓ Ready in 4s
+2026-06-09T20:21:07.9845209+00:00 ContainerStatus: Site startup probe succeeded after 12.4624165 seconds.
+2026-06-09T20:21:08.3341935+00:00 ContainerStatus: State: Starting, Action: WarmUpProbeSucceeded, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site startup probe succeeded after 12.4624165 seconds., DetailsLevel: INFO
+2026-06-09T20:21:09.2693556+00:00 ContainerStatus: Site started.
+2026-06-09T20:21:09.2787018+00:00 ContainerStatus: State: Started, Action: None, LastError: , LastErrorTimestamp: 01/01/0001 00:00:00, LastErrorDetails: , Details: Site started at 06/09/2026 20:21:09 (UTC), DetailsLevel: INFO

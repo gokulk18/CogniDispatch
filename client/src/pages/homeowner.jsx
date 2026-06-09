@@ -51,7 +51,7 @@ export default function HomeownerDashboard() {
   const [cardExpiry, setCardExpiry] = useState('12/28');
   const [cardCvv, setCardCvv] = useState('123');
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'http://localhost:5000';
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
   const socketUrl = process.env.NEXT_PUBLIC_SOCKET_IP || serverUrl;
 
   // 1. Session Verification

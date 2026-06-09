@@ -77,7 +77,7 @@ export default function LoginPortal() {
     setErrorMsg('');
 
     try {
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'http://localhost:5000';
+      const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
       const payload = {
         role,
         password,

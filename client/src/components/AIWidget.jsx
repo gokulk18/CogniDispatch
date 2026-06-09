@@ -19,10 +19,7 @@ export default function AIWidget({ onTranscription, onFallback, disabled }) {
     const fetchToken = async () => {
       setInternalState('FETCHING_TOKEN');
       try {
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP;
-        if (!serverUrl) {
-          throw new Error("NEXT_PUBLIC_SERVER_IP is not defined in the environment.");
-        }
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
         
         const response = await axios.get(`${serverUrl}/api/ai/speech-token`);
         if (active) {
@@ -75,7 +72,7 @@ export default function AIWidget({ onTranscription, onFallback, disabled }) {
 
       if (!currentToken) {
         setInternalState('FETCHING_TOKEN');
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP;
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
         const tokenRes = await axios.get(`${serverUrl}/api/ai/speech-token`);
         currentToken = tokenRes.data.token;
         currentRegion = tokenRes.data.region;
