@@ -19,12 +19,13 @@ resource "azurerm_container_registry" "acr" {
 
 # Cosmos DB (MongoDB API)
 resource "azurerm_cosmosdb_account" "cosmos" {
-  name                = "cosmos-cognidispatch-db"
-  location            = "southeastasia"
-  resource_group_name = var.resource_group_name
-  offer_type          = "Standard"
-  kind                = "MongoDB"
-  enable_free_tier    = true
+  name                 = "cosmos-cognidispatch-db"
+  location             = "southeastasia"
+  resource_group_name  = var.resource_group_name
+  offer_type           = "Standard"
+  kind                 = "MongoDB"
+  mongo_server_version = "4.2"
+  enable_free_tier     = true
 
   consistency_policy {
     consistency_level       = "BoundedStaleness"

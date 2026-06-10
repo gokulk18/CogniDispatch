@@ -5,6 +5,9 @@ variable "snet_back_vnet_id" {}
 variable "acr_login_server" {}
 variable "acr_id" {}
 variable "keyvault_id" {}
+variable "client_id" {}
+variable "client_secret" {}
+variable "tenant_id" {}
 
 data "azurerm_client_config" "current" {}
 
@@ -41,7 +44,25 @@ resource "azurerm_linux_web_app" "frontend" {
   }
 
   app_settings = {
-    "WEBSITES_PORT" = "3000"
+    "WEBSITES_PORT"                            = "3000"
+    "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET" = var.client_secret
+  }
+
+  auth_settings_v2 {
+    auth_enabled           = true
+    default_provider       = "azureactivedirectory"
+    unauthenticated_action = "AllowAnonymous"
+
+    active_directory_v2 {
+      client_id                  = var.client_id
+      client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+      tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0"
+      allowed_audiences          = ["api://${var.client_id}"]
+    }
+
+    login {
+      token_store_enabled = true
+    }
   }
 
   identity {

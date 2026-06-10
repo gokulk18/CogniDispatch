@@ -73,6 +73,10 @@ module "compute" {
   acr_login_server    = module.data.acr_login_server
   acr_id              = module.data.acr_id
   keyvault_id         = module.data.keyvault_id
+
+  client_id     = module.identity.client_id
+  client_secret = module.identity.client_secret
+  tenant_id     = module.identity.tenant_id
 }
 
 # Container Apps Module

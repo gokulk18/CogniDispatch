@@ -57,10 +57,11 @@ resource "azurerm_container_app" "auth" {
 
   template {
     container {
-      name   = "auth-service"
-      image  = "${local.registry_server}/cogni-auth-service:v1"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      name    = "auth-service"
+      image   = "${local.registry_server}/cogni-auth-service:v1"
+      cpu     = 0.25
+      memory  = "0.5Gi"
+      command = ["node", "auth-service/server.js"]
 
       env {
         name        = "MONGODB_URI"
@@ -105,10 +106,11 @@ resource "azurerm_container_app" "vendor" {
 
   template {
     container {
-      name   = "vendor-service"
-      image  = "${local.registry_server}/cogni-vendor-service:v1"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      name    = "vendor-service"
+      image   = "${local.registry_server}/cogni-vendor-service:v1"
+      cpu     = 0.25
+      memory  = "0.5Gi"
+      command = ["node", "vendor-service/server.js"]
 
       env {
         name        = "MONGODB_URI"
@@ -153,10 +155,11 @@ resource "azurerm_container_app" "ai" {
 
   template {
     container {
-      name   = "ai-service"
-      image  = "${local.registry_server}/cogni-ai-service:v1"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      name    = "ai-service"
+      image   = "${local.registry_server}/cogni-ai-service:v1"
+      cpu     = 0.25
+      memory  = "0.5Gi"
+      command = ["node", "ai-service/server.js"]
 
       env {
         name        = "MONGODB_URI"
@@ -222,10 +225,11 @@ resource "azurerm_container_app" "admin" {
 
   template {
     container {
-      name   = "admin-service"
-      image  = "${local.registry_server}/cogni-admin-service:v1"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      name    = "admin-service"
+      image   = "${local.registry_server}/cogni-admin-service:v1"
+      cpu     = 0.25
+      memory  = "0.5Gi"
+      command = ["node", "admin-service/server.js"]
 
       env {
         name        = "MONGODB_URI"
@@ -270,10 +274,11 @@ resource "azurerm_container_app" "dispatch" {
 
   template {
     container {
-      name   = "dispatch-service"
-      image  = "${local.registry_server}/cogni-dispatch-service:v1"
-      cpu    = 0.25
-      memory = "0.5Gi"
+      name    = "dispatch-service"
+      image   = "${local.registry_server}/cogni-dispatch-service:v1"
+      cpu     = 0.25
+      memory  = "0.5Gi"
+      command = ["node", "dispatch-service/server.js"]
 
       env {
         name        = "MONGODB_URI"

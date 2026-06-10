@@ -10,7 +10,8 @@ resource "azuread_application" "cognidispatch_app" {
 
   web {
     redirect_uris = [
-      "https://cognidispatch.g0ku1.online/api/auth/callback/azure-ad"
+      "https://cognidispatch.g0ku1.online/.auth/login/aad/callback",
+      "https://web-cogni-frontend-99.azurewebsites.net/.auth/login/aad/callback"
     ]
     implicit_grant {
       access_token_issuance_enabled = true
