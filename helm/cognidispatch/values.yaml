@@ -132,12 +132,22 @@ keyvault:
 
 # Ingress Controller Configuration
 ingress:
-  enabled: false
-  className: "addon-http-application-routing"
+  enabled: true
+  className: "azure-application-gateway"
   annotations:
-    kubernetes.io/ingress.class: addon-http-application-routing
+    kubernetes.io/ingress.class: azure-application-gateway
   hosts:
     - host: cognidispatch.local
       paths:
+        - path: /api/
+          pathType: Prefix
+          backendName: cogni-backend-svc
+          backendPort: 5000
+        - path: /socket.io/
+          pathType: Prefix
+          backendName: cogni-backend-svc
+          backendPort: 5000
         - path: /
           pathType: Prefix
+          backendName: cogni-frontend-svc
+          backendPort: 3000

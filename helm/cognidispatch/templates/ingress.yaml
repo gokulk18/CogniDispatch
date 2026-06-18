@@ -20,9 +20,9 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: cogni-frontend-svc
+                name: {{ .backendName | default "cogni-frontend-svc" }}
                 port:
-                  number: 3000
+                  number: {{ .backendPort | default 3000 }}
           {{- end }}
     {{- end }}
 {{- end -}}
