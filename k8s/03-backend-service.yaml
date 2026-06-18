@@ -7,15 +7,13 @@ metadata:
     app: cogni-backend
     tier: backend
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: cogni-backend
   ports:
     - name: http
       port: 5000
       targetPort: 5000
-      # NodePort 30500 — App Gateway backend pool points to AKS_NODE_IP:30500
-      nodePort: 30500
       protocol: TCP
 
 ---

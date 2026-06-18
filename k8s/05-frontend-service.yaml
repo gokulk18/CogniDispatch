@@ -7,13 +7,11 @@ metadata:
     app: cogni-frontend
     tier: frontend
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: cogni-frontend
   ports:
     - name: http
       port: 3000
       targetPort: 3000
-      # NodePort 30080 — App Gateway default backend pool points to AKS_NODE_IP:30080
-      nodePort: 30080
       protocol: TCP
