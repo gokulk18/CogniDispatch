@@ -1,7 +1,7 @@
 # Global configurations
 global:
   namespace: cogni-dispatch
-  imageRegistry: acrcogniutrawi.azurecr.io
+  imageRegistry: cogniregistry.azurecr.io
   imagePullPolicy: Always
   imageTag: latest
 

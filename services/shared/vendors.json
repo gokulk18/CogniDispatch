@@ -328,9 +328,9 @@
     "id": "v_jamam7ov9",
     "available": true,
     "busy": false,
-    "balance": 31200,
-    "completed_jobs": 11,
-    "rating_count": 12,
+    "balance": 34080,
+    "completed_jobs": 12,
+    "rating_count": 13,
     "rating": 4.96,
     "name": "res1 Emergency Support",
     "technician": "res1",
@@ -348,6 +348,6 @@
         8.536332045101064
       ]
     },
-    "updatedAt": "2026-06-18T09:51:48.569Z"
+    "updatedAt": "2026-06-18T10:20:01.333Z"
   }
 ]

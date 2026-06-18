@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: cogni-nginx
-          image: acrcogniutrawi.azurecr.io/cogni-nginx:latest
+          image: cogniregistry.azurecr.io/cogni-nginx:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -90,7 +90,7 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: acrcogniutrawi.azurecr.io/cogni-auth-service:latest
+          image: cogniregistry.azurecr.io/cogni-auth-service:latest
           imagePullPolicy: Always
           workingDir: /app/auth-service
           ports:
@@ -155,7 +155,7 @@ spec:
     spec:
       containers:
         - name: vendor-service
-          image: acrcogniutrawi.azurecr.io/cogni-vendor-service:latest
+          image: cogniregistry.azurecr.io/cogni-vendor-service:latest
           imagePullPolicy: Always
           workingDir: /app/vendor-service
           ports:
@@ -220,7 +220,7 @@ spec:
     spec:
       containers:
         - name: ai-service
-          image: acrcogniutrawi.azurecr.io/cogni-ai-service:latest
+          image: cogniregistry.azurecr.io/cogni-ai-service:latest
           imagePullPolicy: Always
           workingDir: /app/ai-service
           ports:
@@ -285,7 +285,7 @@ spec:
     spec:
       containers:
         - name: admin-service
-          image: acrcogniutrawi.azurecr.io/cogni-admin-service:latest
+          image: cogniregistry.azurecr.io/cogni-admin-service:latest
           imagePullPolicy: Always
           workingDir: /app/admin-service
           ports:
@@ -350,7 +350,7 @@ spec:
     spec:
       containers:
         - name: dispatch-service
-          image: acrcogniutrawi.azurecr.io/cogni-dispatch-service:latest
+          image: cogniregistry.azurecr.io/cogni-dispatch-service:latest
           imagePullPolicy: Always
           workingDir: /app/dispatch-service
           ports:
@@ -415,7 +415,7 @@ spec:
     spec:
       containers:
         - name: payment-service
-          image: acrcogniutrawi.azurecr.io/cogni-payment-service:latest
+          image: cogniregistry.azurecr.io/cogni-payment-service:latest
           imagePullPolicy: Always
           workingDir: /app/payment-service
           ports:

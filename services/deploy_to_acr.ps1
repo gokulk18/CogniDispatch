@@ -1,4 +1,4 @@
-$acrName = "acrcogniutrawi"
+$acrName = "cogniregistry"
 $acrLoginServer = "$acrName.azurecr.io"
 
 Write-Host "Logging into Azure Container Registry ($acrName)..." -ForegroundColor Cyan

@@ -2,21 +2,21 @@ version: '3.8'
 
 services:
   auth-service:
-    image: acrcogniutrawi.azurecr.io/services-auth-service:latest
+    image: cogniregistry.azurecr.io/services-auth-service:latest
     ports:
       - "5001:5001"
     environment:
       - MONGODB_URI=${MONGODB_URI}
 
   vendor-service:
-    image: acrcogniutrawi.azurecr.io/services-vendor-service:latest
+    image: cogniregistry.azurecr.io/services-vendor-service:latest
     ports:
       - "5002:5002"
     environment:
       - MONGODB_URI=${MONGODB_URI}
 
   ai-service:
-    image: acrcogniutrawi.azurecr.io/services-ai-service:latest
+    image: cogniregistry.azurecr.io/services-ai-service:latest
     ports:
       - "5003:5003"
     environment:
@@ -28,21 +28,21 @@ services:
       - AZURE_SPEECH_KEY=${AZURE_SPEECH_KEY}
 
   admin-service:
-    image: acrcogniutrawi.azurecr.io/services-admin-service:latest
+    image: cogniregistry.azurecr.io/services-admin-service:latest
     ports:
       - "5004:5004"
     environment:
       - MONGODB_URI=${MONGODB_URI}
 
   dispatch-service:
-    image: acrcogniutrawi.azurecr.io/services-dispatch-service:latest
+    image: cogniregistry.azurecr.io/services-dispatch-service:latest
     ports:
       - "5005:5005"
     environment:
       - MONGODB_URI=${MONGODB_URI}
 
   payment-service:
-    image: acrcogniutrawi.azurecr.io/services-payment-service:latest
+    image: cogniregistry.azurecr.io/services-payment-service:latest
     ports:
       - "5006:5006"
     environment:

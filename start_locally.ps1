@@ -11,6 +11,7 @@ wt -d "$root\services\auth-service" cmd /k "npm install && npm start" `; `
    new-tab -d "$root\services\ai-service" cmd /k "npm install && npm start" `; `
    new-tab -d "$root\services\admin-service" cmd /k "npm install && npm start" `; `
    new-tab -d "$root\services\dispatch-service" cmd /k "npm install && npm start" `; `
+   new-tab -d "$root\services\payment-service" cmd /k "npm install && npm start" `; `
    new-tab -d "$root\client" cmd /k "npm install --legacy-peer-deps && npm run dev"
 
 Write-Host "---------------------------------------------" -ForegroundColor Cyan

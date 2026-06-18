@@ -516,5 +516,34 @@
       "Do not touch any electrical switches or devices if standing in water.",
       "Clear a path to the leak area for the arriving technician."
     ]
+  },
+  {
+    "id": "disp_zaed36rd1",
+    "status": "COMPLETED",
+    "otp": "2782",
+    "rating": 5,
+    "timestamp": "2026-06-18T10:18:59.625Z",
+    "createdAt": "2026-06-18T10:18:59.625Z",
+    "updatedAt": "2026-06-18T10:20:01.340Z",
+    "socketId": "mFFvrDibHWzsYFJJAAAD",
+    "userId": "u_1xqhllf5l",
+    "userName": "user1",
+    "vendorId": "v_jamam7ov9",
+    "vendorName": "res1 Emergency Support",
+    "technicianName": "res1",
+    "category": "PLUMBING",
+    "urgency": "HIGH",
+    "amount": 3600,
+    "targetLat": 8.536495975722842,
+    "targetLng": 76.88329987543473,
+    "vendorLat": 8.536332045101064,
+    "vendorLng": 76.88329416905123,
+    "summary": "Simulated assessment: Reported: pipe broke",
+    "mitigationSteps": [
+      "Locate and shut off the main water valve immediately.",
+      "Move all portable electronics, furniture, and valuables off the floor.",
+      "Do not touch any electrical switches or devices if standing in water.",
+      "Clear a path to the leak area for the arriving technician."
+    ]
   }
 ]
