@@ -105,7 +105,7 @@ frontend:
 # Application Settings
 config:
   nodeEnv: production
-  mongodbUri: "mongodb+srv://<user>:<password>@<cluster>.mongodb.net/cognidispatch?retryWrites=true&w=majority"
+  mongodbUri: "mongodb://cosmos-cognidispatch-db:<password>@cosmos-cognidispatch-db.mongo.cosmos.azure.com:10255/cognidispatch?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@cosmos-cognidispatch-db@"
   azureSpeechKey: "REPLACE_WITH_YOUR_KEY"
   azureSpeechRegion: "centralindia"
   azureOpenaiEndpoint: "https://mock-openai.openai.azure.com/"

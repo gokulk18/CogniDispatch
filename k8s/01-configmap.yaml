@@ -6,8 +6,7 @@ metadata:
   labels:
     app: cogni-dispatch
 data:
-  # MongoDB Connection String — Replace with your Atlas or Cosmos DB URI before deploying to AKS
-  MONGODB_URI: "mongodb+srv://<user>:<password>@<cluster>.mongodb.net/cognidispatch?retryWrites=true&w=majority"
+  MONGODB_URI: "mongodb://cosmos-cognidispatch-db:<password>@cosmos-cognidispatch-db.mongo.cosmos.azure.com:10255/cognidispatch?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@cosmos-cognidispatch-db@"
 
   # Azure Speech Service — Central India
   AZURE_SPEECH_KEY: "REPLACE_WITH_YOUR_REGENERATED_KEY"

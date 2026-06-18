@@ -100,6 +100,11 @@ spec:
           env:
             - name: PORT
               value: "5001"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: cogni-db-secret
+                  key: MONGODB_URI
           envFrom:
             - configMapRef:
                 name: cogni-config
@@ -165,6 +170,11 @@ spec:
           env:
             - name: PORT
               value: "5002"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: cogni-db-secret
+                  key: MONGODB_URI
           envFrom:
             - configMapRef:
                 name: cogni-config
@@ -230,6 +240,11 @@ spec:
           env:
             - name: PORT
               value: "5003"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: cogni-db-secret
+                  key: MONGODB_URI
           envFrom:
             - configMapRef:
                 name: cogni-config
@@ -295,6 +310,11 @@ spec:
           env:
             - name: PORT
               value: "5004"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: cogni-db-secret
+                  key: MONGODB_URI
           envFrom:
             - configMapRef:
                 name: cogni-config
@@ -360,6 +380,11 @@ spec:
           env:
             - name: PORT
               value: "5005"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: cogni-db-secret
+                  key: MONGODB_URI
           envFrom:
             - configMapRef:
                 name: cogni-config
@@ -425,6 +450,11 @@ spec:
           env:
             - name: PORT
               value: "5006"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: cogni-db-secret
+                  key: MONGODB_URI
           envFrom:
             - configMapRef:
                 name: cogni-config
