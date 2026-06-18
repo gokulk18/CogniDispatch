@@ -7,9 +7,14 @@ if (-not $appGwIp) {
     exit 1
 }
 
-# Ensure IP starts with http:// if not already present
+# Ensure IP/domain starts with http:// or https:// if not already present
 if (-not $appGwIp.StartsWith("http://") -and -not $appGwIp.StartsWith("https://")) {
-    $appGwIp = "http://$appGwIp"
+    # If the input contains letters (like a domain name), use https, otherwise use http
+    if ($appGwIp -match "[a-zA-Z]") {
+        $appGwIp = "https://$appGwIp"
+    } else {
+        $appGwIp = "http://$appGwIp"
+    }
 }
 
 Write-Host "Logging into Azure Container Registry ($acrName)..." -ForegroundColor Cyan

@@ -1,0 +1,28 @@
+name: Vendor_Service_CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/vendor-service/**'
+      - 'services/shared/**'
+      - '.github/workflows/vendor-service.yml'
+  workflow_dispatch:
+
+jobs:
+  call-common-ci:
+    uses: ./.github/workflows/common-ci.yml
+    with:
+      working_directory: services/vendor-service
+      image_name: cogni-vendor-service
+      service_name: vendor-service
+      dockerfile_path: services/Dockerfile
+      docker_build_context: services
+      sonar_project_key: cogni-vendor-service
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}

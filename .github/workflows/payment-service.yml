@@ -1,0 +1,28 @@
+name: Payment_Service_CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/payment-service/**'
+      - 'services/shared/**'
+      - '.github/workflows/payment-service.yml'
+  workflow_dispatch:
+
+jobs:
+  call-common-ci:
+    uses: ./.github/workflows/common-ci.yml
+    with:
+      working_directory: services/payment-service
+      image_name: cogni-payment-service
+      service_name: payment-service
+      dockerfile_path: services/Dockerfile
+      docker_build_context: services
+      sonar_project_key: cogni-payment-service
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}

@@ -1,23 +1,41 @@
-FROM node:20-alpine
+# ──────────────────────────────────────────────────
+# CogniDispatch Backend — Multi-Stage Dockerfile
+# ──────────────────────────────────────────────────
+
+# Stage 1: Install dependencies and build shared library + service
+FROM node:20-alpine AS builder
 WORKDIR /app
+
+# Define build argument for the service to compile/install
+ARG SERVICE_NAME
 
 # Copy shared library
 COPY shared /app/shared
+RUN cd /app/shared && npm install --omit=dev
 
-# We will mount the specific service at build time via docker-compose context, 
-# but the Dockerfile needs to be able to copy it.
-# Actually, since docker-compose sets context to `.`, we copy everything and run npm install in the specific working_dir.
-COPY . /app/
+# Copy specific service
+COPY ${SERVICE_NAME} /app/${SERVICE_NAME}
+RUN cd /app/${SERVICE_NAME} && npm install --omit=dev
 
-# The working_dir is set in docker-compose.yml, so we don't run npm install here.
-# Instead we'll use a script or command in docker-compose, OR run it via CMD.
-# A better approach: Run npm install in all directories.
-RUN cd /app/shared && npm install
-RUN cd /app/auth-service && npm install
-RUN cd /app/vendor-service && npm install
-RUN cd /app/ai-service && npm install
-RUN cd /app/admin-service && npm install
-RUN cd /app/dispatch-service && npm install
-RUN cd /app/payment-service && npm install
+# Stage 2: Clean production runner
+FROM node:20-alpine AS runner
+WORKDIR /app
 
+ARG SERVICE_NAME
+ENV SERVICE_NAME=${SERVICE_NAME}
+ENV PORT=5000
+
+# Copy only the installed dependencies and code from builder
+COPY --from=builder /app/shared /app/shared
+COPY --from=builder /app/${SERVICE_NAME} /app/${SERVICE_NAME}
+
+WORKDIR /app/${SERVICE_NAME}
+
+# Set node user for security
+USER node
+
+# Expose port (can be overridden, default is PORT)
+EXPOSE ${PORT}
+
+# Start the specific microservice
 CMD ["npm", "start"]

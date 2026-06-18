@@ -1,0 +1,123 @@
+name: Common_CI
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+        description: "Path to the service folder"
+      image_name:
+        required: true
+        type: string
+        description: "Name of the target Docker image in ACR"
+      service_name:
+        required: false
+        type: string
+        default: ""
+        description: "Value of the SERVICE_NAME build argument (backend only)"
+      dockerfile_path:
+        required: true
+        type: string
+        description: "Path to the Dockerfile (relative to repo root)"
+      docker_build_context:
+        required: true
+        type: string
+        description: "Path to the build context (relative to repo root)"
+      sonar_project_key:
+        required: true
+        type: string
+        description: "SonarQube project key"
+    secrets:
+      SONAR_TOKEN:
+        required: true
+      SONAR_HOST_URL:
+        required: false
+      SNYK_TOKEN:
+        required: true
+      ACR_USERNAME:
+        required: true
+      ACR_PASSWORD:
+        required: true
+
+jobs:
+  ci-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of SonarQube analysis
+
+      # 1. SonarCloud Quality Analysis (without Quality Gate blocker)
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@v3.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: ${{ inputs.working_directory }}
+          args: >
+            -Dsonar.projectKey=${{ inputs.sonar_project_key }}
+            -Dsonar.projectName=${{ inputs.sonar_project_key }}
+            -Dsonar.organization=gokulk18
+
+      # 2. Dependency Vulnerability Scan (Snyk)
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          directory: ${{ inputs.working_directory }}
+          args: --severity-threshold=high
+
+      # 3. Set up QEMU & Docker Buildx
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 4. Log in to Azure Container Registry (ACR)
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: cogniregistry.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      # 5. Build Docker Image (Without Pushing yet, so Trivy can scan it)
+      - name: Build Docker Image Locally
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.docker_build_context }}
+          file: ${{ inputs.dockerfile_path }}
+          load: true # Load the image into the local Docker daemon for Trivy scanning
+          tags: cogniregistry.azurecr.io/${{ inputs.image_name }}:latest
+          build-args: |
+            NEXT_PUBLIC_SERVER_IP=https://api.g0ku1.online
+            SERVICE_NAME=${{ inputs.service_name }}
+
+      # 6. Container Image Security Scan (Trivy)
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: cogniregistry.azurecr.io/${{ inputs.image_name }}:latest
+          format: 'table'
+          exit-code: '0' # Do not fail the build, just report issues
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      # 7. Push Docker Image to ACR
+      - name: Push Docker Image to ACR
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.docker_build_context }}
+          file: ${{ inputs.dockerfile_path }}
+          push: true
+          tags: |
+            cogniregistry.azurecr.io/${{ inputs.image_name }}:v1
+            cogniregistry.azurecr.io/${{ inputs.image_name }}:latest
+          build-args: |
+            NEXT_PUBLIC_SERVER_IP=https://api.g0ku1.online
+            SERVICE_NAME=${{ inputs.service_name }}

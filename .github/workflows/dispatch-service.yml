@@ -1,0 +1,28 @@
+name: Dispatch_Service_CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/dispatch-service/**'
+      - 'services/shared/**'
+      - '.github/workflows/dispatch-service.yml'
+  workflow_dispatch:
+
+jobs:
+  call-common-ci:
+    uses: ./.github/workflows/common-ci.yml
+    with:
+      working_directory: services/dispatch-service
+      image_name: cogni-dispatch-service
+      service_name: dispatch-service
+      dockerfile_path: services/Dockerfile
+      docker_build_context: services
+      sonar_project_key: cogni-dispatch-service
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}

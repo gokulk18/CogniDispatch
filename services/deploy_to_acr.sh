@@ -12,7 +12,7 @@ for service in "${services[@]}"; do
     echo "Building $service via ACR Tasks..."
     echo "--------------------------------------------------"
     # Offload the build to ACR (we pass the context directory '.' and build file './Dockerfile')
-    az acr build --registry $ACR_NAME --image cogni-${service}:v1 --image cogni-${service}:latest -f ./Dockerfile .
+    az acr build --registry $ACR_NAME --image cogni-${service}:v1 --image cogni-${service}:latest --build-arg SERVICE_NAME=${service} -f ./Dockerfile .
 done
 
 echo "--------------------------------------------------"

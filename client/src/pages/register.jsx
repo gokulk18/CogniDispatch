@@ -55,7 +55,7 @@ export default function RegisterPortal() {
     setSuccessMsg('');
 
     try {
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
+      const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || '';
       const payload = {
         role,
         email,

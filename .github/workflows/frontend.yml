@@ -1,0 +1,26 @@
+name: Frontend_CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'client/**'
+      - '.github/workflows/frontend.yml'
+  workflow_dispatch:
+
+jobs:
+  call-common-ci:
+    uses: ./.github/workflows/common-ci.yml
+    with:
+      working_directory: client
+      image_name: cogni-frontend
+      dockerfile_path: client/Dockerfile
+      docker_build_context: client
+      sonar_project_key: cogni-frontend
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}

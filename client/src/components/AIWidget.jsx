@@ -42,7 +42,7 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
 
   const isDemoMode = speechToken === 'mock_speech_token';
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || '';
   const socketUrl = process.env.NEXT_PUBLIC_SOCKET_IP || serverUrl;
 
   // Cleanup speech synthesis on unmount

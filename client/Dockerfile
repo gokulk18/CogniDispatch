@@ -2,7 +2,7 @@
 # CogniDispatch Frontend — Multi-Stage Dockerfile
 # ──────────────────────────────────────────────────
 
-# ── Stage 1: Build ──────────────────────────────
+# Stage 1: Build the application
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -10,35 +10,36 @@ WORKDIR /app
 # Copy dependency manifests
 COPY package*.json ./
 
-# Install all dependencies (including dev, needed for Next.js build)
+# Install all dependencies (including devDependencies)
 RUN npm install --legacy-peer-deps
 
 # Copy all source files
 COPY . .
 
-# IMPORTANT: NEXT_PUBLIC_SERVER_IP must be set at BUILD time.
-# It becomes the Application Gateway public URL visible to browsers.
-# Pass via: docker build --build-arg NEXT_PUBLIC_SERVER_IP=http://<APPGW_PUBLIC_IP>
-ARG NEXT_PUBLIC_SERVER_IP=https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io
+# Environment variables must be set at build time for Next.js compilation
+ARG NEXT_PUBLIC_SERVER_IP
 ENV NEXT_PUBLIC_SERVER_IP=$NEXT_PUBLIC_SERVER_IP
 
-# Build the production Next.js bundle
+ARG NEXT_PUBLIC_SOCKET_IP
+ENV NEXT_PUBLIC_SOCKET_IP=$NEXT_PUBLIC_SOCKET_IP
+
+# Build the production Next.js bundle (outputs standalone version if configured in next.config.js)
 RUN npm run build
 
-# ── Stage 2: Runtime ─────────────────────────────
+# Stage 2: Clean and light production runner
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PORT=3000
 
-# Copy only what is needed to run the built app
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
+# Copy the standalone build from the builder stage
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 # Expose frontend port
 EXPOSE 3000
 
-# Start Next.js production server
-CMD ["npm", "start"]
+# Start the standalone Next.js production server
+CMD ["node", "server.js"]

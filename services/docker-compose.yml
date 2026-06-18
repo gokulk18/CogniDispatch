@@ -5,6 +5,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=auth-service
     working_dir: /app/auth-service
     ports:
       - "5001:5001"
@@ -15,6 +17,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=vendor-service
     working_dir: /app/vendor-service
     ports:
       - "5002:5002"
@@ -25,6 +29,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=ai-service
     working_dir: /app/ai-service
     ports:
       - "5003:5003"
@@ -40,6 +46,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=admin-service
     working_dir: /app/admin-service
     ports:
       - "5004:5004"
@@ -50,6 +58,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=dispatch-service
     working_dir: /app/dispatch-service
     ports:
       - "5005:5005"
@@ -60,6 +70,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=payment-service
     working_dir: /app/payment-service
     ports:
       - "5006:5006"

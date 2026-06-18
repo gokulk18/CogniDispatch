@@ -198,7 +198,6 @@ Output schema (strict):
     if (!isLegacy && client.chat && client.chat.completions) {
       const response = await client.chat.completions.create({
         model: deployment,
-        max_tokens: 600,
         temperature: 0.1,
         messages: [
           { role: "system", content: systemPrompt },
@@ -218,13 +217,12 @@ Output schema (strict):
             { role: "system", content: systemPrompt },
             { role: "user", content: transcription }
           ],
-          { maxTokens: 600, temperature: 0.1 }
+          { temperature: 0.1 }
         );
       } else {
         // Ultimate fallback: assume modern openai shape if any
         response = await client.chat.completions.create({
           model: deployment,
-          max_tokens: 600,
           temperature: 0.1,
           messages: [
             { role: "system", content: systemPrompt },
@@ -430,7 +428,6 @@ Analyze the image and output a valid JSON object matching this schema:
     if (!isLegacy && client.chat && client.chat.completions) {
       const response = await client.chat.completions.create({
         model: deployment,
-        max_tokens: 800,
         temperature: 0.15,
         messages: [
           { role: "system", content: systemPrompt },
@@ -461,12 +458,11 @@ Analyze the image and output a valid JSON object matching this schema:
             { role: "system", content: systemPrompt },
             { role: "user", content: legacyUserMessageContent }
           ],
-          { maxTokens: 800, temperature: 0.15 }
+          { temperature: 0.15 }
         );
       } else {
         response = await client.chat.completions.create({
           model: deployment,
-          max_tokens: 800,
           temperature: 0.15,
           messages: [
             { role: "system", content: systemPrompt },
@@ -612,7 +608,6 @@ Output ONLY a valid minified JSON object matching this schema (do NOT wrap in co
     if (!isLegacy && client.chat && client.chat.completions) {
       const response = await client.chat.completions.create({
         model: deployment,
-        max_tokens: 400,
         temperature: 0.1,
         messages: [
           { role: "system", content: systemPrompt },
@@ -642,12 +637,11 @@ Output ONLY a valid minified JSON object matching this schema (do NOT wrap in co
             { role: "system", content: systemPrompt },
             { role: "user", content: legacyUserMessageContent }
           ],
-          { maxTokens: 400, temperature: 0.1 }
+          { temperature: 0.1 }
         );
       } else {
         response = await client.chat.completions.create({
           model: deployment,
-          max_tokens: 400,
           temperature: 0.1,
           messages: [
             { role: "system", content: systemPrompt },

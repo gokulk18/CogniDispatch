@@ -8,7 +8,7 @@ $services = @("auth-service", "vendor-service", "ai-service", "admin-service", "
 
 foreach ($service in $services) {
     Write-Host "Building and pushing $service..." -ForegroundColor Yellow
-    docker build -t "$acrLoginServer/cogni-${service}:v1" -t "$acrLoginServer/cogni-${service}:latest" -f .\Dockerfile .
+    docker build --build-arg SERVICE_NAME=$service -t "$acrLoginServer/cogni-${service}:v1" -t "$acrLoginServer/cogni-${service}:latest" -f .\Dockerfile .
     docker push "$acrLoginServer/cogni-${service}:v1"
     docker push "$acrLoginServer/cogni-${service}:latest"
 }

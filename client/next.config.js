@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  output: 'standalone',
   async rewrites() {
     return [
       // Health check (previously served by Nginx gateway)

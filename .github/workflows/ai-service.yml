@@ -1,0 +1,28 @@
+name: AI_Service_CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/ai-service/**'
+      - 'services/shared/**'
+      - '.github/workflows/ai-service.yml'
+  workflow_dispatch:
+
+jobs:
+  call-common-ci:
+    uses: ./.github/workflows/common-ci.yml
+    with:
+      working_directory: services/ai-service
+      image_name: cogni-ai-service
+      service_name: ai-service
+      dockerfile_path: services/Dockerfile
+      docker_build_context: services
+      sonar_project_key: cogni-ai-service
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}

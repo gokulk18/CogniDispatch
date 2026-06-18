@@ -11,9 +11,14 @@ if [ -z "$APPGW_IP" ]; then
     exit 1
 fi
 
-# Ensure IP starts with http:// if not already present
+# Ensure IP/domain starts with http:// or https:// if not already present
 if [[ ! $APPGW_IP =~ ^https?:// ]]; then
-    APPGW_IP="http://${APPGW_IP}"
+    # If the input contains letters (like a domain name), use https, otherwise use http
+    if [[ $APPGW_IP =~ [a-zA-Z] ]]; then
+        APPGW_IP="https://${APPGW_IP}"
+    else
+        APPGW_IP="http://${APPGW_IP}"
+    fi
 fi
 
 echo "Logging into Azure Container Registry (${ACR_NAME})..."
