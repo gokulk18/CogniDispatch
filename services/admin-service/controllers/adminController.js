@@ -1,5 +1,5 @@
 const express = require('express');
-const dbAdapter = require('cognidispatch-shared').dbAdapter;
+const dbAdapter = require('../../shared').dbAdapter;
 const router = express.Router();
 
 // GET /api/admin/metrics

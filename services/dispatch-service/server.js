@@ -5,7 +5,7 @@ const { Server } = require('socket.io');
 const helmet = require('helmet');
 const cors = require('cors');
 
-const dbAdapter = require('cognidispatch-shared').dbAdapter;
+const dbAdapter = require('../shared').dbAdapter;
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -140,68 +140,42 @@ io.on('connection', (socket) => {
     socket.join(`room_disp_${dispatchId}`);
     io.to(`room_disp_${dispatchId}`).emit('job-accepted', { dispatchId, vendorId });
 
-    clearDispatchInterval(dispatchId);
+    console.log(`[CogniDispatch Telemetry] Dispatch ${dispatchId} accepted. Awaiting location updates from technician.`);
+  });
 
-    let techLat = Number(dispatch.vendorLat);
-    let techLng = Number(dispatch.vendorLng);
+  socket.on('update-location', async (payload) => {
+    const { dispatchId, lat, lng } = payload;
+    if (!dispatchId || lat === undefined || lng === undefined) return;
+
+    const dispatch = await dbAdapter.Dispatches.findById(dispatchId);
+    if (!dispatch) return;
+
+    const currentLat = Number(lat);
+    const currentLng = Number(lng);
     const destLat = Number(dispatch.targetLat);
     const destLng = Number(dispatch.targetLng);
 
-    const intervalId = setInterval(async () => {
-      if (!activeDispatches.has(dispatchId)) {
-        clearInterval(intervalId);
-        return;
-      }
+    const distance = haversineDistance(currentLat, currentLng, destLat, destLng);
+    const etaSeconds = distance < 50 ? 0 : Math.round(distance / 15);
 
-      const active = activeDispatches.get(dispatchId);
-      const stepFactor = 0.08 + Math.random() * 0.07;
-      
-      const latDiff = destLat - active.techLat;
-      const lngDiff = destLng - active.techLng;
+    await dbAdapter.Dispatches.update(dispatchId, {
+      vendorLat: parseFloat(currentLat.toFixed(6)),
+      vendorLng: parseFloat(currentLng.toFixed(6))
+    }).catch(err => console.error('[Telemetry] Database update failed:', err.message));
 
-      const jitterLat = (Math.random() - 0.5) * 0.0002;
-      const jitterLng = (Math.random() - 0.5) * 0.0002;
-
-      active.techLat += latDiff * stepFactor + jitterLat;
-      active.techLng += lngDiff * stepFactor + jitterLng;
-
-      const distance = haversineDistance(active.techLat, active.techLng, destLat, destLng);
-      const etaSeconds = distance < 50 ? 0 : Math.round(distance / 15);
-
-      dbAdapter.Dispatches.update(dispatchId, {
-        vendorLat: parseFloat(active.techLat.toFixed(6)),
-        vendorLng: parseFloat(active.techLng.toFixed(6))
-      }).catch(err => console.error('[Telemetry] Coord update failed:', err.message));
-
-      io.to(`room_disp_${dispatchId}`).emit('tech-location-update', {
-        dispatchId,
-        lat: parseFloat(active.techLat.toFixed(6)),
-        lng: parseFloat(active.techLng.toFixed(6)),
-        distanceMeters: parseFloat(distance.toFixed(1)),
-        eta: etaSeconds
-      });
-
-      if (distance < 50) {
-        console.log(`[CogniDispatch Telemetry] Technician arrived for dispatch ${dispatchId}!`);
-        
-        await dbAdapter.Dispatches.update(dispatchId, { status: 'ARRIVED' });
-        io.to(`room_disp_${dispatchId}`).emit('tech-arrived', { dispatchId });
-
-        clearInterval(active.intervalId);
-        activeDispatches.delete(dispatchId);
-      }
-    }, 3000);
-
-    activeDispatches.set(dispatchId, {
+    io.to(`room_disp_${dispatchId}`).emit('tech-location-update', {
       dispatchId,
-      techLat,
-      techLng,
-      targetLat: destLat,
-      targetLng: destLng,
-      intervalId
+      lat: parseFloat(currentLat.toFixed(6)),
+      lng: parseFloat(currentLng.toFixed(6)),
+      distanceMeters: parseFloat(distance.toFixed(1)),
+      eta: etaSeconds
     });
 
-    console.log(`[CogniDispatch Telemetry] Active en-route drive initialized for dispatch ${dispatchId} by technician ${vendorId}`);
+    if (distance < 50 && dispatch.status === 'EN_ROUTE') {
+      console.log(`[CogniDispatch Telemetry] Technician arrived at destination for dispatch ${dispatchId}`);
+      await dbAdapter.Dispatches.update(dispatchId, { status: 'ARRIVED' });
+      io.to(`room_disp_${dispatchId}`).emit('tech-arrived', { dispatchId });
+    }
   });
 
   socket.on('decline-job', async (payload) => {

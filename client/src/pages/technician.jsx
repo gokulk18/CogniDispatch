@@ -164,6 +164,47 @@ export default function TechnicianDashboard() {
     return () => clearInterval(timer);
   }, [countdown, countdownActive, techPhase]);
 
+  // 3. Live Browser Geolocation Tracking during EN_ROUTE
+  useEffect(() => {
+    if (techPhase !== 'EN_ROUTE' || !activeJob || !socket) return;
+
+    let watchId = null;
+
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          console.log(`[GeoTracking] New location: ${lat}, ${lng}`);
+          
+          setTechCoords({ lat, lng });
+          socket.emit('update-location', {
+            dispatchId: activeJob.id,
+            lat,
+            lng
+          });
+        },
+        (err) => {
+          console.error("[GeoTracking] Geolocation error:", err.message);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      console.warn("[GeoTracking] Geolocation not supported by this browser.");
+    }
+
+    return () => {
+      if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+        console.log("[GeoTracking] Watch cleared.");
+      }
+    };
+  }, [techPhase, activeJob, socket]);
+
   const checkActiveJob = async (vendorId, socketInstance) => {
     try {
       const res = await axios.get(`${serverUrl}/api/vendors/active-job/${vendorId}`);
@@ -224,6 +265,30 @@ export default function TechnicianDashboard() {
         vendorId: session.id
       });
     }
+  };
+
+  const handleSimulateStep = () => {
+    if (!activeJob || !techCoords || !userCoords || !socket) return;
+    
+    const destLat = userCoords.lat;
+    const destLng = userCoords.lng;
+    const currentLat = techCoords.lat;
+    const currentLng = techCoords.lng;
+
+    const latDiff = destLat - currentLat;
+    const lngDiff = destLng - currentLng;
+
+    // Move 15% closer to target each click
+    const stepFactor = 0.15; 
+    const nextLat = currentLat + latDiff * stepFactor;
+    const nextLng = currentLng + lngDiff * stepFactor;
+
+    setTechCoords({ lat: nextLat, lng: nextLng });
+    socket.emit('update-location', {
+      dispatchId: activeJob.id,
+      lat: nextLat,
+      lng: nextLng
+    });
   };
 
   // Decline Job Offer (Releases busy: false)
@@ -495,12 +560,20 @@ export default function TechnicianDashboard() {
                 </div>
                 
                 {techPhase === 'EN_ROUTE' && (
-                  <button
-                    onClick={handleMarkArrived}
-                    className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-mono font-bold uppercase tracking-wider shadow transition"
-                  >
-                    ✔️ Signal Arrival / Secure Area
-                  </button>
+                  <div className="flex flex-wrap gap-2.5">
+                    <button
+                      onClick={handleSimulateStep}
+                      className="px-4 py-2.5 bg-slate-950 hover:bg-slate-900 border border-amber-500/40 text-warning-amber rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition"
+                    >
+                      🚗 Sim Step (15% Drive)
+                    </button>
+                    <button
+                      onClick={handleMarkArrived}
+                      className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-mono font-bold uppercase tracking-wider shadow transition"
+                    >
+                      ✔️ Signal Arrival / Secure Area
+                    </button>
+                  </div>
                 )}
 
                 {techPhase === 'ARRIVED' && (

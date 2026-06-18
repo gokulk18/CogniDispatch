@@ -1,5 +1,5 @@
 const express = require('express');
-const dbAdapter = require('cognidispatch-shared').dbAdapter;
+const dbAdapter = require('../../shared').dbAdapter;
 const router = express.Router();
 
 // Helper to convert degrees to radians
@@ -61,27 +61,17 @@ router.post('/match', async (req, res) => {
       return { ...vendor, distanceMeters: parseFloat(distanceMeters.toFixed(2)), isOnline: !!isOnline };
     });
 
-    // Sort: online vendors first, then by distance
-    vendorsWithMetrics.sort((a, b) => {
-      if (a.isOnline && !b.isOnline) return -1;
-      if (!a.isOnline && b.isOnline) return 1;
-      return a.distanceMeters - b.distanceMeters;
-    });
+    // Filter strictly within a 10km (10,000 meters) radius
+    const localVendors = vendorsWithMetrics.filter(vendor => vendor.distanceMeters <= 10000);
 
-    let closestVendor = vendorsWithMetrics[0];
-
-    // Teleport vendor close to user if they are far (>100km) for realistic demo
-    if (closestVendor.distanceMeters > 100000) {
-      console.log(`[CogniDispatch Telemetry] Match teleport active (${(closestVendor.distanceMeters / 1000).toFixed(0)} km away). Relocating coordinates to user's neighborhood.`);
-      const angle = Math.random() * Math.PI * 2;
-      const offsetDegrees = 0.015 + Math.random() * 0.015;
-      closestVendor = {
-        ...closestVendor,
-        lat: numLat + Math.cos(angle) * offsetDegrees,
-        lng: numLng + Math.sin(angle) * offsetDegrees,
-        distanceMeters: parseFloat((offsetDegrees * 111000).toFixed(2))
-      };
+    if (localVendors.length === 0) {
+      return res.status(404).json({ error: `No active contractors are available within a 10km radius of your location for category ${category}.` });
     }
+
+    // Sort strictly by distance to find the absolute nearest vendor
+    localVendors.sort((a, b) => a.distanceMeters - b.distanceMeters);
+
+    let closestVendor = localVendors[0];
 
     // Mark vendor busy immediately
     await dbAdapter.Vendors.update(closestVendor.id, { busy: true });
