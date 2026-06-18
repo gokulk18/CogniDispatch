@@ -63,6 +63,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: cogni-config
+            - secretRef:
+                name: cogni-secrets
+                optional: true
           resources:
             {{- toYaml .Values.authService.resources | nindent 12 }}
           livenessProbe:
