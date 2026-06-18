@@ -31,12 +31,18 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+# Upgrade OS packages to patch vulnerabilities
+RUN apk update && apk upgrade --no-cache
+
 ENV NODE_ENV=production
 ENV PORT=3000
 
 # Copy the standalone build from the builder stage
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+
+# Remove global npm and npx to eliminate npm-bundled vulnerabilities
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Expose frontend port
 EXPOSE 3000
