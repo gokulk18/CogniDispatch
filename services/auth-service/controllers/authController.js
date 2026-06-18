@@ -131,7 +131,7 @@ router.post('/login', async (req, res) => {
     } else if (role.toUpperCase() === 'ADMIN') {
       if (!email) return res.status(400).json({ error: "Admin email is required." });
       const defaultAdminEmail    = 'admin@cognidispatch.com';
-      const defaultAdminEmailAlt = 'admin@cogidispatch.com';
+      const defaultAdminEmailAlt = 'admin@cognidispatch.com';
       const defaultAdminHash     = dbAdapter.hashPassword('admin123');
       const loginEmail           = email.toLowerCase();
 

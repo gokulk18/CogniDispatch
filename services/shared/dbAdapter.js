@@ -1,218 +1,201 @@
-const mongoose = require('mongoose');
+const path = require('path');
 const crypto = require('crypto');
 
+// Load initial seed data from JSON files in the shared module
+const usersData = require('./users.json');
+const vendorsData = require('./vendors.json');
+const dispatchesData = require('./dispatches.json');
+
+// Initialize in-memory state arrays
+const users = [...usersData];
+const vendors = vendorsData.map(vendor => {
+  const lat = vendor.lat !== undefined ? Number(vendor.lat) : 8.53633;
+  const lng = vendor.lng !== undefined ? Number(vendor.lng) : 76.88329;
+  return {
+    ...vendor,
+    lat,
+    lng,
+    location: { type: 'Point', coordinates: [lng, lat] },
+    available: vendor.available !== undefined ? vendor.available : true,
+    busy: vendor.busy !== undefined ? vendor.busy : false,
+    balance: vendor.balance !== undefined ? Number(vendor.balance) : 0,
+    completed_jobs: vendor.completed_jobs !== undefined ? Number(vendor.completed_jobs) : 0,
+    rating: vendor.rating !== undefined ? Number(vendor.rating) : 4.5,
+    rating_count: vendor.rating_count !== undefined ? Number(vendor.rating_count) : 1
+  };
+});
+const dispatches = [...dispatchesData];
+
+console.log('[CogniDispatch DB] ✅ Running in Offline In-Memory Mock Mode (No MongoDB Server required)');
+
 // ─────────────────────────────────────────────────────
-// Password hashing (unchanged — same algorithm as before)
+// Password hashing (replicated from original dbAdapter)
 // ─────────────────────────────────────────────────────
 function hashPassword(password) {
   return crypto.pbkdf2Sync(password, 'salt_cognidispatch', 1000, 64, 'sha512').toString('hex');
 }
 
 // ─────────────────────────────────────────────────────
-// Mongoose Schemas
+// In-Memory DB Adapter Mock Collections
 // ─────────────────────────────────────────────────────
 
-const UserSchema = new mongoose.Schema({
-  id:           { type: String, unique: true, index: true },
-  name:         { type: String, required: true },
-  email:        { type: String, unique: true, lowercase: true, index: true },
-  phone:        { type: String, default: '' },
-  address:      { type: String, default: '' },
-  lat:          { type: Number, default: 8.53633 },
-  lng:          { type: Number, default: 76.88329 },
-  balance:      { type: Number, default: 0 },
-  passwordHash: { type: String, required: true }
-}, { timestamps: true });
+const Users = {
+  find: () => Promise.resolve(JSON.parse(JSON.stringify(users))),
 
-const VendorSchema = new mongoose.Schema({
-  id:             { type: String, unique: true, index: true },
-  name:           { type: String, required: true },
-  technician:     { type: String, default: '' },
-  phone:          { type: String, unique: true, sparse: true },
-  email:          { type: String, default: '' },
-  category:       { type: String, default: 'PLUMBING' },
-  address:        { type: String, default: '' },
-  // GeoJSON for native $geoNear distance queries
-  location: {
-    type:        { type: String, enum: ['Point'], default: 'Point' },
-    coordinates: { type: [Number], default: [76.88329, 8.53633] } // [lng, lat]
+  findById: (id) => {
+    const user = users.find(u => u.id === id);
+    return Promise.resolve(user ? JSON.parse(JSON.stringify(user)) : null);
   },
-  lat:            { type: Number, default: 8.53633 },
-  lng:            { type: Number, default: 76.88329 },
-  available:      { type: Boolean, default: true },
-  busy:           { type: Boolean, default: false },
-  balance:        { type: Number, default: 0 },
-  completed_jobs: { type: Number, default: 0 },
-  rating:         { type: Number, default: 4.5 },
-  rating_count:   { type: Number, default: 1 },
-  passwordHash:   { type: String, required: true }
-}, { timestamps: true });
 
-// 2dsphere index enables native geospatial queries
-VendorSchema.index({ location: '2dsphere' });
+  findByEmail: (email) => {
+    const user = users.find(u => (u.email || '').toLowerCase() === email.toLowerCase());
+    return Promise.resolve(user ? JSON.parse(JSON.stringify(user)) : null);
+  },
 
-const DispatchSchema = new mongoose.Schema({
-  id:              { type: String, unique: true, index: true },
-  socketId:        { type: String, default: '' },
-  userId:          { type: String, default: '' },
-  userName:        { type: String, default: '' },
-  vendorId:        { type: String, default: '' },
-  vendorName:      { type: String, default: '' },
-  technicianName:  { type: String, default: '' },
-  category:        { type: String, default: 'PLUMBING' },
-  urgency:         { type: String, default: 'HIGH' },
-  amount:          { type: Number, default: 0 },
-  status:          { type: String, default: 'PENDING' },
-  otp:             { type: String, default: '' },
-  rating:          { type: Number, default: null },
-  targetLat:       { type: Number, default: 0 },
-  targetLng:       { type: Number, default: 0 },
-  vendorLat:       { type: Number, default: 0 },
-  vendorLng:       { type: Number, default: 0 },
-  summary:         { type: String, default: '' },
-  mitigationSteps: { type: [String], default: [] },
-  timestamp:       { type: Date, default: Date.now }
-}, { timestamps: true });
+  create: (user) => {
+    const newUser = {
+      id: 'u_' + Math.random().toString(36).substr(2, 9),
+      balance: 0,
+      lat: user.lat !== undefined ? Number(user.lat) : 8.53633,
+      lng: user.lng !== undefined ? Number(user.lng) : 76.88329,
+      ...user,
+      email: (user.email || '').toLowerCase(),
+      passwordHash: hashPassword(user.password || 'password123'),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    delete newUser.password;
+    users.push(newUser);
+    return Promise.resolve(JSON.parse(JSON.stringify(newUser)));
+  },
 
-// Compound index for fast active-job-by-vendor lookups
-DispatchSchema.index({ vendorId: 1, status: 1 });
-
-// ─────────────────────────────────────────────────────
-// Models
-// ─────────────────────────────────────────────────────
-const User     = mongoose.model('User',     UserSchema);
-const Vendor   = mongoose.model('Vendor',   VendorSchema);
-const Dispatch = mongoose.model('Dispatch', DispatchSchema);
-
-// ─────────────────────────────────────────────────────
-// MongoDB Connection
-// ─────────────────────────────────────────────────────
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cognidispatch';
-
-const isCosmosDB = MONGODB_URI.includes('cosmos.azure.com');
-
-const mongooseOptions = {
-  serverSelectionTimeoutMS: 8000,
+  update: (id, updates) => {
+    const idx = users.findIndex(u => u.id === id);
+    if (idx !== -1) {
+      users[idx] = {
+        ...users[idx],
+        ...updates,
+        updatedAt: new Date().toISOString()
+      };
+      return Promise.resolve(JSON.parse(JSON.stringify(users[idx])));
+    }
+    return Promise.resolve(null);
+  }
 };
 
-if (isCosmosDB) {
-  mongooseOptions.tls = true;
-  mongooseOptions.retryWrites = false;
-}
+const Vendors = {
+  find: () => Promise.resolve(JSON.parse(JSON.stringify(vendors))),
 
-mongoose.connect(MONGODB_URI, mongooseOptions)
-  .then(() => console.log('[CogniDispatch DB] ✅ MongoDB connected:', MONGODB_URI.split('@').pop()))
-  .catch(err => {
-    console.error('[CogniDispatch DB] ❌ MongoDB connection failed:', err.stack);
-    process.exit(1);
-  });
-
-// ─────────────────────────────────────────────────────
-// DB Adapter — same method signatures as before (now async)
-// ─────────────────────────────────────────────────────
-const dbAdapter = {
-  hashPassword,
-
-  // ── USERS ──────────────────────────────────────────
-  Users: {
-    find: () => User.find().lean(),
-
-    findById: (id) => User.findOne({ id }).lean(),
-
-    findByEmail: (email) => User.findOne({ email: email.toLowerCase() }).lean(),
-
-    create: async (user) => {
-      const newUser = new User({
-        id: 'u_' + Math.random().toString(36).substr(2, 9),
-        balance: 0,
-        ...user,
-        email: (user.email || '').toLowerCase(),
-        passwordHash: hashPassword(user.password || 'password123')
-      });
-      delete newUser.password;
-      const saved = await newUser.save();
-      return saved.toObject();
-    },
-
-    update: (id, updates) =>
-      User.findOneAndUpdate({ id }, { $set: updates }, { new: true }).lean()
+  findById: (id) => {
+    const vendor = vendors.find(v => v.id === id);
+    return Promise.resolve(vendor ? JSON.parse(JSON.stringify(vendor)) : null);
   },
 
-  // ── VENDORS ────────────────────────────────────────
-  Vendors: {
-    find: () => Vendor.find().lean(),
+  findByPhone: (phone) => {
+    const vendor = vendors.find(v => v.phone === phone);
+    return Promise.resolve(vendor ? JSON.parse(JSON.stringify(vendor)) : null);
+  },
 
-    findById: (id) => Vendor.findOne({ id }).lean(),
+  create: (vendor) => {
+    const lat = vendor.lat !== undefined ? Number(vendor.lat) : 8.53633;
+    const lng = vendor.lng !== undefined ? Number(vendor.lng) : 76.88329;
+    const newVendor = {
+      id: 'v_' + Math.random().toString(36).substr(2, 9),
+      available: true,
+      busy: false,
+      balance: 0,
+      completed_jobs: 0,
+      rating_count: 1,
+      rating: 4.5,
+      ...vendor,
+      lat,
+      lng,
+      location: { type: 'Point', coordinates: [lng, lat] },
+      passwordHash: hashPassword(vendor.password || 'password123'),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    delete newVendor.password;
+    vendors.push(newVendor);
+    return Promise.resolve(JSON.parse(JSON.stringify(newVendor)));
+  },
 
-    findByPhone: (phone) => Vendor.findOne({ phone }).lean(),
-
-    create: async (vendor) => {
-      const lat = vendor.lat !== undefined ? Number(vendor.lat) : 8.53633;
-      const lng = vendor.lng !== undefined ? Number(vendor.lng) : 76.88329;
-
-      const newVendor = new Vendor({
-        id: 'v_' + Math.random().toString(36).substr(2, 9),
-        available: true,
-        busy: false,
-        balance: 0,
-        completed_jobs: 0,
-        rating_count: 1,
-        rating: 4.5,
-        ...vendor,
-        lat,
-        lng,
-        location: { type: 'Point', coordinates: [lng, lat] },
-        passwordHash: hashPassword(vendor.password || 'password123')
-      });
-      delete newVendor.password;
-      const saved = await newVendor.save();
-      return saved.toObject();
-    },
-
-    update: async (id, updates) => {
-      // Keep GeoJSON location field in sync when lat/lng are updated
+  update: (id, updates) => {
+    const idx = vendors.findIndex(v => v.id === id);
+    if (idx !== -1) {
+      const existing = vendors[idx];
       const set = { ...updates };
       if (updates.lat !== undefined || updates.lng !== undefined) {
-        const existing = await Vendor.findOne({ id }).lean();
-        const newLat = updates.lat !== undefined ? updates.lat : (existing ? existing.lat : 8.53633);
-        const newLng = updates.lng !== undefined ? updates.lng : (existing ? existing.lng : 76.88329);
+        const newLat = updates.lat !== undefined ? Number(updates.lat) : existing.lat;
+        const newLng = updates.lng !== undefined ? Number(updates.lng) : existing.lng;
+        set.lat = newLat;
+        set.lng = newLng;
         set.location = { type: 'Point', coordinates: [newLng, newLat] };
       }
-      return Vendor.findOneAndUpdate({ id }, { $set: set }, { new: true }).lean();
+      vendors[idx] = {
+        ...existing,
+        ...set,
+        updatedAt: new Date().toISOString()
+      };
+      return Promise.resolve(JSON.parse(JSON.stringify(vendors[idx])));
     }
+    return Promise.resolve(null);
+  }
+};
+
+const Dispatches = {
+  find: () => Promise.resolve(JSON.parse(JSON.stringify(dispatches))),
+
+  findById: (id) => {
+    const dispatch = dispatches.find(d => d.id === id);
+    return Promise.resolve(dispatch ? JSON.parse(JSON.stringify(dispatch)) : null);
   },
 
-  // ── DISPATCHES ─────────────────────────────────────
-  Dispatches: {
-    find: () => Dispatch.find().lean(),
+  findBySocketId: (socketId) => {
+    const dispatch = dispatches.find(d => d.socketId === socketId);
+    return Promise.resolve(dispatch ? JSON.parse(JSON.stringify(dispatch)) : null);
+  },
 
-    findById: (id) => Dispatch.findOne({ id }).lean(),
+  findActiveByVendorId: (vendorId) => {
+    const active = dispatches.find(d => d.vendorId === vendorId && !['COMPLETED', 'DECLINED', 'CANCELLED'].includes(d.status));
+    return Promise.resolve(active ? JSON.parse(JSON.stringify(active)) : null);
+  },
 
-    findBySocketId: (socketId) => Dispatch.findOne({ socketId }).lean(),
+  create: (dispatch) => {
+    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const newDispatch = {
+      id: 'disp_' + Math.random().toString(36).substr(2, 9),
+      status: 'PENDING',
+      otp: otpCode,
+      rating: null,
+      timestamp: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      ...dispatch
+    };
+    dispatches.push(newDispatch);
+    return Promise.resolve(JSON.parse(JSON.stringify(newDispatch)));
+  },
 
-    findActiveByVendorId: (vendorId) =>
-      Dispatch.findOne({
-        vendorId,
-        status: { $nin: ['COMPLETED', 'DECLINED', 'CANCELLED'] }
-      }).lean(),
-
-    create: async (dispatch) => {
-      const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
-      const newDispatch = new Dispatch({
-        id: 'disp_' + Math.random().toString(36).substr(2, 9),
-        status: 'PENDING',
-        otp: otpCode,
-        rating: null,
-        timestamp: new Date(),
-        ...dispatch
-      });
-      const saved = await newDispatch.save();
-      return saved.toObject();
-    },
-
-    update: (id, updates) =>
-      Dispatch.findOneAndUpdate({ id }, { $set: updates }, { new: true }).lean()
+  update: (id, updates) => {
+    const idx = dispatches.findIndex(d => d.id === id);
+    if (idx !== -1) {
+      dispatches[idx] = {
+        ...dispatches[idx],
+        ...updates,
+        updatedAt: new Date().toISOString()
+      };
+      return Promise.resolve(JSON.parse(JSON.stringify(dispatches[idx])));
+    }
+    return Promise.resolve(null);
   }
+};
+
+const dbAdapter = {
+  hashPassword,
+  Users,
+  Vendors,
+  Dispatches
 };
 
 module.exports = dbAdapter;

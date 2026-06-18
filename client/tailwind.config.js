@@ -18,11 +18,11 @@ module.exports = {
         }
       },
       colors: {
-        'emergency-red': '#ef4444',
-        'warning-amber': '#f59e0b',
-        'command-navy': '#0a0f1e',
-        'panel-slate': '#0f172a',
-        'accent-cyan': '#06b6d4',
+        'emergency-red': '#f43f5e', // Modern Rose/Coral Red
+        'warning-amber': '#f97316', // Neon Orange/Amber
+        'command-navy': '#08080a',   // Obsidian Black
+        'panel-slate': '#121215',    // Deep Charcoal
+        'accent-cyan': '#8b5cf6',    // Electric Purple/Violet
       }
     },
   },

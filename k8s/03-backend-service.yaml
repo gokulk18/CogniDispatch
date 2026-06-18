@@ -17,3 +17,103 @@ spec:
       # NodePort 30500 — App Gateway backend pool points to AKS_NODE_IP:30500
       nodePort: 30500
       protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: cogni-dispatch
+  labels:
+    app: auth-service
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: auth-service
+  ports:
+    - name: http
+      port: 5001
+      targetPort: 5001
+      protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: vendor-service
+  namespace: cogni-dispatch
+  labels:
+    app: vendor-service
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: vendor-service
+  ports:
+    - name: http
+      port: 5002
+      targetPort: 5002
+      protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  namespace: cogni-dispatch
+  labels:
+    app: ai-service
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: ai-service
+  ports:
+    - name: http
+      port: 5003
+      targetPort: 5003
+      protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-service
+  namespace: cogni-dispatch
+  labels:
+    app: admin-service
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: admin-service
+  ports:
+    - name: http
+      port: 5004
+      targetPort: 5004
+      protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: dispatch-service
+  namespace: cogni-dispatch
+  labels:
+    app: dispatch-service
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: dispatch-service
+  ports:
+    - name: http
+      port: 5005
+      targetPort: 5005
+      protocol: TCP

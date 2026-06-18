@@ -23,30 +23,20 @@ spec:
         tier: backend
     spec:
       containers:
-        - name: cogni-backend
-<<<<<<< HEAD
-          image: acrcogniutrawi.azurecr.io/cogni-backend:v1
-=======
-          # Replace acrcognidispatch with your ACR name
-          image: acrcogni74p5p7.azurecr.io/cogni-backend:latest
->>>>>>> 095b5f2f866cdf641521791ef6311daf2a58a9ec
+        - name: cogni-nginx
+          image: acrcogniutrawi.azurecr.io/cogni-nginx:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
               name: http
               protocol: TCP
-          # Load all env vars from ConfigMap
-          envFrom:
-            - configMapRef:
-                name: cogni-config
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
+              memory: "128Mi"
+              cpu: "100m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
-          # Health probe — uses the /api/health endpoint
+              memory: "256Mi"
+              cpu: "200m"
           livenessProbe:
             httpGet:
               path: /api/health
@@ -59,6 +49,331 @@ spec:
             httpGet:
               path: /api/health
               port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: cogni-dispatch
+  labels:
+    app: auth-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: auth-service
+        tier: backend
+    spec:
+      containers:
+        - name: auth-service
+          image: acrcogniutrawi.azurecr.io/cogni-auth-service:latest
+          imagePullPolicy: Always
+          workingDir: /app/auth-service
+          ports:
+            - containerPort: 5001
+              name: http
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "5001"
+          envFrom:
+            - configMapRef:
+                name: cogni-config
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /api/auth/health
+              port: 5001
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/auth/health
+              port: 5001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vendor-service
+  namespace: cogni-dispatch
+  labels:
+    app: vendor-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vendor-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: vendor-service
+        tier: backend
+    spec:
+      containers:
+        - name: vendor-service
+          image: acrcogniutrawi.azurecr.io/cogni-vendor-service:latest
+          imagePullPolicy: Always
+          workingDir: /app/vendor-service
+          ports:
+            - containerPort: 5002
+              name: http
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "5002"
+          envFrom:
+            - configMapRef:
+                name: cogni-config
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /api/vendors/health
+              port: 5002
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/vendors/health
+              port: 5002
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-service
+  namespace: cogni-dispatch
+  labels:
+    app: ai-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: ai-service
+        tier: backend
+    spec:
+      containers:
+        - name: ai-service
+          image: acrcogniutrawi.azurecr.io/cogni-ai-service:latest
+          imagePullPolicy: Always
+          workingDir: /app/ai-service
+          ports:
+            - containerPort: 5003
+              name: http
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "5003"
+          envFrom:
+            - configMapRef:
+                name: cogni-config
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /api/ai/health
+              port: 5003
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/ai/health
+              port: 5003
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-service
+  namespace: cogni-dispatch
+  labels:
+    app: admin-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: admin-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: admin-service
+        tier: backend
+    spec:
+      containers:
+        - name: admin-service
+          image: acrcogniutrawi.azurecr.io/cogni-admin-service:latest
+          imagePullPolicy: Always
+          workingDir: /app/admin-service
+          ports:
+            - containerPort: 5004
+              name: http
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "5004"
+          envFrom:
+            - configMapRef:
+                name: cogni-config
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /api/admin/health
+              port: 5004
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/admin/health
+              port: 5004
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dispatch-service
+  namespace: cogni-dispatch
+  labels:
+    app: dispatch-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dispatch-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: dispatch-service
+        tier: backend
+    spec:
+      containers:
+        - name: dispatch-service
+          image: acrcogniutrawi.azurecr.io/cogni-dispatch-service:latest
+          imagePullPolicy: Always
+          workingDir: /app/dispatch-service
+          ports:
+            - containerPort: 5005
+              name: http
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "5005"
+          envFrom:
+            - configMapRef:
+                name: cogni-config
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /api/dispatches/health
+              port: 5005
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/dispatches/health
+              port: 5005
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 3

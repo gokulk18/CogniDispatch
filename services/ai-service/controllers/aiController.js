@@ -260,21 +260,190 @@ Output schema (strict):
   }
 });
 
-// ============================================================
-// FUTURE HOOK 1: VIDEO DISASTER INGESTION PIPELINE
-// Route: POST /api/vision/analyze-stream
-// Purpose: Accept multipart video frame data or an RTSP stream URL.
-// Integration: Azure AI Vision (Computer Vision v4.0 Analyze API)
-// with "denseCaptions", "objects", and "tags" visual features enabled.
-// The pipeline will detect structural damage indicators such as
-// wall cracks, water stains, smoke presence, and exposed wiring
-// from live video frames and append severity scores to the triage object.
-// Implementation requires: @azure/ai-vision-image-analysis SDK,
-// frame extraction using ffmpeg child_process pipe, and a
-// damage severity scoring rubric mapped to CRITICAL/HIGH/STANDARD urgency.
-// ============================================================
-router.post('/vision/analyze-stream', async (req, res) => {
-  res.status(501).json({ message: "Video disaster ingestion pipeline — not yet implemented. See architecture comments." });
+// Route: POST /api/ai/vision/analyze
+// Purpose: Accept base64-encoded image and perform visual damage assessment (GPT-4o or Mock)
+router.post('/vision/analyze', async (req, res) => {
+  const { image, simulateType } = req.body;
+
+  if (!image) {
+    return res.status(400).json({ error: "image field is required (base64 data URL string)" });
+  }
+
+  // Helper to calculate Indian Rupees service fee estimates
+  function calculateTriageAmount(category, urgency) {
+    let baseRate = 3000; // Plumbing default
+    const cat = (category || 'PLUMBING').toUpperCase();
+    const urg = (urgency || 'STANDARD').toUpperCase();
+
+    if (cat === 'ELECTRICAL') baseRate = 4500;
+    else if (cat === 'HVAC') baseRate = 4000;
+    else if (cat === 'STRUCTURAL') baseRate = 6000;
+
+    let multiplier = 1.0;
+    if (urg === 'HIGH') multiplier = 1.2;
+    else if (urg === 'CRITICAL') multiplier = 1.5;
+
+    return Math.round(baseRate * multiplier);
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  const isMock = !apiKey || apiKey.includes('your_openai') || apiKey === '';
+
+  if (isMock) {
+    console.log(`[CogniDispatch Vision] Running in OFFLINE DEMO MODE for image analysis.`);
+    
+    // Simulate latency
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const simType = (simulateType || 'PLUMBING').toUpperCase();
+    let triage = {};
+
+    if (simType === 'PLUMBING') {
+      triage = {
+        category: "PLUMBING",
+        urgency: "HIGH",
+        severity: 82,
+        hazard_flags: ["WATER_INGRESS"],
+        summary: "Visual analysis indicates a ruptured copper pipe connection spraying water behind a wall panel.",
+        mitigation_steps: [
+          "Locate the main water valve and turn it off immediately.",
+          "Wipe down nearby damp surfaces to prevent electrical conductivity.",
+          "Keep children and pets away from standing water."
+        ],
+        bounding_boxes: [
+          { box_2d: [35, 40, 70, 75], label: "Ruptured Copper Joint", color: "#f43f5e" }
+        ]
+      };
+    } else if (simType === 'ELECTRICAL') {
+      triage = {
+        category: "ELECTRICAL",
+        urgency: "CRITICAL",
+        severity: 95,
+        hazard_flags: ["SHOCK_RISK", "FIRE_RISK"],
+        summary: "Visual analysis shows a severely overloaded junction box with burnt wire insulation and active scorch marks.",
+        mitigation_steps: [
+          "Do not touch any exposed wires or metal outlets.",
+          "Turn off the main electrical breaker immediately.",
+          "Ensure a dry fire extinguisher is close by, and evacuate if you see active fire/smoke."
+        ],
+        bounding_boxes: [
+          { box_2d: [20, 25, 65, 80], label: "Arcing & Scorch Point", color: "#f97316" }
+        ]
+      };
+    } else if (simType === 'HVAC') {
+      triage = {
+        category: "HVAC",
+        urgency: "STANDARD",
+        severity: 55,
+        hazard_flags: ["MOLD_RISK"],
+        summary: "Visual inspection shows a leaking condensate drain line on an indoor HVAC evaporator coil, causing moisture collection.",
+        mitigation_steps: [
+          "Shut off power to the HVAC system at the thermostat.",
+          "Place a drip pan or towel under the leak to catch water.",
+          "Clear any visible blockages from the external drain line."
+        ],
+        bounding_boxes: [
+          { box_2d: [50, 30, 85, 90], label: "Clogged Condensate Leak", color: "#8b5cf6" }
+        ]
+      };
+    } else if (simType === 'STRUCTURAL') {
+      triage = {
+        category: "STRUCTURAL",
+        urgency: "HIGH",
+        severity: 78,
+        hazard_flags: ["STRUCTURAL_COLLAPSE"],
+        summary: "Visual analysis reveals a major load-bearing concrete wall crack spanning over 1.5 meters with concrete spalling.",
+        mitigation_steps: [
+          "Evacuate the room immediately and avoid the area beneath this wall.",
+          "Do not place any heavy loads on the floor directly above this wall.",
+          "Remove valuable items from the vicinity if safe to do so."
+        ],
+        bounding_boxes: [
+          { box_2d: [15, 45, 90, 65], label: "Structural Shear Crack", color: "#f43f5e" }
+        ]
+      };
+    }
+
+    triage.amount = calculateTriageAmount(triage.category, triage.urgency);
+
+    return res.json({
+      success: true,
+      triage
+    });
+  }
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        max_tokens: 800,
+        temperature: 0.15,
+        messages: [
+          {
+            role: "system",
+            content: `You are CogniDispatch's visual emergency triage AI. You inspect homeowner-uploaded photos of structural, plumbing, electrical, or HVAC emergencies. 
+Analyze the image and output a valid JSON object matching this schema:
+{
+  "category": "PLUMBING" | "ELECTRICAL" | "HVAC" | "STRUCTURAL",
+  "urgency": "STANDARD" | "HIGH" | "CRITICAL",
+  "severity": number between 0 and 100,
+  "hazard_flags": ["WATER_INGRESS" | "FIRE_RISK" | "SHOCK_RISK" | "GAS_LEAK" | "STRUCTURAL_COLLAPSE" | "MOLD_RISK"],
+  "summary": "concise description of the visual damage detected",
+  "mitigation_steps": ["step 1", "step 2", "step 3"],
+  "bounding_boxes": [
+    {
+      "box_2d": [ymin, xmin, ymax, xmax], // percentages (0 to 100) of the bounding box relative to the image size
+      "label": "short label of what is in this box",
+      "color": "hex color string (e.g. #f43f5e for primary hazard)"
+    }
+  ]
+}`
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Analyze this emergency photo and locate the damage with bounding boxes."
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: image
+                }
+              }
+            ]
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`OpenAI API returned status ${response.status}: ${errText}`);
+    }
+
+    const resData = await response.json();
+    const rawText = resData.choices[0].message.content;
+    const triage = JSON.parse(rawText);
+
+    // Ensure amount is dynamically appended
+    triage.amount = calculateTriageAmount(triage.category, triage.urgency);
+
+    return res.json({ success: true, triage });
+  } catch (err) {
+    console.error("OpenAI vision operation failed:", err);
+    return res.status(500).json({
+      error: "LLM vision analysis operation failed",
+      detail: err.message
+    });
+  }
 });
 
 // ============================================================

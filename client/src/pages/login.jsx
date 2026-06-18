@@ -105,7 +105,7 @@ export default function LoginPortal() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <div className="min-h-screen bg-[#030611] text-slate-100 flex flex-col items-center justify-center p-4 antialiased relative overflow-hidden">
+      <div className="min-h-screen bg-[#08080a] text-slate-100 flex flex-col items-center justify-center p-4 antialiased relative overflow-hidden">
         
         {/* Futuristic Grid Overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b12_1px,transparent_1px),linear-gradient(to_bottom,#1e293b12_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
@@ -113,10 +113,10 @@ export default function LoginPortal() {
         {/* Dynamic Role-Based Glow Backdrops */}
         <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none transition-all duration-700 ease-in-out opacity-25 ${
           role === 'HOMEOWNER' 
-            ? 'bg-emerald-500' 
+            ? 'bg-purple-500' 
             : role === 'TECHNICIAN' 
               ? 'bg-amber-500' 
-              : 'bg-cyan-500'
+              : 'bg-indigo-500'
         }`} />
 
         {/* Top Branding Link */}
@@ -132,15 +132,15 @@ export default function LoginPortal() {
         </div>
 
         {/* Central Tactical Glass Console */}
-        <div className="w-full max-w-md bg-[#0b0f19]/80 border border-slate-800 rounded-[2rem] shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] p-8 backdrop-blur-xl flex flex-col gap-6 animate-fadeIn relative z-10">
+        <div className="w-full max-w-md bg-[#121215]/85 border border-zinc-800 rounded-[2rem] shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] p-8 backdrop-blur-xl flex flex-col gap-6 animate-fadeIn relative z-10">
           
           <div className="text-center flex flex-col gap-1">
             <span className={`text-[10px] font-mono-data font-bold tracking-widest uppercase transition-colors duration-300 ${
               role === 'HOMEOWNER' 
-                ? 'text-emerald-400' 
+                ? 'text-purple-400' 
                 : role === 'TECHNICIAN' 
                   ? 'text-amber-400' 
-                  : 'text-cyan-400'
+                  : 'text-indigo-400'
             }`}>
               {role === 'ADMIN' ? 'SECURE CONSOLE UPLINK' : 'TACTICAL GATEWAY AUTH'}
             </span>
@@ -153,14 +153,14 @@ export default function LoginPortal() {
           </div>
 
           {/* Role selector tabs */}
-          <div className="grid grid-cols-3 bg-[#030611] p-1 border border-slate-800 rounded-2xl relative">
+          <div className="grid grid-cols-3 bg-[#08080a] p-1 border border-zinc-800 rounded-2xl relative">
             {['HOMEOWNER', 'TECHNICIAN', 'ADMIN'].map((tabRole) => {
               const active = role === tabRole;
               let activeStyle = '';
               if (active) {
-                if (tabRole === 'HOMEOWNER') activeStyle = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+                if (tabRole === 'HOMEOWNER') activeStyle = 'bg-purple-500/10 text-purple-400 border border-purple-500/30';
                 else if (tabRole === 'TECHNICIAN') activeStyle = 'bg-amber-500/10 text-amber-400 border border-amber-500/30';
-                else activeStyle = 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30';
+                else activeStyle = 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30';
               }
               return (
                 <button

@@ -148,7 +148,7 @@ export default function AdminConsoleDashboard() {
             <span className="text-2xl animate-pulse">📊</span>
             <div>
               <h1 className="text-lg md:text-xl font-black tracking-widest text-white flex items-center gap-2">
-                COGIDISPATCH
+                COGNIDISPATCH
               </h1>
               <p className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider hidden sm:block">
                 Administrative Central Command Control

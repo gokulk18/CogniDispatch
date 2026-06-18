@@ -288,6 +288,34 @@ export default function HomeownerDashboard() {
     }
   };
 
+  const handleVisionTriage = async (triageData) => {
+    setAppPhase('TRIAGING');
+    
+    const triggerMatch = (coords) => {
+      setTriageResult(triageData);
+      matchClosestVendor(coords, triageData.category, triageData);
+    };
+
+    if (userCoords) {
+      triggerMatch(userCoords);
+    } else {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
+          setUserCoords(coords);
+          triggerMatch(coords);
+        },
+        (error) => {
+          console.warn("Geolocation denied. Defaulting to Trivandrum.");
+          const fallbackCoords = { lat: 8.53633, lng: 76.88329 };
+          setUserCoords(fallbackCoords);
+          triggerMatch(fallbackCoords);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+  };
+
   const processTriage = async (transcriptText, coords) => {
     try {
       const res = await axios.post(`${serverUrl}/api/ai/triage`, {
@@ -449,7 +477,7 @@ export default function HomeownerDashboard() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-[#040810] flex items-center justify-center font-mono text-xs text-emerald-400">
+      <div className="min-h-screen bg-[#08080a] flex items-center justify-center font-mono text-xs text-purple-400">
         Establishing secure homeowner link...
       </div>
     );
@@ -462,30 +490,30 @@ export default function HomeownerDashboard() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      {/* THEME COMBO: MIDNIGHT NAVY & EMERALD GREEN */}
-      <div className="min-h-screen bg-[#040810] text-slate-100 flex flex-col antialiased selection:bg-emerald-950 selection:text-emerald-400">
+      {/* THEME COMBO: OBSIDIAN & ELECTRIC PURPLE */}
+      <div className="min-h-screen bg-[#08080a] text-slate-100 flex flex-col antialiased selection:bg-purple-950 selection:text-purple-400">
         
         {/* TOP COMMAND BAR */}
-        <header className="border-b border-emerald-950 bg-panel-slate/30 backdrop-blur-md px-4 md:px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-lg">
+        <header className="border-b border-zinc-800 bg-panel-slate/30 backdrop-blur-md px-4 md:px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-lg">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push('/')}>
             <span className="text-2xl animate-pulse">🚨</span>
             <div>
               <h1 className="text-lg md:text-xl font-black tracking-widest text-white flex items-center gap-2">
-                COGIDISPATCH
+                COGNIDISPATCH
               </h1>
-              <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider hidden sm:block">
+              <p className="text-[10px] text-purple-400 font-bold uppercase tracking-wider hidden sm:block">
                 Homeowner Emergency Command Panel
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 font-mono text-[9px] bg-slate-950 border border-emerald-950 rounded-lg px-2.5 py-1.5">
+            <div className="hidden md:flex items-center gap-2 font-mono text-[9px] bg-slate-950 border border-zinc-800 rounded-lg px-2.5 py-1.5">
               <span className="text-slate-500 font-bold">CLIENT SECURED:</span>
-              <span className="text-emerald-400 font-bold uppercase">{session.name}</span>
+              <span className="text-purple-400 font-bold uppercase">{session.name}</span>
             </div>
             
-            <div className="flex items-center gap-2 font-mono text-[9px] bg-slate-950 border border-emerald-950 rounded-lg px-2.5 py-1.5">
+            <div className="flex items-center gap-2 font-mono text-[9px] bg-slate-950 border border-zinc-800 rounded-lg px-2.5 py-1.5">
               <span className={`h-2 w-2 rounded-full ${backendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
               <span className="text-slate-400 font-semibold uppercase">
                 {backendOnline ? 'Telemetry Active' : 'Offline'}
@@ -510,6 +538,7 @@ export default function HomeownerDashboard() {
               <div className="flex flex-col gap-6">
                 <AIWidget 
                   onTranscription={handleTranscription} 
+                  onVisionTriage={handleVisionTriage}
                   onFallback={triggerFallback}
                   disabled={false}
                 />
@@ -529,34 +558,34 @@ export default function HomeownerDashboard() {
 
           {/* Triaging Loading Phase */}
           {appPhase === 'TRIAGING' && (
-            <div className="flex-1 min-h-[350px] flex flex-col items-center justify-center bg-slate-950/30 border border-emerald-950 rounded-2xl p-8 text-center gap-4 max-w-lg mx-auto w-full my-auto animate-pulse-ring">
-              <div className="text-4xl animate-spin text-emerald-400">🌀</div>
+            <div className="flex-1 min-h-[350px] flex flex-col items-center justify-center bg-slate-950/30 border border-purple-950 rounded-2xl p-8 text-center gap-4 max-w-lg mx-auto w-full my-auto animate-pulse-ring">
+              <div className="text-4xl animate-spin text-purple-400">🌀</div>
               <h2 className="text-xl font-bold uppercase tracking-wider text-white">
                 Triage Engine Processing...
               </h2>
               <p className="text-slate-400 text-xs font-mono max-w-xs leading-relaxed">
-                Analyzing audio transcription and mapping incident taxonomy with AI Triage Engine...
+                Analyzing transcription and mapping incident taxonomy with AI Triage Engine...
               </p>
             </div>
           )}
 
           {/* UBER-LIKE MATCHING & ACCEPTANCE RADAR */}
           {appPhase === 'MATCHING' && (
-            <div className="flex-1 min-h-[380px] flex flex-col items-center justify-center bg-[#050a15]/60 border border-emerald-500/25 rounded-2xl p-8 text-center gap-6 max-w-lg mx-auto w-full my-auto animate-pulse-ring relative overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-950/10 to-indigo-950/10 pointer-events-none" />
+            <div className="flex-1 min-h-[380px] flex flex-col items-center justify-center bg-[#050a15]/60 border border-purple-500/25 rounded-2xl p-8 text-center gap-6 max-w-lg mx-auto w-full my-auto animate-pulse-ring relative overflow-hidden shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-tr from-purple-950/10 to-indigo-950/10 pointer-events-none" />
               
               {/* Radar Scanner Animation */}
               <div className="relative flex items-center justify-center h-28 w-28 my-3">
-                <div className="absolute inset-0 rounded-full border border-emerald-500/10 animate-ping" />
-                <div className="absolute h-24 w-24 rounded-full border border-dashed border-emerald-500/30 animate-spin" />
-                <div className="absolute h-16 w-16 rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-3xl animate-bounce">
+                <div className="absolute inset-0 rounded-full border border-purple-500/10 animate-ping" />
+                <div className="absolute h-24 w-24 rounded-full border border-dashed border-purple-500/30 animate-spin" />
+                <div className="absolute h-16 w-16 rounded-full bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-3xl animate-bounce">
                   🔍
                 </div>
               </div>
 
                {!matchedVendor ? (
                 <>
-                  <h2 className="text-xl font-black uppercase tracking-widest text-emerald-400 animate-pulse">
+                  <h2 className="text-xl font-black uppercase tracking-widest text-purple-400 animate-pulse">
                     Searching for Nearby Vendors...
                   </h2>
                   <p className="text-slate-400 text-xs font-mono max-w-sm leading-relaxed">
@@ -572,11 +601,11 @@ export default function HomeownerDashboard() {
                 </>
               ) : (
                 <>
-                  <h2 className="text-xl font-black uppercase tracking-widest text-emerald-400 animate-pulse">
+                  <h2 className="text-xl font-black uppercase tracking-widest text-purple-400 animate-pulse">
                     CONTACTING RESPONDER UNIT...
                   </h2>
                   
-                  <div className="bg-emerald-950/20 border border-emerald-900/30 rounded-xl p-4 w-full text-left font-mono text-[10px] flex flex-col gap-1.5 max-w-xs my-2">
+                  <div className="bg-purple-950/20 border border-purple-900/30 rounded-xl p-4 w-full text-left font-mono text-[10px] flex flex-col gap-1.5 max-w-xs my-2">
                     <span className="text-slate-500 uppercase tracking-widest block font-bold">Assigned Specialist</span>
                     <span className="text-white text-xs font-bold block">{matchedVendor.technician}</span>
                     <span className="text-slate-400 block font-mono">{matchedVendor.name} • ★{matchedVendor.rating || '4.5'}</span>
@@ -605,9 +634,9 @@ export default function HomeownerDashboard() {
             <div className="flex flex-col gap-5 animate-fadeIn">
               
               {/* Dispatch Alert Header */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-emerald-950/20 border border-emerald-500/30 p-4 rounded-xl gap-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-purple-950/20 border border-purple-500/30 p-4 rounded-xl gap-4">
                 <div>
-                  <span className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded font-mono uppercase tracking-wider">
+                  <span className="bg-purple-500/20 border border-purple-500/40 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded font-mono uppercase tracking-wider">
                     ✔️ DISPATCH LOCKED
                   </span>
                   <h3 className="text-white font-bold text-base mt-1">
@@ -624,15 +653,15 @@ export default function HomeownerDashboard() {
 
               {/* Secure Verification OTP Card */}
               {activeOtp && (
-                <div className="bg-[#050912]/80 border border-emerald-950/85 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 font-mono-data shadow-md">
+                <div className="bg-[#0b0b0d]/80 border border-zinc-800 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 font-mono-data shadow-md">
                   <div className="flex flex-col gap-1 text-center sm:text-left">
-                    <span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">🚨 SECURE HANDOFF VERIFICATION OTP</span>
+                    <span className="text-[10px] text-purple-400 uppercase tracking-widest font-bold">🚨 SECURE HANDOFF VERIFICATION OTP</span>
                     <p className="text-[11px] text-slate-400 leading-relaxed font-sans mt-0.5">
                       Provide this 4-digit code to the responder upon arrival. They must enter it to authorize their arrival and unlock the mitigation checklist.
                     </p>
                   </div>
-                  <div className="flex items-center gap-2.5 bg-emerald-500/10 border border-emerald-500/30 px-5 py-2.5 rounded-xl shrink-0">
-                    <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">SECURE OTP:</span>
+                  <div className="flex items-center gap-2.5 bg-purple-500/10 border border-purple-500/30 px-5 py-2.5 rounded-xl shrink-0">
+                    <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">SECURE OTP:</span>
                     <span className="text-2xl font-black text-white tracking-widest">{activeOtp}</span>
                   </div>
                 </div>
@@ -651,14 +680,14 @@ export default function HomeownerDashboard() {
 
           {/* Arrived target destination success phase screen */}
           {appPhase === 'ARRIVED' && matchedVendor && triageResult && (
-            <div className="max-w-xl w-full mx-auto my-auto flex flex-col bg-slate-900 border border-emerald-500/50 p-6 md:p-8 rounded-xl text-center shadow-2xl items-center gap-6 animate-pulse-ring">
+            <div className="max-w-xl w-full mx-auto my-auto flex flex-col bg-zinc-950 border border-purple-500/30 p-6 md:p-8 rounded-xl text-center shadow-2xl items-center gap-6 animate-pulse-ring">
               
-              <div className="h-16 w-16 bg-emerald-500/10 rounded-full border border-emerald-500/30 flex items-center justify-center text-3xl animate-bounce">
+              <div className="h-16 w-16 bg-purple-500/10 rounded-full border border-purple-500/30 flex items-center justify-center text-3xl animate-bounce">
                 🎉
               </div>
 
               <div>
-                <h2 className="text-2xl font-black tracking-wider text-emerald-400 uppercase">
+                <h2 className="text-2xl font-black tracking-wider text-purple-400 uppercase">
                   Specialist Arrived
                 </h2>
                 <p className="text-slate-300 text-sm mt-2">
@@ -666,7 +695,7 @@ export default function HomeownerDashboard() {
                 </p>
               </div>
 
-              <div className="w-full bg-[#050912] p-4 border border-emerald-950 rounded-lg text-left font-mono text-[10px] flex flex-col gap-2">
+              <div className="w-full bg-[#0b0b0d] p-4 border border-zinc-800 rounded-lg text-left font-mono text-[10px] flex flex-col gap-2">
                 <div>
                   <span className="text-slate-500 uppercase tracking-widest block mb-0.5">Assigned Unit</span>
                   <span className="text-white text-xs font-bold block">{matchedVendor.name}</span>
@@ -678,12 +707,12 @@ export default function HomeownerDashboard() {
                   </div>
                   <div>
                     <span className="text-slate-500 block uppercase">Estimated Payout</span>
-                    <span className="text-emerald-400 font-bold font-mono">₹{triageResult.amount || '3,000'}</span>
+                    <span className="text-purple-400 font-bold font-mono">₹{triageResult.amount || '3,000'}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono animate-pulse bg-emerald-950/20 border border-emerald-900/30 p-3 rounded-lg w-full justify-center">
+              <div className="flex items-center gap-2 text-purple-400 text-xs font-mono animate-pulse bg-purple-950/20 border border-purple-900/30 p-3 rounded-lg w-full justify-center">
                 <span>⏳ Waiting for responder to complete mitigation work...</span>
               </div>
             </div>
@@ -691,14 +720,14 @@ export default function HomeownerDashboard() {
 
           {/* Checkout Completed Receipt Portal */}
           {appPhase === 'COMPLETED' && matchedVendor && triageResult && (
-            <div className="max-w-md w-full mx-auto my-auto flex flex-col bg-slate-900 border border-emerald-500/50 p-6 md:p-8 rounded-2xl text-center shadow-2xl items-center gap-6 animate-fadeIn">
+            <div className="max-w-md w-full mx-auto my-auto flex flex-col bg-zinc-950 border border-purple-500/30 p-6 md:p-8 rounded-2xl text-center shadow-2xl items-center gap-6 animate-fadeIn">
               
-              <div className="h-16 w-16 bg-emerald-500/15 rounded-full border border-emerald-500/30 flex items-center justify-center text-4xl">
+              <div className="h-16 w-16 bg-purple-500/15 rounded-full border border-purple-500/30 flex items-center justify-center text-4xl">
                 💳
               </div>
 
               <div>
-                <h2 className="text-2xl font-black tracking-wider text-emerald-400 uppercase">
+                <h2 className="text-2xl font-black tracking-wider text-purple-400 uppercase">
                   Payment Completed!
                 </h2>
                 <p className="text-slate-350 text-xs mt-2 font-mono">
@@ -706,7 +735,7 @@ export default function HomeownerDashboard() {
                 </p>
               </div>
 
-              <div className="w-full bg-[#050912] p-4 border border-emerald-950 rounded-lg text-left font-mono text-[10px] flex flex-col gap-2">
+              <div className="w-full bg-[#0b0b0d] p-4 border border-zinc-800 rounded-lg text-left font-mono text-[10px] flex flex-col gap-2">
                 <div className="flex justify-between border-b border-slate-800 pb-1.5">
                   <span className="text-slate-500 uppercase">Transaction ID</span>
                   <span className="text-white font-bold">pay_RZP_{Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
@@ -719,19 +748,19 @@ export default function HomeownerDashboard() {
                   <span className="text-slate-500 uppercase">Specialty Type</span>
                   <span className="text-white font-bold">{triageResult.category}</span>
                 </div>
-                <div className="flex justify-between text-emerald-400 font-bold text-xs pt-1">
+                <div className="flex justify-between text-purple-400 font-bold text-xs pt-1">
                   <span>TOTAL AMOUNT PAID</span>
                   <span>₹{triageResult.amount || '3,000'}</span>
                 </div>
               </div>
 
-              <div className="bg-emerald-950/20 border border-emerald-900/40 text-emerald-400 text-[10px] font-mono p-3 rounded-lg w-full flex items-center justify-center gap-2">
+              <div className="bg-purple-950/20 border border-purple-900/40 text-purple-400 text-[10px] font-mono p-3 rounded-lg w-full flex items-center justify-center gap-2">
                 <span>✔️ Rating of {selectedStars}★ submitted. Thank you for your feedback!</span>
               </div>
 
               <button
                 onClick={resetAllToIdle}
-                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition duration-155 shadow-md"
+                className="w-full py-3.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition duration-155 shadow-md"
               >
                 🔄 Reset Command Console
               </button>
@@ -741,7 +770,7 @@ export default function HomeownerDashboard() {
         </main>
 
         {/* FOOTER METRICS */}
-        <footer className="mt-auto border-t border-emerald-950/60 bg-panel-slate/40 px-6 py-4 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-500 font-mono gap-2">
+        <footer className="mt-auto border-t border-zinc-900 bg-panel-slate/40 px-6 py-4 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-500 font-mono gap-2">
           <span>CogniDispatch © 2026. All telemetry transactions processed via Razorpay Secure.</span>
           <div className="flex gap-4">
             <span>Latency: &lt;10ms</span>
@@ -782,7 +811,7 @@ export default function HomeownerDashboard() {
               <div className="bg-[#050811] p-3 rounded-lg border border-slate-800 flex flex-col gap-1 text-[10px] font-mono">
                 <div className="flex justify-between">
                   <span className="text-slate-500">MERCHANT</span>
-                  <span className="text-white font-bold">COGIDISPATCH PVT LTD</span>
+                  <span className="text-white font-bold">COGNIDISPATCH PVT LTD</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-550">SPECIALIST</span>

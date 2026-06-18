@@ -6,9 +6,6 @@ metadata:
   labels:
     app: cogni-dispatch
 data:
-  # Backend port
-  PORT: "5000"
-
   # MongoDB Connection String — Replace with your Atlas or Cosmos DB URI before deploying to AKS
   MONGODB_URI: "mongodb+srv://<user>:<password>@<cluster>.mongodb.net/cognidispatch?retryWrites=true&w=majority"
 

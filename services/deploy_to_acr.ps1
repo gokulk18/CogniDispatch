@@ -8,7 +8,8 @@ $services = @("auth-service", "vendor-service", "ai-service", "admin-service", "
 
 foreach ($service in $services) {
     Write-Host "Building and pushing $service..." -ForegroundColor Yellow
-    docker build -t "$acrLoginServer/cogni-$service:latest" ".\$service"
+    docker build -t "$acrLoginServer/cogni-$service:v1" -t "$acrLoginServer/cogni-$service:latest" -f .\Dockerfile .
+    docker push "$acrLoginServer/cogni-$service:v1"
     docker push "$acrLoginServer/cogni-$service:latest"
 }
 
@@ -19,7 +20,8 @@ FROM nginx:alpine
 COPY ./nginx-docker.conf /etc/nginx/nginx.conf
 "@
 Set-Content -Path ".\nginx\Dockerfile" -Value $nginxDockerfile
-docker build -t "$acrLoginServer/cogni-nginx:latest" ".\nginx"
+docker build -t "$acrLoginServer/cogni-nginx:v2" -t "$acrLoginServer/cogni-nginx:latest" ".\nginx"
+docker push "$acrLoginServer/cogni-nginx:v2"
 docker push "$acrLoginServer/cogni-nginx:latest"
 
 Write-Host "All 6 backend images successfully pushed to ACR!" -ForegroundColor Green

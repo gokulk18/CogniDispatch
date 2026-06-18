@@ -93,7 +93,7 @@ export default function RegisterPortal() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <div className="min-h-screen bg-[#030611] text-slate-100 flex flex-col items-center justify-center p-4 antialiased relative overflow-hidden py-12">
+      <div className="min-h-screen bg-[#08080a] text-slate-100 flex flex-col items-center justify-center p-4 antialiased relative overflow-hidden py-12">
         
         {/* Futuristic Grid Overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b12_1px,transparent_1px),linear-gradient(to_bottom,#1e293b12_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
@@ -101,7 +101,7 @@ export default function RegisterPortal() {
         {/* Dynamic Role-Based Glow Backdrops */}
         <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none transition-all duration-700 ease-in-out opacity-25 ${
           role === 'HOMEOWNER' 
-            ? 'bg-emerald-500' 
+            ? 'bg-purple-500' 
             : 'bg-amber-500'
         }`} />
 
@@ -118,11 +118,11 @@ export default function RegisterPortal() {
         </div>
 
         {/* Tactical Glass Console wrapper */}
-        <div className="w-full max-w-md bg-[#0b0f19]/80 border border-slate-800 rounded-[2rem] shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] p-8 backdrop-blur-xl flex flex-col gap-6 animate-fadeIn relative z-10">
+        <div className="w-full max-w-md bg-[#121215]/85 border border-zinc-800 rounded-[2rem] shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] p-8 backdrop-blur-xl flex flex-col gap-6 animate-fadeIn relative z-10">
           
           <div className="text-center flex flex-col gap-1">
             <span className={`text-[10px] font-mono-data font-bold tracking-widest uppercase transition-colors duration-300 ${
-              role === 'HOMEOWNER' ? 'text-emerald-400' : 'text-amber-400'
+              role === 'HOMEOWNER' ? 'text-purple-400' : 'text-amber-400'
             }`}>
               SYSTEM PROVISIONING
             </span>
@@ -135,12 +135,12 @@ export default function RegisterPortal() {
           </div>
 
           {/* Role selector tabs */}
-          <div className="grid grid-cols-2 bg-[#030611] p-1 border border-slate-800 rounded-2xl relative">
+          <div className="grid grid-cols-2 bg-[#08080a] p-1 border border-zinc-800 rounded-2xl relative">
             {['HOMEOWNER', 'TECHNICIAN'].map((tabRole) => {
               const active = role === tabRole;
               let activeStyle = '';
               if (active) {
-                if (tabRole === 'HOMEOWNER') activeStyle = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+                if (tabRole === 'HOMEOWNER') activeStyle = 'bg-purple-500/10 text-purple-400 border border-purple-500/30';
                 else activeStyle = 'bg-amber-500/10 text-amber-400 border border-amber-500/30';
               }
               return (
@@ -237,27 +237,27 @@ export default function RegisterPortal() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="e.g. Pattom, Trivandrum, Kerala"
-                className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
+                className="w-full rounded-xl bg-[#08080a] border border-zinc-850 text-white text-xs px-4 py-3.5 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 font-mono-data transition"
               />
             </div>
 
             {/* GPS Lock Info */}
-            <div className="bg-[#030611] p-3 rounded-2xl border border-slate-800 flex justify-between items-center text-[9px] font-mono-data">
+            <div className="bg-[#08080a] p-3 rounded-2xl border border-zinc-800 flex justify-between items-center text-[9px] font-mono-data">
               <div className="flex flex-col gap-0.5">
                 <span className="text-slate-500 font-bold uppercase tracking-wider">Signup Coordinates</span>
                 {fetchingGps ? (
                   <span className="text-amber-400 animate-pulse">Resolving location...</span>
                 ) : gpsLock ? (
-                  <span className="text-emerald-400">✔️ Locked: {lat.toFixed(5)}, {lng.toFixed(5)}</span>
+                  <span className="text-emerald-400 font-bold">✔️ Locked: {lat.toFixed(5)}, {lng.toFixed(5)}</span>
                 ) : (
-                  <span className="text-indigo-400">⚠️ Local Simulation Coords Active</span>
+                  <span className="text-purple-400 font-bold">⚠️ Local Simulation Coords Active</span>
                 )}
               </div>
               <button
                 type="button"
                 onClick={handleGpsLock}
                 disabled={fetchingGps}
-                className="px-3 py-2 bg-[#0b0f19] hover:bg-slate-900 border border-slate-800 rounded-lg text-[8px] text-white tracking-widest font-bold uppercase disabled:opacity-50 transition"
+                className="px-3 py-2 bg-[#121215] hover:bg-zinc-900 border border-zinc-800 rounded-lg text-[8px] text-white tracking-widest font-bold uppercase disabled:opacity-50 transition"
               >
                 🔄 Refresh
               </button>
@@ -273,7 +273,7 @@ export default function RegisterPortal() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 characters"
-                className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs px-4 py-3.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
+                className="w-full rounded-xl bg-[#08080a] border border-zinc-850 text-white text-xs px-4 py-3.5 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 font-mono-data transition"
               />
             </div>
 
@@ -285,7 +285,7 @@ export default function RegisterPortal() {
             )}
 
             {successMsg && (
-              <div className="text-[10px] text-emerald-400 bg-emerald-950/10 border border-emerald-900/30 rounded-xl p-3 font-mono-data leading-relaxed flex gap-2 items-start animate-pulse">
+              <div className="text-[10px] text-purple-400 bg-purple-950/10 border border-purple-900/30 rounded-xl p-3 font-mono-data leading-relaxed flex gap-2 items-start animate-pulse">
                 <span>🎉</span>
                 <span>{successMsg} Redirecting...</span>
               </div>
@@ -296,7 +296,7 @@ export default function RegisterPortal() {
               disabled={loading}
               className={`w-full py-4 px-6 rounded-xl text-white font-extrabold uppercase tracking-widest text-[10px] transition duration-300 disabled:opacity-50 font-mono-data mt-2 shadow-md ${
                 role === 'HOMEOWNER' 
-                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 shadow-emerald-950/20' 
+                  ? 'bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-450 shadow-purple-950/20' 
                   : 'bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-amber-950/20'
               }`}
             >
@@ -309,7 +309,7 @@ export default function RegisterPortal() {
             <span 
               onClick={() => router.push('/login')} 
               className={`font-bold cursor-pointer underline decoration-dotted transition-colors ${
-                role === 'HOMEOWNER' ? 'text-emerald-400 hover:text-emerald-350' : 'text-amber-400 hover:text-amber-350'
+                role === 'HOMEOWNER' ? 'text-purple-400 hover:text-purple-350' : 'text-amber-400 hover:text-amber-350'
               }`}
             >
               Sign In
