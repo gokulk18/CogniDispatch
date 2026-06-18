@@ -98,7 +98,8 @@ export default function TechnicianDashboard() {
 
     const socketInstance = io(socketUrl, {
       reconnectionAttempts: 5,
-      timeout: 10000
+      timeout: 10000,
+      transports: ['websocket']
     });
 
     setSocket(socketInstance);
