@@ -23,7 +23,7 @@ authService:
   enabled: true
   replicas: 2
   image: cogni-auth-service
-  imageTag: latest
+  imageTag: "265eb9c44dd5bdb82f519093ca1b8031fc52e3e7"
   resources:
     requests:
       memory: "128Mi"
