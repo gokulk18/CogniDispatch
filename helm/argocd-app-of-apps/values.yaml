@@ -1,7 +1,7 @@
 # ArgoCD GitOps repository parameters configuration
 spec:
   # The GitHub repository URL where ArgoCD looks for the Helm charts
-  repoURL: "https://github.com/YOUR_GITHUB_ORG_OR_USER/CogniDispatch.git"
+  repoURL: "https://github.com/gokulk18/CogniDispatch.git"
   # The branch or commit SHA to track
   targetRevision: "main"
   # Target Kubernetes API server within the cluster
