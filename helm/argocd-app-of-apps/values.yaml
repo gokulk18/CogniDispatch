@@ -1,0 +1,22 @@
+# ArgoCD GitOps repository parameters configuration
+spec:
+  # The GitHub repository URL where ArgoCD looks for the Helm charts
+  repoURL: "https://github.com/YOUR_GITHUB_ORG_OR_USER/CogniDispatch.git"
+  # The branch or commit SHA to track
+  targetRevision: "main"
+  # Target Kubernetes API server within the cluster
+  destinationServer: "https://kubernetes.default.svc"
+
+# Configuration parameters for the cognidispatch child application
+cognidispatch:
+  enabled: true
+  # Folder path to the child Helm chart in the repo
+  path: "helm/cognidispatch"
+  namespace: "cogni-dispatch"
+  # Options for ArgoCD sync policies
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

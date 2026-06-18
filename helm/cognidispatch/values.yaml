@@ -1,0 +1,111 @@
+# Global configurations
+global:
+  namespace: cogni-dispatch
+  imageRegistry: acrcogniutrawi.azurecr.io
+  imagePullPolicy: Always
+  imageTag: latest
+
+# Microservices Configurations
+nginx:
+  enabled: true
+  replicas: 2
+  image: cogni-nginx
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+authService:
+  enabled: true
+  replicas: 2
+  image: cogni-auth-service
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+
+vendorService:
+  enabled: true
+  replicas: 2
+  image: cogni-vendor-service
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+
+aiService:
+  enabled: true
+  replicas: 2
+  image: cogni-ai-service
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+
+adminService:
+  enabled: true
+  replicas: 2
+  image: cogni-admin-service
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+
+dispatchService:
+  enabled: true
+  replicas: 2
+  image: cogni-dispatch-service
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+frontend:
+  enabled: true
+  replicas: 2
+  image: cogni-frontend
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Application Settings
+config:
+  nodeEnv: production
+  mongodbUri: "mongodb+srv://<user>:<password>@<cluster>.mongodb.net/cognidispatch?retryWrites=true&w=majority"
+  azureSpeechKey: "REPLACE_WITH_YOUR_KEY"
+  azureSpeechRegion: "centralindia"
+  azureOpenaiEndpoint: "https://mock-openai.openai.azure.com/"
+  azureOpenaiKey: "mock_openai_key"
+  azureOpenaiDeployment: "gpt-4o"
+  allowedClientIp: "http://REPLACE_WITH_APPGW_PUBLIC_IP"
+  openaiApiKey: "mock_openai_api_key"
+
+# Managed Key Vault Secrets Mount Configuration (Set true in Production)
+keyvault:
+  enabled: false
+  name: "kv-cogni-prod-589"
+  tenantId: "YOUR_AZURE_TENANT_ID"
+  clientId: "YOUR_USER_ASSIGNED_IDENTITY_CLIENT_ID"
+  workloadIdentityEnabled: false

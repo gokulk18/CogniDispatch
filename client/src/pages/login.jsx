@@ -185,92 +185,106 @@ export default function LoginPortal() {
           {/* Login Form */}
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             
-            {/* Only show password login for non-admins */}
-            {role !== 'ADMIN' && (
-              <>
-                {/* Conditional Input based on role */}
-                {role === 'HOMEOWNER' ? (
-                  <div className="flex flex-col gap-2">
-                    <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
-                      Account Email Address
-                    </label>
-                    <div className="relative flex items-center">
-                      <span className="absolute left-4 text-sm text-slate-500">✉️</span>
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="client@cognidispatch.com"
-                        className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
-                      Specialist Phone Identifier
-                    </label>
-                    <div className="relative flex items-center">
-                      <span className="absolute left-4 text-sm text-slate-500">📞</span>
-                      <input
-                        type="tel"
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="e.g., +91 98765 43210"
-                        className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
-                      />
-                    </div>
-                  </div>
-                )}
-
+            {/* Show login inputs for all roles */}
+            <>
+              {/* Conditional Input based on role */}
+              {role === 'HOMEOWNER' || role === 'ADMIN' ? (
                 <div className="flex flex-col gap-2">
                   <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
-                    Secure Passcode
+                    Account Email Address
                   </label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-4 text-sm text-slate-500">🔑</span>
+                    <span className="absolute left-4 text-sm text-slate-500">✉️</span>
                     <input
-                      type="password"
+                      type="email"
                       required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder={role === 'ADMIN' ? "admin@cognidispatch.com" : "client@cognidispatch.com"}
                       className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
                     />
                   </div>
                 </div>
-
-                {errorMsg && (
-                  <div className="text-[10px] text-rose-400 bg-rose-950/10 border border-rose-900/30 rounded-xl p-3 font-mono-data leading-relaxed flex gap-2 items-start">
-                    <span>⚠️</span>
-                    <span>{errorMsg}</span>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
+                    Specialist Phone Identifier
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-4 text-sm text-slate-500">📞</span>
+                    <input
+                      type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="e.g., +91 98765 43210"
+                      className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
+                    />
                   </div>
-                )}
+                </div>
+              )}
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className={`w-full py-4 px-6 rounded-xl text-white font-extrabold uppercase tracking-widest text-[10px] transition duration-300 disabled:opacity-50 font-mono-data mt-2 shadow-md ${
-                    role === 'HOMEOWNER' 
-                      ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 shadow-emerald-950/20' 
-                      : 'bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-amber-950/20'
-                  }`}
-                >
-                  {loading ? 'Establishing Link...' : 'Connect to Operations'}
-                </button>
-              </>
-            )}
+              <div className="flex flex-col gap-2">
+                <label className="block text-[8px] uppercase font-bold text-slate-400 tracking-wider font-mono-data">
+                  Secure Passcode
+                </label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-4 text-sm text-slate-500">🔑</span>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full rounded-xl bg-[#030611] border border-slate-800 text-white text-xs pl-10 pr-4 py-4 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono-data transition"
+                  />
+                </div>
+              </div>
 
-            {/* Only show Entra ID button for Admins */}
-            {role === 'ADMIN' && (
-              <a
-                href="/.auth/login/aad?post_login_redirect_uri=/login?easyauth=true"
-                className="w-full py-4 px-6 rounded-xl text-white font-extrabold uppercase tracking-widest text-[10px] text-center border border-cyan-900 bg-cyan-950/40 hover:bg-cyan-900/60 hover:border-cyan-500 transition duration-300 font-mono-data mt-2 shadow-[0_0_15px_rgba(6,182,212,0.15)] flex items-center justify-center gap-3"
+              {errorMsg && (
+                <div className="text-[10px] text-rose-400 bg-rose-950/10 border border-rose-900/30 rounded-xl p-3 font-mono-data leading-relaxed flex gap-2 items-start">
+                  <span>⚠️</span>
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-4 px-6 rounded-xl text-white font-extrabold uppercase tracking-widest text-[10px] transition duration-300 disabled:opacity-50 font-mono-data mt-2 shadow-md ${
+                  role === 'HOMEOWNER' 
+                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 shadow-emerald-950/20' 
+                    : role === 'TECHNICIAN'
+                      ? 'bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-amber-950/20'
+                      : 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-indigo-950/20'
+                }`}
               >
-                <span className="text-lg">🏢</span> Secure Microsoft SSO Login
-              </a>
+                {loading ? 'Establishing Link...' : 'Connect to Operations'}
+              </button>
+            </>
+
+            {/* Also show Microsoft SSO option below for Admins in Production */}
+            {role === 'ADMIN' && (
+              <>
+                <div className="flex items-center my-1">
+                  <div className="flex-1 border-t border-slate-800/80"></div>
+                  <span className="px-3 text-[8px] text-slate-500 font-mono-data uppercase">Azure SSO (Prod Only)</span>
+                  <div className="flex-1 border-t border-slate-800/80"></div>
+                </div>
+                <a
+                  href="/.auth/login/aad?post_login_redirect_uri=/login?easyauth=true"
+                  className="w-full py-3 px-4 rounded-md text-zinc-700 font-semibold text-xs text-center bg-white hover:bg-zinc-100 border border-zinc-300 transition duration-200 flex items-center justify-center gap-3 shadow-sm"
+                  style={{ fontFamily: "'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif" }}
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0" y="0" width="10.5" height="10.5" fill="#F25022"/>
+                    <rect x="12.5" y="0" width="10.5" height="10.5" fill="#7FBA00"/>
+                    <rect x="0" y="12.5" width="10.5" height="10.5" fill="#00A1F1"/>
+                    <rect x="12.5" y="12.5" width="10.5" height="10.5" fill="#FFB900"/>
+                  </svg>
+                  <span>Sign in with Microsoft</span>
+                </a>
+              </>
             )}
           </form>
 

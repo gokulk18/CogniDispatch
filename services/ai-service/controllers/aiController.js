@@ -286,8 +286,13 @@ router.post('/vision/analyze', async (req, res) => {
     return Math.round(baseRate * multiplier);
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  const isMock = !apiKey || apiKey.includes('your_openai') || apiKey === '';
+  const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+  const apiKey = process.env.AZURE_OPENAI_KEY;
+  const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
+
+  const isMock = !endpoint || !apiKey || !deployment || 
+                 apiKey.includes('your_azure') || apiKey.includes('mock') || 
+                 endpoint.includes('your-resource');
 
   if (isMock) {
     console.log(`[CogniDispatch Vision] Running in OFFLINE DEMO MODE for image analysis.`);
@@ -373,21 +378,24 @@ router.post('/vision/analyze', async (req, res) => {
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        response_format: { type: "json_object" },
-        max_tokens: 800,
-        temperature: 0.15,
-        messages: [
-          {
-            role: "system",
-            content: `You are CogniDispatch's visual emergency triage AI. You inspect homeowner-uploaded photos of structural, plumbing, electrical, or HVAC emergencies. 
+    // Determine SDK client layout
+    let client;
+    let isLegacy = false;
+
+    if (typeof AzureOpenAI === 'function') {
+      client = new AzureOpenAI({
+        endpoint,
+        apiKey,
+        apiVersion: "2024-02-01",
+        deployment
+      });
+    } else {
+      const credential = new AzureKeyCredential(apiKey);
+      client = new OpenAIClient(endpoint, credential);
+      isLegacy = true;
+    }
+
+    const systemPrompt = `You are CogniDispatch's visual emergency triage AI. You inspect homeowner-uploaded photos of structural, plumbing, electrical, or HVAC emergencies. 
 Analyze the image and output a valid JSON object matching this schema:
 {
   "category": "PLUMBING" | "ELECTRICAL" | "HVAC" | "STRUCTURAL",
@@ -403,34 +411,72 @@ Analyze the image and output a valid JSON object matching this schema:
       "color": "hex color string (e.g. #f43f5e for primary hazard)"
     }
   ]
-}`
-          },
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "Analyze this emergency photo and locate the damage with bounding boxes."
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: image
-                }
-              }
-            ]
-          }
-        ]
-      })
-    });
+}`;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`OpenAI API returned status ${response.status}: ${errText}`);
+    let rawText = '';
+    const userMessageContent = [
+      {
+        type: "text",
+        text: "Analyze this emergency photo and locate the damage with bounding boxes."
+      },
+      {
+        type: "image_url",
+        image_url: {
+          url: image
+        }
+      }
+    ];
+
+    if (!isLegacy && client.chat && client.chat.completions) {
+      const response = await client.chat.completions.create({
+        model: deployment,
+        max_tokens: 800,
+        temperature: 0.15,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessageContent }
+        ]
+      });
+      rawText = response.choices[0].message.content;
+    } else {
+      // Fallback for legacy SDK format (imageUrl vs image_url)
+      const legacyUserMessageContent = [
+        {
+          type: "text",
+          text: "Analyze this emergency photo and locate the damage with bounding boxes."
+        },
+        {
+          type: "image_url",
+          imageUrl: {
+            url: image
+          }
+        }
+      ];
+      
+      let response;
+      if (client.getChatCompletions) {
+        response = await client.getChatCompletions(
+          deployment,
+          [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: legacyUserMessageContent }
+          ],
+          { maxTokens: 800, temperature: 0.15 }
+        );
+      } else {
+        response = await client.chat.completions.create({
+          model: deployment,
+          max_tokens: 800,
+          temperature: 0.15,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userMessageContent }
+          ]
+        });
+      }
+      rawText = response.choices[0].message.content;
     }
 
-    const resData = await response.json();
-    const rawText = resData.choices[0].message.content;
     const triage = JSON.parse(rawText);
 
     // Ensure amount is dynamically appended
@@ -438,7 +484,7 @@ Analyze the image and output a valid JSON object matching this schema:
 
     return res.json({ success: true, triage });
   } catch (err) {
-    console.error("OpenAI vision operation failed:", err);
+    console.error("Azure OpenAI vision operation failed:", err);
     return res.status(500).json({
       error: "LLM vision analysis operation failed",
       detail: err.message

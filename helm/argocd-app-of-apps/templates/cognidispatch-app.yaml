@@ -1,0 +1,26 @@
+{{- if .Values.cognidispatch.enabled -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cognidispatch
+  # ArgoCD usually watches the 'argocd' namespace for Application CRDs
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.spec.repoURL | quote }}
+    targetRevision: {{ .Values.spec.targetRevision | quote }}
+    path: {{ .Values.cognidispatch.path | quote }}
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: {{ .Values.spec.destinationServer | quote }}
+    namespace: {{ .Values.cognidispatch.namespace | quote }}
+  {{- if .Values.cognidispatch.syncPolicy }}
+  syncPolicy:
+    {{- toYaml .Values.cognidispatch.syncPolicy | nindent 4 }}
+  {{- end }}
+{{- end -}}
