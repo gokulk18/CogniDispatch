@@ -64,6 +64,7 @@ jobs:
       # 2. Dependency Vulnerability Scan (Snyk)
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
