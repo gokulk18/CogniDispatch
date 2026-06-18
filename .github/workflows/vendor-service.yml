@@ -12,6 +12,8 @@ on:
 
 jobs:
   call-common-ci:
+    permissions:
+      contents: write
     uses: ./.github/workflows/common-ci.yml
     with:
       working_directory: services/vendor-service
@@ -20,6 +22,7 @@ jobs:
       dockerfile_path: services/Dockerfile
       docker_build_context: services
       sonar_project_key: cogni-vendor-service
+      helm_value_key: vendorService
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

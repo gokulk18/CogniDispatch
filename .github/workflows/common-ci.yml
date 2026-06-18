@@ -28,6 +28,10 @@ on:
         required: true
         type: string
         description: "SonarQube project key"
+      helm_value_key:
+        required: true
+        type: string
+        description: "The service key in values.yaml to update (e.g., adminService)"
     secrets:
       SONAR_TOKEN:
         required: true
@@ -117,8 +121,72 @@ jobs:
           file: ${{ inputs.dockerfile_path }}
           push: true
           tags: |
-            cogniregistry.azurecr.io/${{ inputs.image_name }}:v1
+            cogniregistry.azurecr.io/${{ inputs.image_name }}:${{ github.sha }}
             cogniregistry.azurecr.io/${{ inputs.image_name }}:latest
           build-args: |
             NEXT_PUBLIC_SERVER_IP=https://api.g0ku1.online
             SERVICE_NAME=${{ inputs.service_name }}
+
+      # 8. Update Helm values.yaml imageTag with the new commit SHA
+      - name: Update Helm Values
+        run: |
+          node -e "
+            const fs = require('fs');
+            const yamlPath = 'helm/cognidispatch/values.yaml';
+            const lines = fs.readFileSync(yamlPath, 'utf8').split(/\r?\n/);
+            const serviceKey = '${{ inputs.helm_value_key }}';
+            const newTag = '${{ github.sha }}';
+            
+            let inService = false;
+            let updated = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i];
+              if (line.startsWith(serviceKey + ':')) {
+                inService = true;
+                continue;
+              }
+              if (inService) {
+                if (line.length > 0 && !line.startsWith(' ') && !line.startsWith('#')) {
+                  inService = false;
+                } else if (line.trim().startsWith('imageTag:')) {
+                  lines[i] = '  imageTag: \"' + newTag + '\"';
+                  updated = true;
+                  break;
+                }
+              }
+            }
+            
+            if (!updated && inService) {
+              for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith(serviceKey + ':')) {
+                  for (let j = i + 1; j < lines.length; j++) {
+                    if (lines[j].length > 0 && !lines[j].startsWith(' ')) break;
+                    if (lines[j].trim().startsWith('image:')) {
+                      lines.splice(j + 1, 0, '  imageTag: \"' + newTag + '\"');
+                      updated = true;
+                      break;
+                    }
+                  }
+                  if (updated) break;
+                }
+              }
+            }
+            
+            if (updated) {
+              fs.writeFileSync(yamlPath, lines.join('\n'), 'utf8');
+              console.log('Updated values.yaml successfully for ' + serviceKey + ' with tag: ' + newTag);
+            } else {
+              console.log('Failed to update values.yaml - key not found or not updated');
+              process.exit(1);
+            }
+          "
+
+      # 9. Commit and push the updated values.yaml to the repository
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add helm/cognidispatch/values.yaml
+          git commit -m "ci: update ${{ inputs.helm_value_key }} image tag to ${{ github.sha }} [skip ci]"
+          git push origin main

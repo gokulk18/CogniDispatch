@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: cogni-frontend
-          image: "{{ .Values.global.imageRegistry }}/{{ .Values.frontend.image }}:{{ .Values.global.imageTag }}"
+          image: "{{ .Values.global.imageRegistry }}/{{ .Values.frontend.image }}:{{ .Values.frontend.imageTag | default .Values.global.imageTag }}"
           imagePullPolicy: {{ .Values.global.imagePullPolicy }}
           ports:
             - containerPort: 3000

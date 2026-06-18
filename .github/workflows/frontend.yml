@@ -11,6 +11,8 @@ on:
 
 jobs:
   call-common-ci:
+    permissions:
+      contents: write
     uses: ./.github/workflows/common-ci.yml
     with:
       working_directory: client
@@ -18,6 +20,7 @@ jobs:
       dockerfile_path: client/Dockerfile
       docker_build_context: client
       sonar_project_key: cogni-frontend
+      helm_value_key: frontend
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
