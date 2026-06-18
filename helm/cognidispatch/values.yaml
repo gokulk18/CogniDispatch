@@ -111,7 +111,7 @@ config:
   azureOpenaiEndpoint: "https://mock-openai.openai.azure.com/"
   azureOpenaiKey: "mock_openai_key"
   azureOpenaiDeployment: "gpt-4o"
-  allowedClientIp: "http://REPLACE_WITH_APPGW_PUBLIC_IP"
+  allowedClientIp: "http://20.207.99.48"
   openaiApiKey: "mock_openai_api_key"
 
 # Managed Key Vault Secrets Mount Configuration (Set true in Production)

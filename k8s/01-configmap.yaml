@@ -18,7 +18,7 @@ data:
   AZURE_OPENAI_DEPLOYMENT: "gpt-4o"
 
   # CORS allowed origin — replace with your Application Gateway public IP or hostname
-  ALLOWED_CLIENT_IP: "http://REPLACE_WITH_APPGW_PUBLIC_IP"
+  ALLOWED_CLIENT_IP: "http://20.207.99.48"
 
   NODE_ENV: "production"
 

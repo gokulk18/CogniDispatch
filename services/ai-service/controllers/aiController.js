@@ -9,7 +9,7 @@ router.get('/speech-token', (req, res) => {
   const region = process.env.AZURE_SPEECH_REGION;
   const key = process.env.AZURE_SPEECH_KEY;
 
-  const isMock = !region || !key || key.includes('your_azure') || key.includes('mock');
+  const isMock = !region || !key || key.includes('your_azure') || key.includes('mock') || key.includes('REPLACE_WITH');
 
   if (isMock) {
     console.log("[RescuHome Speech] Azure Speech credentials missing or mock. Returning mock speech token.");
