@@ -137,8 +137,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: "azure/application-gateway"
   hosts:
-    - host: cognidispatch.local
-      paths:
+    - paths:
         - path: /api/
           pathType: Prefix
           backendName: cogni-backend-svc
