@@ -23,6 +23,11 @@ const nextConfig = {
         source: '/api/ai/:path*',
         destination: 'http://localhost:5003/api/ai/:path*',
       },
+      // Payment Service
+      {
+        source: '/api/payments/:path*',
+        destination: 'http://localhost:5006/api/payments/:path*',
+      },
       // Admin Service
       {
         source: '/api/admin/:path*',

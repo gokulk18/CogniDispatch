@@ -1,4 +1,115 @@
 {{- if .Values.nginx.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cogni-nginx-config
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    app: cogni-backend
+    tier: backend
+data:
+  nginx.conf: |
+    worker_processes 1;
+
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include       mime.types;
+        default_type  application/octet-stream;
+        sendfile        on;
+        keepalive_timeout  65;
+
+        upstream auth_backend {
+            server auth-service:5001;
+        }
+        upstream vendor_backend {
+            server vendor-service:5002;
+        }
+        upstream ai_backend {
+            server ai-service:5003;
+        }
+        upstream admin_backend {
+            server admin-service:5004;
+        }
+        upstream dispatch_backend {
+            server dispatch-service:5005;
+        }
+        upstream payment_backend {
+            server payment-service:5006;
+        }
+
+        server {
+            listen 5000;
+            server_name localhost;
+
+            location /api/auth/ {
+                proxy_pass http://auth_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+
+            location /api/vendors/ {
+                proxy_pass http://vendor_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+
+            location /api/ai/ {
+                proxy_pass http://ai_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_connect_timeout 120s;
+                proxy_read_timeout 120s;
+            }
+
+            location /api/admin/ {
+                proxy_pass http://admin_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+
+            location /api/dispatches/ {
+                proxy_pass http://dispatch_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_connect_timeout 300s;
+                proxy_read_timeout 300s;
+            }
+
+            location /api/payments/ {
+                proxy_pass http://payment_backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_connect_timeout 60s;
+                proxy_read_timeout 60s;
+            }
+
+            location /socket.io/ {
+                proxy_pass http://dispatch_backend;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_cache_bypass $http_upgrade;
+            }
+
+            location /api/health {
+                default_type application/json;
+                return 200 '{"status":"online", "service":"api-gateway-nginx-k8s"}';
+            }
+        }
+    }
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,6 +142,10 @@ spec:
             - containerPort: 5000
               name: http
               protocol: TCP
+          volumeMounts:
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
           resources:
             {{- toYaml .Values.nginx.resources | nindent 12 }}
           livenessProbe:
@@ -49,6 +164,10 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
+      volumes:
+        - name: nginx-config-volume
+          configMap:
+            name: cogni-nginx-config
 ---
 apiVersion: v1
 kind: Service

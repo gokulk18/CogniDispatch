@@ -56,6 +56,16 @@ services:
     environment:
       - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/cognidispatch}
 
+  payment-service:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app/payment-service
+    ports:
+      - "5006:5006"
+    environment:
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/cognidispatch}
+
   # For docker compose, we use a slightly modified nginx conf that points to docker hostnames
   nginx:
     image: nginx:alpine
@@ -69,6 +79,7 @@ services:
       - ai-service
       - admin-service
       - dispatch-service
+      - payment-service
 
   mongo:
     image: mongo:latest

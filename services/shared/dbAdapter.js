@@ -1,32 +1,61 @@
+const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-// Load initial seed data from JSON files in the shared module
-const usersData = require('./users.json');
-const vendorsData = require('./vendors.json');
-const dispatchesData = require('./dispatches.json');
+const usersPath = path.join(__dirname, 'users.json');
+const vendorsPath = path.join(__dirname, 'vendors.json');
+const dispatchesPath = path.join(__dirname, 'dispatches.json');
 
-// Initialize in-memory state arrays
-const users = [...usersData];
-const vendors = vendorsData.map(vendor => {
-  const lat = vendor.lat !== undefined ? Number(vendor.lat) : 8.53633;
-  const lng = vendor.lng !== undefined ? Number(vendor.lng) : 76.88329;
-  return {
-    ...vendor,
-    lat,
-    lng,
-    location: { type: 'Point', coordinates: [lng, lat] },
-    available: vendor.available !== undefined ? vendor.available : true,
-    busy: vendor.busy !== undefined ? vendor.busy : false,
-    balance: vendor.balance !== undefined ? Number(vendor.balance) : 0,
-    completed_jobs: vendor.completed_jobs !== undefined ? Number(vendor.completed_jobs) : 0,
-    rating: vendor.rating !== undefined ? Number(vendor.rating) : 4.5,
-    rating_count: vendor.rating_count !== undefined ? Number(vendor.rating_count) : 1
-  };
-});
-const dispatches = [...dispatchesData];
+function readData(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) {
+      return [];
+    }
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error(`Error reading data from ${filePath}:`, err);
+    return [];
+  }
+}
 
-console.log('[CogniDispatch DB] ✅ Running in Offline In-Memory Mock Mode (No MongoDB Server required)');
+function writeData(filePath, data) {
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error(`Error writing data to ${filePath}:`, err);
+  }
+}
+
+function readUsers() {
+  return readData(usersPath);
+}
+
+function readVendors() {
+  const vendorsData = readData(vendorsPath);
+  return vendorsData.map(vendor => {
+    const lat = vendor.lat !== undefined ? Number(vendor.lat) : 8.53633;
+    const lng = vendor.lng !== undefined ? Number(vendor.lng) : 76.88329;
+    return {
+      ...vendor,
+      lat,
+      lng,
+      location: { type: 'Point', coordinates: [lng, lat] },
+      available: vendor.available !== undefined ? vendor.available : true,
+      busy: vendor.busy !== undefined ? vendor.busy : false,
+      balance: vendor.balance !== undefined ? Number(vendor.balance) : 0,
+      completed_jobs: vendor.completed_jobs !== undefined ? Number(vendor.completed_jobs) : 0,
+      rating: vendor.rating !== undefined ? Number(vendor.rating) : 4.5,
+      rating_count: vendor.rating_count !== undefined ? Number(vendor.rating_count) : 1
+    };
+  });
+}
+
+function readDispatches() {
+  return readData(dispatchesPath);
+}
+
+console.log('[CogniDispatch DB] ✅ Running in Offline File-Synced Mock Mode');
 
 // ─────────────────────────────────────────────────────
 // Password hashing (replicated from original dbAdapter)
@@ -36,23 +65,26 @@ function hashPassword(password) {
 }
 
 // ─────────────────────────────────────────────────────
-// In-Memory DB Adapter Mock Collections
+// In-Memory DB Adapter Mock Collections (File-Backed)
 // ─────────────────────────────────────────────────────
 
 const Users = {
-  find: () => Promise.resolve(JSON.parse(JSON.stringify(users))),
+  find: () => Promise.resolve(JSON.parse(JSON.stringify(readUsers()))),
 
   findById: (id) => {
+    const users = readUsers();
     const user = users.find(u => u.id === id);
     return Promise.resolve(user ? JSON.parse(JSON.stringify(user)) : null);
   },
 
   findByEmail: (email) => {
+    const users = readUsers();
     const user = users.find(u => (u.email || '').toLowerCase() === email.toLowerCase());
     return Promise.resolve(user ? JSON.parse(JSON.stringify(user)) : null);
   },
 
   create: (user) => {
+    const users = readUsers();
     const newUser = {
       id: 'u_' + Math.random().toString(36).substr(2, 9),
       balance: 0,
@@ -66,10 +98,12 @@ const Users = {
     };
     delete newUser.password;
     users.push(newUser);
+    writeData(usersPath, users);
     return Promise.resolve(JSON.parse(JSON.stringify(newUser)));
   },
 
   update: (id, updates) => {
+    const users = readUsers();
     const idx = users.findIndex(u => u.id === id);
     if (idx !== -1) {
       users[idx] = {
@@ -77,6 +111,7 @@ const Users = {
         ...updates,
         updatedAt: new Date().toISOString()
       };
+      writeData(usersPath, users);
       return Promise.resolve(JSON.parse(JSON.stringify(users[idx])));
     }
     return Promise.resolve(null);
@@ -84,19 +119,22 @@ const Users = {
 };
 
 const Vendors = {
-  find: () => Promise.resolve(JSON.parse(JSON.stringify(vendors))),
+  find: () => Promise.resolve(JSON.parse(JSON.stringify(readVendors()))),
 
   findById: (id) => {
+    const vendors = readVendors();
     const vendor = vendors.find(v => v.id === id);
     return Promise.resolve(vendor ? JSON.parse(JSON.stringify(vendor)) : null);
   },
 
   findByPhone: (phone) => {
+    const vendors = readVendors();
     const vendor = vendors.find(v => v.phone === phone);
     return Promise.resolve(vendor ? JSON.parse(JSON.stringify(vendor)) : null);
   },
 
   create: (vendor) => {
+    const vendors = readVendors();
     const lat = vendor.lat !== undefined ? Number(vendor.lat) : 8.53633;
     const lng = vendor.lng !== undefined ? Number(vendor.lng) : 76.88329;
     const newVendor = {
@@ -117,10 +155,12 @@ const Vendors = {
     };
     delete newVendor.password;
     vendors.push(newVendor);
+    writeData(vendorsPath, vendors);
     return Promise.resolve(JSON.parse(JSON.stringify(newVendor)));
   },
 
   update: (id, updates) => {
+    const vendors = readVendors();
     const idx = vendors.findIndex(v => v.id === id);
     if (idx !== -1) {
       const existing = vendors[idx];
@@ -137,6 +177,7 @@ const Vendors = {
         ...set,
         updatedAt: new Date().toISOString()
       };
+      writeData(vendorsPath, vendors);
       return Promise.resolve(JSON.parse(JSON.stringify(vendors[idx])));
     }
     return Promise.resolve(null);
@@ -144,24 +185,28 @@ const Vendors = {
 };
 
 const Dispatches = {
-  find: () => Promise.resolve(JSON.parse(JSON.stringify(dispatches))),
+  find: () => Promise.resolve(JSON.parse(JSON.stringify(readDispatches()))),
 
   findById: (id) => {
+    const dispatches = readDispatches();
     const dispatch = dispatches.find(d => d.id === id);
     return Promise.resolve(dispatch ? JSON.parse(JSON.stringify(dispatch)) : null);
   },
 
   findBySocketId: (socketId) => {
+    const dispatches = readDispatches();
     const dispatch = dispatches.find(d => d.socketId === socketId);
     return Promise.resolve(dispatch ? JSON.parse(JSON.stringify(dispatch)) : null);
   },
 
   findActiveByVendorId: (vendorId) => {
+    const dispatches = readDispatches();
     const active = dispatches.find(d => d.vendorId === vendorId && !['COMPLETED', 'DECLINED', 'CANCELLED'].includes(d.status));
     return Promise.resolve(active ? JSON.parse(JSON.stringify(active)) : null);
   },
 
   create: (dispatch) => {
+    const dispatches = readDispatches();
     const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
     const newDispatch = {
       id: 'disp_' + Math.random().toString(36).substr(2, 9),
@@ -174,10 +219,12 @@ const Dispatches = {
       ...dispatch
     };
     dispatches.push(newDispatch);
+    writeData(dispatchesPath, dispatches);
     return Promise.resolve(JSON.parse(JSON.stringify(newDispatch)));
   },
 
   update: (id, updates) => {
+    const dispatches = readDispatches();
     const idx = dispatches.findIndex(d => d.id === id);
     if (idx !== -1) {
       dispatches[idx] = {
@@ -185,6 +232,7 @@ const Dispatches = {
         ...updates,
         updatedAt: new Date().toISOString()
       };
+      writeData(dispatchesPath, dispatches);
       return Promise.resolve(JSON.parse(JSON.stringify(dispatches[idx])));
     }
     return Promise.resolve(null);
@@ -199,3 +247,4 @@ const dbAdapter = {
 };
 
 module.exports = dbAdapter;
+

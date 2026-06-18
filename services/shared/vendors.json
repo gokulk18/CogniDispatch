@@ -15,7 +15,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -74.006,
+        40.7128
+      ]
+    }
   },
   {
     "id": "v002",
@@ -33,7 +40,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -73.998,
+        40.725
+      ]
+    }
   },
   {
     "id": "v003",
@@ -51,7 +65,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -74.015,
+        40.698
+      ]
+    }
   },
   {
     "id": "v004",
@@ -69,7 +90,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -74.03,
+        40.73
+      ]
+    }
   },
   {
     "id": "v005",
@@ -87,7 +115,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -73.98,
+        40.7
+      ]
+    }
   },
   {
     "id": "v006",
@@ -105,7 +140,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -74.001,
+        40.742
+      ]
+    }
   },
   {
     "id": "v007",
@@ -123,7 +165,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        76.882,
+        8.535
+      ]
+    }
   },
   {
     "id": "v008",
@@ -141,7 +190,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -73.975,
+        40.755
+      ]
+    }
   },
   {
     "id": "v009",
@@ -159,7 +215,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        76.884,
+        8.534
+      ]
+    }
   },
   {
     "id": "v010",
@@ -177,7 +240,14 @@
     "busy": false,
     "balance": 0,
     "completed_jobs": 0,
-    "rating_count": 1
+    "rating_count": 1,
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        -74.02,
+        40.72
+      ]
+    }
   },
   {
     "id": "v_1vncqxkz6",
@@ -195,7 +265,14 @@
     "address": "Pattom, Trivandrum Kerala",
     "lat": 8.536317559110872,
     "lng": 76.88330312100902,
-    "passwordHash": "d1b51a9f0e415dc8c211e4061f9285384cd9bc201c595c11306a462bd28cd6de00e74d4e413a14ba5e43f9dc862d21e571911d4ad61c19fe7258d87e8d3c493c"
+    "passwordHash": "d1b51a9f0e415dc8c211e4061f9285384cd9bc201c595c11306a462bd28cd6de00e74d4e413a14ba5e43f9dc862d21e571911d4ad61c19fe7258d87e8d3c493c",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        76.88330312100902,
+        8.536317559110872
+      ]
+    }
   },
   {
     "id": "v_quq0tlgzq",
@@ -213,7 +290,14 @@
     "address": "Kazhakoottam",
     "lat": 8.536329034056541,
     "lng": 76.88328995162158,
-    "passwordHash": "5e430d065be6cc1c862931dc54900acb0221475992b3ae2a5e0593232018f4c23c19f3b7819e8bb75f4d8cf7f8883bd5e252b7e31e9d2e0390db314515aa8209"
+    "passwordHash": "5e430d065be6cc1c862931dc54900acb0221475992b3ae2a5e0593232018f4c23c19f3b7819e8bb75f4d8cf7f8883bd5e252b7e31e9d2e0390db314515aa8209",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        76.88328995162158,
+        8.536329034056541
+      ]
+    }
   },
   {
     "id": "v_n9zmjbvjb",
@@ -231,16 +315,23 @@
     "address": "pattom",
     "lat": 8.536323803479382,
     "lng": 76.88329538015464,
-    "passwordHash": "d1b51a9f0e415dc8c211e4061f9285384cd9bc201c595c11306a462bd28cd6de00e74d4e413a14ba5e43f9dc862d21e571911d4ad61c19fe7258d87e8d3c493c"
+    "passwordHash": "d1b51a9f0e415dc8c211e4061f9285384cd9bc201c595c11306a462bd28cd6de00e74d4e413a14ba5e43f9dc862d21e571911d4ad61c19fe7258d87e8d3c493c",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        76.88329538015464,
+        8.536323803479382
+      ]
+    }
   },
   {
     "id": "v_jamam7ov9",
     "available": true,
     "busy": false,
-    "balance": 14400,
-    "completed_jobs": 5,
-    "rating_count": 6,
-    "rating": 4.92,
+    "balance": 31200,
+    "completed_jobs": 11,
+    "rating_count": 12,
+    "rating": 4.96,
     "name": "res1 Emergency Support",
     "technician": "res1",
     "phone": "9090909090",
@@ -249,6 +340,14 @@
     "address": "Pattom",
     "lat": 8.536332045101064,
     "lng": 76.88329416905123,
-    "passwordHash": "d1b51a9f0e415dc8c211e4061f9285384cd9bc201c595c11306a462bd28cd6de00e74d4e413a14ba5e43f9dc862d21e571911d4ad61c19fe7258d87e8d3c493c"
+    "passwordHash": "d1b51a9f0e415dc8c211e4061f9285384cd9bc201c595c11306a462bd28cd6de00e74d4e413a14ba5e43f9dc862d21e571911d4ad61c19fe7258d87e8d3c493c",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        76.88329416905123,
+        8.536332045101064
+      ]
+    },
+    "updatedAt": "2026-06-18T09:51:48.569Z"
   }
 ]

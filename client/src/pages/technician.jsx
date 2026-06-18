@@ -38,6 +38,20 @@ export default function TechnicianDashboard() {
   const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
   const socketUrl = process.env.NEXT_PUBLIC_SOCKET_IP || serverUrl;
 
+  const getDistanceMeters = () => {
+    if (distanceMeters !== null) return distanceMeters;
+    if (!techCoords || !userCoords) return null;
+    const toRad = (deg) => deg * Math.PI / 180;
+    const R = 6371000;
+    const dLat = toRad(userCoords.lat - techCoords.lat);
+    const dLng = toRad(userCoords.lng - techCoords.lng);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(toRad(techCoords.lat)) * Math.cos(toRad(userCoords.lat)) * 
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
   // 1. Session Verification & Profile Fetch
   useEffect(() => {
     const saved = localStorage.getItem('cogi_session');
@@ -569,9 +583,17 @@ export default function TechnicianDashboard() {
                     </button>
                     <button
                       onClick={handleMarkArrived}
-                      className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-mono font-bold uppercase tracking-wider shadow transition"
+                      disabled={getDistanceMeters() === null || getDistanceMeters() > 50}
+                      className={`px-5 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider shadow transition ${
+                        getDistanceMeters() !== null && getDistanceMeters() <= 50
+                          ? 'bg-amber-600 hover:bg-amber-500 text-white cursor-pointer'
+                          : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                      }`}
+                      title={getDistanceMeters() === null || getDistanceMeters() > 50 ? "You must reach the destination (< 50m) to signal arrival." : "Signal arrival and verify OTP"}
                     >
-                      ✔️ Signal Arrival / Secure Area
+                      {getDistanceMeters() === null || getDistanceMeters() > 50 
+                        ? `Awaiting Arrival (${getDistanceMeters() !== null ? getDistanceMeters().toFixed(0) + 'm' : 'calculating...'})`
+                        : '✔️ Verify OTP & Mitigate'}
                     </button>
                   </div>
                 )}

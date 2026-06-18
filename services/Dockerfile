@@ -18,5 +18,6 @@ RUN cd /app/vendor-service && npm install
 RUN cd /app/ai-service && npm install
 RUN cd /app/admin-service && npm install
 RUN cd /app/dispatch-service && npm install
+RUN cd /app/payment-service && npm install
 
 CMD ["npm", "start"]

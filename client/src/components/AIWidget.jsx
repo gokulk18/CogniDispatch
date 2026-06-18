@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
-export default function AIWidget({ onTranscription, onVisionTriage, onFallback, disabled }) {
-  // Tabs: 'SPEECH' or 'VISION'
-  const [activeTab, setActiveTab] = useState('SPEECH');
+export default function AIWidget({ onTranscription, onVisionTriage, onFallback, disabled, onClose, triageResult, tabs = ['SPEECH', 'VISION', 'VIDEO'] }) {
+  // Tabs: 'SPEECH', 'VISION', or 'VIDEO'
+  const [activeTab, setActiveTab] = useState(tabs[0] || 'SPEECH');
 
   // Voice States
   const [internalState, setInternalState] = useState('IDLE'); // IDLE, FETCHING_TOKEN, READY, LISTENING, PROCESSING, ERROR
@@ -23,7 +23,146 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
   const [isVisionAnalyzing, setIsVisionAnalyzing] = useState(false);
   const [visionErrorMessage, setVisionErrorMessage] = useState('');
 
+  // Live Video Assist States & Refs
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [videoStream, setVideoStream] = useState(null);
+  const [isVideoActive, setIsVideoActive] = useState(false);
+  const [videoFeedback, setVideoFeedback] = useState('Camera is off. Click "Start Live Assist" to enable video-guided triage.');
+  const [videoMitigations, setVideoMitigations] = useState([]);
+  const [videoTranscript, setVideoTranscript] = useState('');
+  const [isVideoAnalyzing, setIsVideoAnalyzing] = useState(false);
+  const [videoCompleted, setVideoCompleted] = useState(false);
+  const [videoErrorMessage, setVideoErrorMessage] = useState('');
+
+  // Tracking spoken messages to avoid overlaps or loops
+  const lastSpokenTextRef = useRef('');
+  const lastTriageSummaryRef = useRef('');
+  const activeSynthesizerRef = useRef(null);
+
   const isDemoMode = speechToken === 'mock_speech_token';
+
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
+  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_IP || serverUrl;
+
+  // Cleanup speech synthesis on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (activeSynthesizerRef.current) {
+        try {
+          activeSynthesizerRef.current.close();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+  }, []);
+
+  // Speech Synthesis (TTS) Helper
+  const speakText = async (text) => {
+    if (!text || text.trim() === '') return;
+
+    // Check if we are running in Offline Demo Mode (no real speech credentials)
+    if (isDemoMode) {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        try {
+          window.speechSynthesis.cancel(); // Stop any ongoing speech
+          const utterance = new SpeechSynthesisUtterance(text);
+          const voices = window.speechSynthesis.getVoices();
+          const enVoice = voices.find(v => v.lang.startsWith('en')) || null;
+          if (enVoice) {
+            utterance.voice = enVoice;
+          }
+          window.speechSynthesis.speak(utterance);
+        } catch (err) {
+          console.error("Browser native speech synthesis failed:", err);
+        }
+      }
+      return;
+    }
+
+    // Live Azure Speech Synthesis (TTS)
+    try {
+      const SpeechSDK = await import('microsoft-cognitiveservices-speech-sdk');
+      let currentToken = speechToken;
+      let currentRegion = speechRegion;
+
+      if (!currentToken) {
+        const tokenRes = await axios.get(`${serverUrl}/api/ai/speech-token`);
+        currentToken = tokenRes.data.token;
+        currentRegion = tokenRes.data.region;
+        setSpeechToken(currentToken);
+        setSpeechRegion(currentRegion);
+      }
+
+      const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(currentToken, currentRegion);
+      speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural"; // Premium neural voice
+      
+      // Close previous synthesizer if active
+      if (activeSynthesizerRef.current) {
+        try {
+          activeSynthesizerRef.current.close();
+        } catch (e) {}
+      }
+
+      const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig);
+      activeSynthesizerRef.current = synthesizer;
+      
+      synthesizer.speakTextAsync(
+        text,
+        (result) => {
+          if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+            console.log("[Azure Speech synthesis] Completed successfully.");
+          } else {
+            console.warn("[Azure Speech synthesis] Synthesis issue:", result.errorDetails);
+          }
+          synthesizer.close();
+          if (activeSynthesizerRef.current === synthesizer) {
+            activeSynthesizerRef.current = null;
+          }
+        },
+        (err) => {
+          console.error("[Azure Speech synthesis] Failed:", err);
+          synthesizer.close();
+          if (activeSynthesizerRef.current === synthesizer) {
+            activeSynthesizerRef.current = null;
+          }
+        }
+      );
+    } catch (err) {
+      console.error("Failed to load Azure Speech SDK for synthesis:", err);
+      // Fallback to Web Speech API
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+  };
+
+  // Speak live video feedback when it changes
+  useEffect(() => {
+    const isPlaceholderText = 
+      videoFeedback === 'Camera is off. Click "Start Live Assist" to enable video-guided triage.' ||
+      videoFeedback === 'Live video feed active. Describe your emergency in the input box below to begin.' ||
+      videoFeedback === 'Initializing camera feed...';
+
+    if (isVideoActive && videoFeedback && !isPlaceholderText && videoFeedback !== lastSpokenTextRef.current) {
+      speakText(videoFeedback);
+      lastSpokenTextRef.current = videoFeedback;
+    }
+  }, [videoFeedback, isVideoActive]);
+
+  // Speak voice transcription triage result summary when it changes
+  useEffect(() => {
+    if (triageResult && triageResult.summary && triageResult.summary !== lastTriageSummaryRef.current) {
+      speakText(triageResult.summary);
+      lastTriageSummaryRef.current = triageResult.summary;
+    }
+  }, [triageResult]);
 
   // Fetch the speech token on mount
   useEffect(() => {
@@ -31,7 +170,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
     const fetchToken = async () => {
       setInternalState('FETCHING_TOKEN');
       try {
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
         const response = await axios.get(`${serverUrl}/api/ai/speech-token`);
         if (active) {
           const { token, region } = response.data;
@@ -78,7 +216,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
 
       if (!currentToken) {
         setInternalState('FETCHING_TOKEN');
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
         const tokenRes = await axios.get(`${serverUrl}/api/ai/speech-token`);
         currentToken = tokenRes.data.token;
         currentRegion = tokenRes.data.region;
@@ -167,7 +304,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
     setVisionErrorMessage('');
 
     try {
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_IP || 'https://nginx.blacksea-5c2cdd48.japanwest.azurecontainerapps.io';
       const res = await axios.post(`${serverUrl}/api/ai/vision/analyze`, {
         image: base64Image,
         simulateType: simulateVisionType
@@ -175,6 +311,9 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
 
       if (res.data && res.data.success) {
         setVisionTriageResult(res.data.triage);
+        if (res.data.triage && res.data.triage.summary) {
+          speakText(res.data.triage.summary);
+        }
       } else {
         throw new Error("Invalid response format from vision AI.");
       }
@@ -198,10 +337,92 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
     if (onVisionTriage) {
       onVisionTriage(visionTriageResult);
     } else {
-      // fallback to standard text flow
       onTranscription(visionTriageResult.summary);
     }
   };
+
+  // Live Video Assist Handlers
+  const startVideoAssist = async () => {
+    setVideoErrorMessage('');
+    setVideoFeedback('Initializing camera feed...');
+    setVideoCompleted(false);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 480, height: 360, facingMode: 'environment' },
+        audio: false
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setVideoStream(stream);
+      setIsVideoActive(true);
+      setVideoFeedback('Live video feed active. Describe your emergency in the input box below to begin.');
+    } catch (err) {
+      console.error("Camera access failed:", err);
+      setVideoErrorMessage("Camera permission denied or camera device not found.");
+      setVideoFeedback("Failed to access camera.");
+    }
+  };
+
+  const stopVideoAssist = () => {
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+    }
+    setVideoStream(null);
+    setIsVideoActive(false);
+    setVideoFeedback('Camera is off. Click "Start Live Assist" to enable video-guided triage.');
+  };
+
+  // Auto clean up camera on unmount or tab switch
+  useEffect(() => {
+    return () => {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [videoStream]);
+
+  // Periodic Frame Dispatch Loop
+  useEffect(() => {
+    if (!isVideoActive || !videoStream || videoCompleted) return;
+
+    const intervalId = setInterval(async () => {
+      if (!videoRef.current || !canvasRef.current) return;
+
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+
+      canvas.width = video.videoWidth || 480;
+      canvas.height = video.videoHeight || 360;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const base64 = canvas.toDataURL('image/jpeg', 0.6);
+
+      setIsVideoAnalyzing(true);
+      try {
+        const res = await axios.post(`${serverUrl}/api/ai/live-assist`, {
+          image: base64,
+          transcript: videoTranscript
+        });
+
+        if (res.data && res.data.success) {
+          setVideoFeedback(res.data.feedback);
+          setVideoMitigations(res.data.mitigations);
+          if (res.data.completed) {
+            setVideoCompleted(true);
+            stopVideoAssist();
+          }
+        }
+      } catch (err) {
+        console.error("Live assist frame analysis failed:", err);
+      } finally {
+        setIsVideoAnalyzing(false);
+      }
+    }, 4000);
+
+    return () => clearInterval(intervalId);
+  }, [isVideoActive, videoStream, videoTranscript, videoCompleted]);
 
   // Status indicators configuration
   const getStatusBadge = () => {
@@ -227,30 +448,71 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
   };
 
   return (
-    <div className="w-full bg-[#121215] border border-zinc-800 rounded-xl p-6 shadow-xl flex flex-col gap-6 backdrop-blur-sm">
+    <div className="w-full bg-[#121215] border border-zinc-800 rounded-xl p-6 shadow-xl flex flex-col gap-6 backdrop-blur-sm relative">
+      {/* Standalone Title Bar (if only 1 tab & onClose provided) */}
+      {tabs.length <= 1 && onClose && (
+        <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
+          <span className="text-[10px] font-black tracking-widest text-purple-400 uppercase flex items-center gap-1.5 font-mono">
+            {tabs[0] === 'VIDEO' ? '📹 AI LIVE VIDEO ASSIST' : 'CogniDispatch AI'}
+          </span>
+          <button
+            onClick={onClose}
+            className="text-[10px] text-zinc-500 hover:text-rose-450 font-bold uppercase font-mono transition"
+          >
+            ✕ Close
+          </button>
+        </div>
+      )}
+
       {/* Widget Tabs Header */}
-      <div className="flex border-b border-zinc-800 pb-0.5">
-        <button
-          onClick={() => setActiveTab('SPEECH')}
-          className={`flex-1 pb-3 text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
-            activeTab === 'SPEECH'
-              ? 'border-purple-500 text-white font-black'
-              : 'border-transparent text-zinc-500 hover:text-zinc-300'
-          }`}
-        >
-          🎤 Speak Emergency
-        </button>
-        <button
-          onClick={() => setActiveTab('VISION')}
-          className={`flex-1 pb-3 text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
-            activeTab === 'VISION'
-              ? 'border-purple-500 text-white font-black'
-              : 'border-transparent text-zinc-500 hover:text-zinc-300'
-          }`}
-        >
-          📷 Scan Damage
-        </button>
-      </div>
+      {tabs.length > 1 && (
+        <div className="flex border-b border-zinc-800 pb-0.5 gap-2 items-center">
+          {tabs.includes('SPEECH') && (
+            <button
+              onClick={() => setActiveTab('SPEECH')}
+              className={`flex-1 pb-3 text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
+                activeTab === 'SPEECH'
+                  ? 'border-purple-500 text-white font-black'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              🎤 Speak
+            </button>
+          )}
+          {tabs.includes('VISION') && (
+            <button
+              onClick={() => setActiveTab('VISION')}
+              className={`flex-1 pb-3 text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
+                activeTab === 'VISION'
+                  ? 'border-purple-500 text-white font-black'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              📷 Scan
+            </button>
+          )}
+          {tabs.includes('VIDEO') && (
+            <button
+              onClick={() => setActiveTab('VIDEO')}
+              className={`flex-1 pb-3 text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
+                activeTab === 'VIDEO'
+                  ? 'border-purple-500 text-white font-black'
+                  : 'border-transparent text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              📹 Live Assist
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="pb-3 text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all border-b-2 border-transparent text-rose-500 hover:text-rose-400 pl-1"
+            >
+              ✕ Close
+            </button>
+          )}
+        </div>
+      )}
 
       {/* TAB 1: SPEECH DISPATCH */}
       {activeTab === 'SPEECH' && (
@@ -264,7 +526,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
             </p>
           </div>
 
-          {/* Pulsing button container */}
           <div className="relative flex items-center justify-center my-2">
             {internalState === 'LISTENING' && (
               <div className="absolute inset-0 rounded-full bg-rose-500/10 animate-ping-slow scale-150" />
@@ -293,7 +554,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
             </button>
           </div>
 
-          {/* State Info */}
           <div className="flex flex-col gap-2 w-full">
             <div className="flex justify-center">{getStatusBadge()}</div>
 
@@ -310,7 +570,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
               </div>
             )}
 
-            {/* Simulated input */}
             {isDemoMode && (
               <form onSubmit={handleDemoSubmit} className="mt-4 flex flex-col gap-2 text-left border-t border-zinc-800/80 pt-4">
                 <label className="block text-[10px] text-purple-400 font-bold uppercase tracking-wider font-mono">
@@ -360,7 +619,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
             </p>
           )}
 
-          {/* 1. Image Selector Drag & Drop */}
           {!selectedImage && !isVisionAnalyzing && (
             <div className="flex flex-col gap-4">
               <label
@@ -383,7 +641,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
                 />
               </label>
 
-              {/* Simulation Selectors */}
               <div className="bg-zinc-950/40 border border-zinc-800 p-4 rounded-xl flex flex-col gap-2 font-mono">
                 <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">⚙️ Simulation Case Config (For Mock Triage)</span>
                 <div className="grid grid-cols-2 gap-2 mt-1">
@@ -406,7 +663,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
             </div>
           )}
 
-          {/* 2. Image Analyzing Loader */}
           {isVisionAnalyzing && (
             <div className="w-full py-12 flex flex-col items-center justify-center gap-4 border border-zinc-800 rounded-xl bg-zinc-950/10">
               <div className="text-3xl animate-spin text-purple-400">🌀</div>
@@ -417,7 +673,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
             </div>
           )}
 
-          {/* 3. Image Previewed but Not Analyzed Yet */}
           {selectedImage && !visionTriageResult && !isVisionAnalyzing && (
             <div className="flex flex-col gap-4 items-center">
               <div className="relative w-full max-w-sm rounded-lg overflow-hidden border border-zinc-800 bg-zinc-900 shadow-inner flex items-center justify-center">
@@ -461,14 +716,11 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
             </div>
           )}
 
-          {/* 4. Vision Triage Assessment Completed (Display Image with Overlay & Meta Details) */}
           {selectedImage && visionTriageResult && !isVisionAnalyzing && (
             <div className="flex flex-col gap-5">
-              {/* Bounding Box Image Overlay */}
               <div className="relative w-full max-w-sm mx-auto rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950 shadow-lg select-none">
                 <img src={selectedImage} alt="Emergency Triage Overlay" className="w-full h-auto object-contain block" />
                 
-                {/* Overlay Bounding Boxes */}
                 {visionTriageResult.bounding_boxes?.map((box, idx) => {
                   const [ymin, xmin, ymax, xmax] = box.box_2d;
                   return (
@@ -494,7 +746,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
                 })}
               </div>
 
-              {/* Assessment Summary Card */}
               <div className="bg-zinc-950/60 border border-zinc-800 rounded-xl p-4 flex flex-col gap-3.5 font-mono text-[10px] text-left">
                 <div className="flex justify-between items-center border-b border-zinc-900 pb-2">
                   <div className="flex flex-col">
@@ -515,7 +766,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
                   </div>
                 </div>
 
-                {/* Severity Meter */}
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-zinc-500 uppercase tracking-widest font-bold">visual severity index</span>
@@ -529,13 +779,11 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
                   </div>
                 </div>
 
-                {/* Summary Statement */}
                 <div className="bg-zinc-900/40 border border-zinc-800 p-2.5 rounded-lg text-zinc-300 font-sans text-xs leading-normal">
                   <span className="font-mono text-[9px] text-purple-400 font-bold block uppercase tracking-wider mb-1">AI VISUAL DIAGNOSIS:</span>
                   "{visionTriageResult.summary}"
                 </div>
 
-                {/* Hazard Flags */}
                 {visionTriageResult.hazard_flags?.length > 0 && (
                   <div>
                     <span className="text-zinc-500 uppercase tracking-widest font-bold block mb-1">active hazard indicators</span>
@@ -549,7 +797,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
                   </div>
                 )}
 
-                {/* Pre-Arrival Containment Steps */}
                 <div>
                   <span className="text-zinc-500 uppercase tracking-widest font-bold block mb-1.5">immediate safety actions</span>
                   <ul className="flex flex-col gap-1 text-zinc-300 font-sans text-xs list-decimal pl-4 leading-relaxed font-sans">
@@ -560,7 +807,6 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex gap-2">
                 <button
                   onClick={handleVisionReset}
@@ -579,6 +825,117 @@ export default function AIWidget({ onTranscription, onVisionTriage, onFallback, 
           )}
         </div>
       )}
+
+      {/* TAB 3: LIVE VIDEO ASSIST */}
+      {activeTab === 'VIDEO' && (
+        <div className="flex flex-col gap-5 animate-fadeIn">
+          <div className="text-center">
+            <h3 className="text-lg font-bold text-white mb-1 uppercase tracking-wider">
+              Live Video Assistant
+            </h3>
+            <p className="text-zinc-400 text-xs px-2">
+              Share your camera feed of the incident. Our AI agent will identify the damage and provide live, step-by-step guidance to help you isolate it.
+            </p>
+          </div>
+
+          {videoErrorMessage && (
+            <p className="text-xs text-rose-400 bg-rose-500/5 border border-rose-500/10 rounded-lg p-3 font-mono text-center">
+              ⚠️ {videoErrorMessage}
+            </p>
+          )}
+
+          {/* Video Feed Window */}
+          <div className="w-full relative aspect-video border border-zinc-800 rounded-xl overflow-hidden bg-black flex items-center justify-center shadow-inner">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`w-full h-full object-cover ${isVideoActive ? 'block' : 'hidden'}`}
+            />
+            {!isVideoActive && (
+              <div className="flex flex-col items-center gap-3 text-zinc-500 p-4 text-center">
+                <span className="text-4xl animate-pulse">📹</span>
+                <button
+                  type="button"
+                  onClick={startVideoAssist}
+                  className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 active:scale-95 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg font-mono"
+                >
+                  Start Live Assist
+                </button>
+              </div>
+            )}
+
+            {/* Hidden Canvas for Frame Capture */}
+            <canvas ref={canvasRef} className="hidden" />
+
+            {/* Floating Live Indicator */}
+            {isVideoActive && (
+              <div className="absolute top-3 right-3 flex items-center gap-2 bg-black/70 border border-zinc-800 px-2.5 py-1 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider text-rose-400 shadow-md">
+                <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping"></span>
+                <span>Live Feed Active</span>
+              </div>
+            )}
+
+            {/* Loading Overlay */}
+            {isVideoAnalyzing && (
+              <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px] flex items-center justify-center">
+                <div className="bg-zinc-950/90 border border-zinc-800 p-3 rounded-lg flex items-center gap-2.5 text-[9px] text-purple-400 font-mono uppercase tracking-wider shadow-lg">
+                  <span className="h-3 w-3 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></span>
+                  <span>AI Scanning Frame...</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Feedback Textbox */}
+          <div className="bg-zinc-950/40 border border-zinc-800 p-4 rounded-xl flex flex-col gap-2.5 text-left font-mono">
+            <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">📢 AI Guidance</span>
+            <p className="text-zinc-200 text-xs leading-relaxed font-sans bg-zinc-950/50 border border-zinc-900 p-3 rounded-lg">
+              {videoFeedback}
+            </p>
+          </div>
+
+          {/* Mitigations Checklist */}
+          {videoMitigations.length > 0 && (
+            <div className="bg-zinc-950/40 border border-zinc-800 p-4 rounded-xl flex flex-col gap-2.5 text-left font-mono">
+              <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">📋 Action Checklist</span>
+              <div className="flex flex-col gap-2">
+                {videoMitigations.map((step, idx) => (
+                  <div key={idx} className="flex items-center gap-2.5 bg-zinc-900/40 border border-zinc-800/80 p-2.5 rounded-lg text-zinc-300 text-xs font-mono">
+                    <span className="text-purple-400 font-bold">#{idx + 1}</span>
+                    <span>{step}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Active input text box */}
+          {isVideoActive && (
+            <div className="flex flex-col gap-2 text-left">
+              <label htmlFor="video-prompt-input" className="text-[9px] text-zinc-500 uppercase font-mono tracking-wider">Describe symptoms / respond to AI:</label>
+              <div className="flex gap-2">
+                <input
+                  id="video-prompt-input"
+                  type="text"
+                  value={videoTranscript}
+                  onChange={(e) => setVideoTranscript(e.target.value)}
+                  placeholder="e.g. 'I turned the main pipe valve off now' or 'Water is spraying...'"
+                  className="flex-1 px-3 py-2.5 bg-zinc-950/60 border border-zinc-800 rounded-lg text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500 transition-colors font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={stopVideoAssist}
+                  className="px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-rose-400 border border-zinc-850 rounded-lg text-xs font-bold uppercase tracking-wider transition-all font-mono"
+                >
+                  Stop
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -587,5 +944,7 @@ AIWidget.propTypes = {
   onTranscription: PropTypes.func.isRequired,
   onVisionTriage: PropTypes.func,
   onFallback: PropTypes.func.isRequired,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  onClose: PropTypes.func,
+  triageResult: PropTypes.object
 };

@@ -4,7 +4,7 @@ $acrLoginServer = "$acrName.azurecr.io"
 Write-Host "Logging into Azure Container Registry ($acrName)..." -ForegroundColor Cyan
 az acr login --name $acrName
 
-$services = @("auth-service", "vendor-service", "ai-service", "admin-service", "dispatch-service")
+$services = @("auth-service", "vendor-service", "ai-service", "admin-service", "dispatch-service", "payment-service")
 
 foreach ($service in $services) {
     Write-Host "Building and pushing $service..." -ForegroundColor Yellow
@@ -24,4 +24,4 @@ docker build -t "$acrLoginServer/cogni-nginx:v2" -t "$acrLoginServer/cogni-nginx
 docker push "$acrLoginServer/cogni-nginx:v2"
 docker push "$acrLoginServer/cogni-nginx:latest"
 
-Write-Host "All 6 backend images successfully pushed to ACR!" -ForegroundColor Green
+Write-Host "All 7 backend images successfully pushed to ACR!" -ForegroundColor Green

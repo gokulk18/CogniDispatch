@@ -78,6 +78,18 @@ dispatchService:
       memory: "512Mi"
       cpu: "500m"
 
+paymentService:
+  enabled: true
+  replicas: 2
+  image: cogni-payment-service
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+
 frontend:
   enabled: true
   replicas: 2
@@ -109,3 +121,15 @@ keyvault:
   tenantId: "YOUR_AZURE_TENANT_ID"
   clientId: "YOUR_USER_ASSIGNED_IDENTITY_CLIENT_ID"
   workloadIdentityEnabled: false
+
+# Ingress Controller Configuration
+ingress:
+  enabled: false
+  className: "addon-http-application-routing"
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+  hosts:
+    - host: cognidispatch.local
+      paths:
+        - path: /
+          pathType: Prefix

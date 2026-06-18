@@ -509,4 +509,167 @@ router.post('/pricing/predict', async (req, res) => {
   res.status(501).json({ message: "Predictive pricing engine — not yet implemented. See architecture comments." });
 });
 
+// Route 4: POST /api/ai/live-assist
+// Purpose: Process live camera frame + text description to return real-time triage guidance
+router.post('/live-assist', async (req, res) => {
+  const { image, transcript } = req.body;
+
+  if (!image) {
+    return res.status(400).json({ error: "image field (base64) is required." });
+  }
+
+  const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+  const apiKey = process.env.AZURE_OPENAI_KEY;
+  const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
+
+  const isMock = !endpoint || !apiKey || !deployment || 
+                 apiKey.includes('your_azure') || apiKey.includes('mock') || 
+                 endpoint.includes('your-resource');
+
+  if (isMock) {
+    // High-fidelity mock analysis of live frame
+    await new Promise(resolve => setTimeout(resolve, 800)); // fast real-time response
+
+    const text = (transcript || '').toUpperCase();
+    let feedback = "I am observing the video feed. Please point the camera closer to the hazard and describe what happened.";
+    let mitigations = ["Point camera at hazard", "State the emergency type"];
+    let completed = false;
+
+    if (text.includes("WATER") || text.includes("LEAK") || text.includes("PIPE") || text.includes("FLOOD") || text.includes("BURST")) {
+      feedback = "I see water escaping. Please locate the main water shutoff valve (usually in the utility room or near the meter) and turn it clockwise to cut the flow.";
+      mitigations = [
+        "Locate main water shutoff valve",
+        "Turn valve clockwise to CLOSE",
+        "Unplug any electric cords near standing water"
+      ];
+      if (text.includes("CLOSE") || text.includes("DONE") || text.includes("TURNED OFF") || text.includes("OFF")) {
+        feedback = "Excellent! The water leak has been shut off. An emergency plumber has been matched and is en-route. Please dry the floor and keep clear.";
+        mitigations = ["Wait for plumber arrival", "Begin drying area"];
+        completed = true;
+      }
+    } else if (text.includes("SPARK") || text.includes("FIRE") || text.includes("ELECTRIC") || text.includes("WIRE") || text.includes("BREAKER")) {
+      feedback = "WARNING: I identify active electrical arcing. Please do NOT touch the wires or metal outlets. Evacuate the room and switch off the main circuit breaker.";
+      mitigations = [
+        "Locate circuit breaker panel",
+        "Flip main breaker to OFF",
+        "Evacuate if smoke develops"
+      ];
+      if (text.includes("OFF") || text.includes("DONE") || text.includes("BREAKER CUT") || text.includes("SWITCHED")) {
+        feedback = "Great job, power is cut. The electrical threat is neutralized. An emergency technician is en-route. Keep the area dry and isolated.";
+        mitigations = ["Wait for technician arrival", "Keep area dry"];
+        completed = true;
+      }
+    }
+
+    return res.json({
+      success: true,
+      feedback,
+      mitigations,
+      completed
+    });
+  }
+
+  try {
+    let client;
+    let isLegacy = false;
+
+    if (typeof AzureOpenAI === 'function') {
+      client = new AzureOpenAI({
+        endpoint,
+        apiKey,
+        apiVersion: "2024-02-01",
+        deployment
+      });
+    } else {
+      const credential = new AzureKeyCredential(apiKey);
+      client = new OpenAIClient(endpoint, credential);
+      isLegacy = true;
+    }
+
+    const systemPrompt = `You are CogniDispatch's real-time emergency triage assistant. The user is sharing a live camera feed showing a disaster.
+Analyze the image frame and the user's transcript. Give urgent, supportive guidance telling them exactly what they see and what to do.
+Output ONLY a valid minified JSON object matching this schema (do NOT wrap in code blocks or markdown):
+{
+  "feedback": "Direct instructions on what to do next based on the camera view",
+  "mitigations": ["imperative step 1", "imperative step 2"],
+  "completed": true | false // set true only if the user has successfully closed the valve, cut the power, or fully isolated the hazard
+}`;
+
+    const userMessageContent = [
+      {
+        type: "text",
+        text: `Live transcript of user: "${transcript || 'User is pointing camera at incident.'}"`
+      },
+      {
+        type: "image_url",
+        image_url: {
+          url: image
+        }
+      }
+    ];
+
+    let rawText = '';
+    if (!isLegacy && client.chat && client.chat.completions) {
+      const response = await client.chat.completions.create({
+        model: deployment,
+        max_tokens: 400,
+        temperature: 0.1,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessageContent }
+        ]
+      });
+      rawText = response.choices[0].message.content;
+    } else {
+      const legacyUserMessageContent = [
+        {
+          type: "text",
+          text: `Live transcript of user: "${transcript || ''}"`
+        },
+        {
+          type: "image_url",
+          imageUrl: {
+            url: image
+          }
+        }
+      ];
+
+      let response;
+      if (client.getChatCompletions) {
+        response = await client.getChatCompletions(
+          deployment,
+          [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: legacyUserMessageContent }
+          ],
+          { maxTokens: 400, temperature: 0.1 }
+        );
+      } else {
+        response = await client.chat.completions.create({
+          model: deployment,
+          max_tokens: 400,
+          temperature: 0.1,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userMessageContent }
+          ]
+        });
+      }
+      rawText = response.choices[0].message.content;
+    }
+
+    let parsed = JSON.parse(rawText.trim());
+    return res.json({
+      success: true,
+      feedback: parsed.feedback,
+      mitigations: parsed.mitigations,
+      completed: parsed.completed
+    });
+
+  } catch (err) {
+    console.error("Live assist AI operation failed:", err);
+    return res.status(500).json({ error: "Live assist AI process failed", detail: err.message });
+  }
+});
+
 module.exports = router;

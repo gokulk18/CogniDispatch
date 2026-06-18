@@ -172,9 +172,7 @@ io.on('connection', (socket) => {
     });
 
     if (distance < 50 && dispatch.status === 'EN_ROUTE') {
-      console.log(`[CogniDispatch Telemetry] Technician arrived at destination for dispatch ${dispatchId}`);
-      await dbAdapter.Dispatches.update(dispatchId, { status: 'ARRIVED' });
-      io.to(`room_disp_${dispatchId}`).emit('tech-arrived', { dispatchId });
+      console.log(`[CogniDispatch Telemetry] Technician is nearby for dispatch ${dispatchId} but must verify with OTP.`);
     }
   });
 

@@ -32,6 +32,7 @@ export default function HomeownerDashboard() {
   const [declineNotice, setDeclineNotice] = useState('');
   const [activeDispatchId, setActiveDispatchId] = useState(null);
   const [activeOtp, setActiveOtp] = useState(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Sync ref with state to prevent socket stale closures and avoid reconnection cycles
   const matchedVendorRef = useRef(matchedVendor);
@@ -423,9 +424,13 @@ export default function HomeownerDashboard() {
         }
         
         if (dispatchIdToComplete) {
-          const completeRes = await axios.put(`${serverUrl}/api/vendors/complete-job`, {
+          const completeRes = await axios.post(`${serverUrl}/api/payments/checkout`, {
             dispatchId: dispatchIdToComplete,
-            rating: selectedStars
+            rating: selectedStars,
+            cardNumber,
+            cardHolder,
+            cardExpiry,
+            cardCvv
           });
 
           if (completeRes.data.success) {
@@ -534,16 +539,18 @@ export default function HomeownerDashboard() {
           
           {appPhase === 'IDLE' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start animate-fadeIn">
-              {/* Voice Dispatch widget */}
+              {/* Voice Dispatch and Vision Scan widget */}
               <div className="flex flex-col gap-6">
                 <AIWidget 
                   onTranscription={handleTranscription} 
                   onVisionTriage={handleVisionTriage}
                   onFallback={triggerFallback}
                   disabled={false}
+                  triageResult={triageResult}
+                  tabs={['SPEECH', 'VISION']}
                 />
               </div>
-              
+
               {/* Manual Dispatch backup */}
               <div>
                 <ManualGrid 
@@ -925,6 +932,58 @@ export default function HomeownerDashboard() {
             </div>
           </div>
         )}
+
+        {/* FLOATING AI ASSISTANT CHATBOT WIDGET */}
+        <div className="fixed bottom-24 right-6 z-50 flex flex-col items-end gap-2.5 font-sans">
+          {/* Catchy Tooltip Bubble outside the circle */}
+          {!isChatOpen && (
+            <div className="bg-gradient-to-r from-purple-900/90 to-indigo-900/90 border border-purple-500/40 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-2xl animate-bounce select-none backdrop-blur-sm flex items-center gap-1.5 font-mono">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+              </span>
+              <span>📹 Live Video Assist</span>
+            </div>
+          )}
+
+          {/* AI Widget Panel Overlay */}
+          {isChatOpen && (
+            <div className="w-[360px] sm:w-[410px] max-h-[550px] overflow-y-auto shadow-2xl rounded-2xl animate-fadeIn flex flex-col gap-4">
+              <AIWidget 
+                onTranscription={handleTranscription} 
+                onVisionTriage={handleVisionTriage}
+                onFallback={triggerFallback}
+                disabled={false}
+                onClose={() => setIsChatOpen(false)}
+                triageResult={triageResult}
+                tabs={['VIDEO']}
+              />
+            </div>
+          )}
+
+          {/* Floating Circle Toggle Button */}
+          <button
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            className={`h-14 w-14 rounded-full flex items-center justify-center shadow-2xl border transition-all duration-300 ${
+              isChatOpen 
+                ? 'bg-zinc-900 border-zinc-800 text-zinc-400 rotate-90 hover:bg-zinc-800' 
+                : 'bg-gradient-to-tr from-purple-700 to-indigo-600 border-purple-500 text-white hover:scale-105 active:scale-95 shadow-purple-500/20'
+            }`}
+          >
+            {isChatOpen ? (
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <span className="relative flex h-8 w-8 items-center justify-center">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-20"></span>
+                <svg className="w-7 h-7 relative" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </span>
+            )}
+          </button>
+        </div>
 
       </div>
     </>

@@ -41,6 +41,13 @@ services:
     environment:
       - MONGODB_URI=${MONGODB_URI}
 
+  payment-service:
+    image: acrcogniutrawi.azurecr.io/services-payment-service:latest
+    ports:
+      - "5006:5006"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+
   nginx:
     image: nginx:alpine
     ports:
@@ -53,3 +60,4 @@ services:
       - ai-service
       - admin-service
       - dispatch-service
+      - payment-service
