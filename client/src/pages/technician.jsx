@@ -575,17 +575,17 @@ export default function TechnicianDashboard() {
                 </div>
                 
                 {techPhase === 'EN_ROUTE' && (
-                  <div className="flex flex-wrap gap-2.5">
+                  <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
                     <button
                       onClick={handleSimulateStep}
-                      className="px-4 py-2.5 bg-slate-950 hover:bg-slate-900 border border-amber-500/40 text-warning-amber rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition"
+                      className="w-full sm:w-auto px-4 py-2.5 bg-slate-950 hover:bg-slate-900 border border-amber-500/40 text-warning-amber rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition text-center"
                     >
                       🚗 Sim Step (15% Drive)
                     </button>
                     <button
                       onClick={handleMarkArrived}
                       disabled={getDistanceMeters() === null || getDistanceMeters() > 50}
-                      className={`px-5 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider shadow transition ${
+                      className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider shadow transition text-center ${
                         getDistanceMeters() !== null && getDistanceMeters() <= 50
                           ? 'bg-amber-600 hover:bg-amber-500 text-white cursor-pointer'
                           : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'

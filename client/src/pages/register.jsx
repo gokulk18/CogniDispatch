@@ -103,11 +103,9 @@ export default function RegisterPortal() {
           role === 'HOMEOWNER' 
             ? 'bg-purple-500' 
             : 'bg-amber-500'
-        }`} />
-
-        {/* Top Branding Link */}
+        }`} />        {/* Top Branding Link */}
         <div 
-          className="absolute top-8 left-8 flex items-center gap-3 cursor-pointer select-none group z-20" 
+          className="relative sm:absolute mb-8 sm:mb-0 top-0 sm:top-8 left-0 sm:left-8 flex items-center gap-3 cursor-pointer select-none group z-20" 
           onClick={() => router.push('/')}
         >
           <span className="text-2xl transition-transform duration-300 group-hover:scale-115">🚨</span>
@@ -157,7 +155,17 @@ export default function RegisterPortal() {
                       : 'text-slate-500 hover:text-slate-300'
                   }`}
                 >
-                  {tabRole === 'HOMEOWNER' ? 'Owner Account' : 'Responder Specialist'}
+                  {tabRole === 'HOMEOWNER' ? (
+                    <>
+                      <span className="hidden sm:inline">Owner Account</span>
+                      <span className="sm:hidden">Owner</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="hidden sm:inline">Responder Specialist</span>
+                      <span className="sm:hidden">Responder</span>
+                    </>
+                  )}
                 </button>
               );
             })}

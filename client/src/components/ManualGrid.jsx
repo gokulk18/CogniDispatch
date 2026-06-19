@@ -101,7 +101,7 @@ export default function ManualGrid({ onManualDispatch, onLocation, onFallback, d
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {categories.map((cat) => {
           const isActive = selectedCategory === cat.id;
           return (
@@ -109,11 +109,11 @@ export default function ManualGrid({ onManualDispatch, onLocation, onFallback, d
               key={cat.id}
               onClick={() => handleCategoryClick(cat.id)}
               disabled={disabled}
-              className={`flex flex-col items-center justify-center p-4 rounded-xl border text-center transition-all duration-200 gap-2 h-32 ${
+              className={`flex flex-row sm:flex-col items-center justify-start sm:justify-center p-4 rounded-xl border text-left sm:text-center transition-all duration-200 gap-4 sm:gap-2 h-auto sm:h-32 min-h-[72px] sm:min-h-0 ${
                 disabled ? 'opacity-50 cursor-not-allowed' : ''
               } ${isActive ? cat.activeColorClass : cat.colorClass}`}
             >
-              {cat.icon}
+              <div className="shrink-0">{cat.icon}</div>
               <span className="text-xs font-semibold uppercase tracking-wider">{cat.name}</span>
             </button>
           );

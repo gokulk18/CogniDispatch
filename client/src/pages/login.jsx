@@ -121,7 +121,7 @@ export default function LoginPortal() {
 
         {/* Top Branding Link */}
         <div 
-          className="absolute top-8 left-8 flex items-center gap-3 cursor-pointer select-none group z-20" 
+          className="relative sm:absolute mb-8 sm:mb-0 top-0 sm:top-8 left-0 sm:left-8 flex items-center gap-3 cursor-pointer select-none group z-20" 
           onClick={() => router.push('/')}
         >
           <span className="text-2xl transition-transform duration-300 group-hover:scale-115">🚨</span>

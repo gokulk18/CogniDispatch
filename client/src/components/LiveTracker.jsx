@@ -131,9 +131,9 @@ export default function LiveTracker({ userCoords, techCoords, vendor, triageResu
         </div>
 
         {/* Technician Card */}
-        <div className="bg-gradient-to-r from-slate-900 to-panel-slate p-4 border border-slate-800 rounded-xl flex items-center justify-between shadow-md">
+        <div className="bg-gradient-to-r from-slate-900 to-panel-slate p-4 border border-slate-800 rounded-xl flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between shadow-md">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-lg shadow-inner">
+            <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-lg shadow-inner shrink-0">
               🛠️
             </div>
             <div>
@@ -145,7 +145,7 @@ export default function LiveTracker({ userCoords, techCoords, vendor, triageResu
           
           <a
             href={`tel:${vendor.phone}`}
-            className="flex items-center justify-center h-10 px-4 rounded-lg bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan text-xs font-bold transition duration-150 font-mono tracking-wider uppercase"
+            className="w-full sm:w-auto flex items-center justify-center h-10 px-4 rounded-lg bg-accent-cyan/10 hover:bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan text-xs font-bold transition duration-150 font-mono tracking-wider uppercase text-center"
           >
             📞 CALL NOW
           </a>

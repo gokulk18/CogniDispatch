@@ -519,9 +519,9 @@ export default function HomeownerDashboard() {
               <span className="text-purple-400 font-bold uppercase">{session.name}</span>
             </div>
             
-            <div className="flex items-center gap-2 font-mono text-[9px] bg-slate-950 border border-zinc-800 rounded-lg px-2.5 py-1.5">
+            <div className="flex items-center gap-2 font-mono text-[9px] bg-slate-950 border border-zinc-800 rounded-lg px-2 py-1.5 sm:px-2.5 sm:py-1.5">
               <span className={`h-2 w-2 rounded-full ${backendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-              <span className="text-slate-400 font-semibold uppercase">
+              <span className="text-slate-400 font-semibold uppercase hidden sm:inline">
                 {backendOnline ? 'Telemetry Active' : 'Offline'}
               </span>
             </div>
