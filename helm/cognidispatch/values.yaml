@@ -101,7 +101,7 @@ frontend:
   enabled: true
   replicas: 1
   image: cogni-frontend
-  imageTag: "38fb0fbcf3916c1b74c4ae1fdfea3a6b2512b3df"
+  imageTag: "v0.0.6"
   resources:
     requests:
       memory: "256Mi"
