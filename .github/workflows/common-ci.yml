@@ -99,7 +99,7 @@ jobs:
           load: true # Load the image into the local Docker daemon for Trivy scanning
           tags: cogniregistry.azurecr.io/${{ inputs.image_name }}:latest
           build-args: |
-            NEXT_PUBLIC_SERVER_IP=https://api.g0ku1.online
+            NEXT_PUBLIC_SERVER_IP=https://cognidispatch.g0ku1.online
             SERVICE_NAME=${{ inputs.service_name }}
 
       # 6. Container Image Security Scan (Trivy)
@@ -124,7 +124,7 @@ jobs:
             cogniregistry.azurecr.io/${{ inputs.image_name }}:${{ github.sha }}
             cogniregistry.azurecr.io/${{ inputs.image_name }}:latest
           build-args: |
-            NEXT_PUBLIC_SERVER_IP=https://api.g0ku1.online
+            NEXT_PUBLIC_SERVER_IP=https://cognidispatch.g0ku1.online
             SERVICE_NAME=${{ inputs.service_name }}
 
       # 8. Update Helm values.yaml imageTag with the new commit SHA
