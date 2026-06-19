@@ -88,7 +88,7 @@ paymentService:
   enabled: true
   replicas: 1
   image: cogni-payment-service
-  imageTag: latest
+  imageTag: "v0.0.5"
   resources:
     requests:
       memory: "128Mi"
