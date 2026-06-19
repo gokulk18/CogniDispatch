@@ -90,7 +90,14 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # 5. Build Docker Image (Without Pushing yet, so Trivy can scan it)
+      # 5. Bump version and push tag
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 6. Build Docker Image (Without Pushing yet, so Trivy can scan it)
       - name: Build Docker Image Locally
         uses: docker/build-push-action@v5
         with:
@@ -102,7 +109,7 @@ jobs:
             NEXT_PUBLIC_SERVER_IP=https://cognidispatch.g0ku1.online
             SERVICE_NAME=${{ inputs.service_name }}
 
-      # 6. Container Image Security Scan (Trivy)
+      # 7. Container Image Security Scan (Trivy)
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -113,7 +120,7 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      # 7. Push Docker Image to ACR
+      # 8. Push Docker Image to ACR
       - name: Push Docker Image to ACR
         uses: docker/build-push-action@v5
         with:
@@ -121,13 +128,13 @@ jobs:
           file: ${{ inputs.dockerfile_path }}
           push: true
           tags: |
-            cogniregistry.azurecr.io/${{ inputs.image_name }}:${{ github.sha }}
+            cogniregistry.azurecr.io/${{ inputs.image_name }}:${{ steps.tag_version.outputs.new_tag }}
             cogniregistry.azurecr.io/${{ inputs.image_name }}:latest
           build-args: |
             NEXT_PUBLIC_SERVER_IP=https://cognidispatch.g0ku1.online
             SERVICE_NAME=${{ inputs.service_name }}
 
-      # 8. Update Helm values.yaml imageTag with the new commit SHA
+      # 9. Update Helm values.yaml imageTag with the new version tag
       - name: Update Helm Values
         run: |
           node -e "
@@ -135,7 +142,7 @@ jobs:
             const yamlPath = 'helm/cognidispatch/values.yaml';
             const lines = fs.readFileSync(yamlPath, 'utf8').split(/\r?\n/);
             const serviceKey = '${{ inputs.helm_value_key }}';
-            const newTag = '${{ github.sha }}';
+            const newTag = '${{ steps.tag_version.outputs.new_tag }}';
             
             let inService = false;
             let updated = false;
@@ -182,11 +189,11 @@ jobs:
             }
           "
 
-      # 9. Commit and push the updated values.yaml to the repository
+      # 10. Commit and push the updated values.yaml to the repository
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add helm/cognidispatch/values.yaml
-          git commit -m "ci: update ${{ inputs.helm_value_key }} image tag to ${{ github.sha }} [skip ci]"
+          git commit -m "ci: update ${{ inputs.helm_value_key }} image tag to ${{ steps.tag_version.outputs.new_tag }} [skip ci]"
           git push origin main
