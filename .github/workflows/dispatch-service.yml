@@ -8,6 +8,7 @@ on:
       - 'services/dispatch-service/**'
       - 'services/shared/**'
       - '.github/workflows/dispatch-service.yml'
+      - '.github/workflows/common-ci.yml'
   workflow_dispatch:
 
 jobs:

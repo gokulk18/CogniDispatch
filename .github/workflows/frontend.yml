@@ -8,6 +8,7 @@ on:
     paths:
       - 'client/**'
       - '.github/workflows/frontend.yml'
+      - '.github/workflows/common-ci.yml'
   workflow_dispatch:
 
 jobs:
