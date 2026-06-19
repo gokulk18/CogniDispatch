@@ -8,7 +8,7 @@ global:
 # Microservices Configurations
 nginx:
   enabled: true
-  replicas: 2
+  replicas: 1
   image: cogni-nginx
   imageTag: latest
   resources:
@@ -21,7 +21,7 @@ nginx:
 
 authService:
   enabled: true
-  replicas: 2
+  replicas: 1
   image: cogni-auth-service
   imageTag: "265eb9c44dd5bdb82f519093ca1b8031fc52e3e7"
   resources:
@@ -34,7 +34,7 @@ authService:
 
 vendorService:
   enabled: true
-  replicas: 2
+  replicas: 1
   image: cogni-vendor-service
   imageTag: latest
   resources:
@@ -47,7 +47,7 @@ vendorService:
 
 aiService:
   enabled: true
-  replicas: 2
+  replicas: 1
   image: cogni-ai-service
   imageTag: latest
   resources:
@@ -60,7 +60,7 @@ aiService:
 
 adminService:
   enabled: true
-  replicas: 2
+  replicas: 1
   image: cogni-admin-service
   imageTag: latest
   resources:
@@ -73,7 +73,7 @@ adminService:
 
 dispatchService:
   enabled: true
-  replicas: 2
+  replicas: 1
   image: cogni-dispatch-service
   imageTag: latest
   resources:
@@ -86,7 +86,7 @@ dispatchService:
 
 paymentService:
   enabled: true
-  replicas: 2
+  replicas: 1
   image: cogni-payment-service
   imageTag: latest
   resources:
@@ -99,7 +99,7 @@ paymentService:
 
 frontend:
   enabled: true
-  replicas: 2
+  replicas: 1
   image: cogni-frontend
   imageTag: "5c822f465b61cc4149675ce107e36e66a204c7f0"
   resources:
