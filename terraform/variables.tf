@@ -1,11 +1,23 @@
-variable "location" {
-  description = "The Azure Region to deploy resources"
+variable "resource_group_name" {
+  description = "The name of the Azure resource group to deploy resources into"
   type        = string
-  default     = "Japan West"
+  default     = "test-rg"
 }
 
-variable "compute_location" {
-  description = "Azure Region for App Service Plan and Web Apps. Use a different region if Japan West is throttled (429)."
+variable "location" {
+  description = "The primary Azure region for resource deployments"
   type        = string
-  default     = "East Asia"
+  default     = "centralindia"
+}
+
+variable "jumpbox_admin_username" {
+  description = "The admin username for the Linux Jumpbox VM"
+  type        = string
+  default     = "azureuser"
+}
+
+variable "jumpbox_ssh_public_key" {
+  description = "The SSH public key for logging into the Linux Jumpbox VM. If not provided, SSH keys will not be configured."
+  type        = string
+  default     = ""
 }

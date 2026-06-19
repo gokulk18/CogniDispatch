@@ -1,102 +1,88 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.90.0"
-    }
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = "~> 2.47.0"
-    }
-  }
-  backend "azurerm" {
-    resource_group_name  = "rg-terraform-state"
-    storage_account_name = "stcognitfstate589b4"
-    container_name       = "tfstate"
-    key                  = "terraform.tfstate"
-  }
-}
-
-provider "azurerm" {
-  features {
-    key_vault {
-      purge_soft_delete_on_destroy = true
-    }
-    resource_group {
-      prevent_deletion_if_contains_resources = false
-    }
-  }
-}
-
-provider "azuread" {
-}
-
-# Resource Group
+# Resource Group for CogniDispatch infrastructure
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-cognidispatch"
+  name     = var.resource_group_name
   location = var.location
+
+  tags = {
+    Environment = "Production"
+    Project     = "CogniDispatch"
+  }
 }
 
-# Network Module
+# Network Module: Hub & Spoke VNets, peerings, subnets, NSGs, and Private DNS Zones
 module "network" {
   source              = "./modules/network"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 }
 
-# Identity Module
-module "identity" {
-  source              = "./modules/identity"
+# AKS Module: Private AKS cluster
+module "aks" {
+  source              = "./modules/aks"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
+  subnet_id           = module.network.snet_aks_id
+  private_dns_zone_id = module.network.dns_aks_id
 }
 
-# Data Module (ACR, Cosmos DB, Key Vault)
+# Application Gateway Module: Load balancer and routing ingress
+module "app_gateway" {
+  source              = "./modules/app_gateway"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = module.network.snet_appgw_id
+}
+
+# Data Module: Key Vault and Cosmos DB (MongoDB API) with Private Endpoints
 module "data" {
-  source                     = "./modules/data"
+  source              = "./modules/data"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = module.network.snet_pe_id
+  dns_zone_cosmos_id  = module.network.dns_cosmos_id
+  dns_zone_kv_id      = module.network.dns_kv_id
+}
+
+# Cognitive Module: Azure OpenAI and Speech Services with Private Endpoints
+module "cognitive" {
+  source              = "./modules/cognitive"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = module.network.snet_pe_id
+  dns_zone_openai_id  = module.network.dns_openai_id
+  dns_zone_speech_id  = module.network.dns_speech_id
+}
+
+# Registry Module: Azure Container Registry Premium SKU with Private Endpoint
+module "registry" {
+  source              = "./modules/registry"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  subnet_id           = module.network.snet_pe_id
+  dns_zone_acr_id     = module.network.dns_acr_id
+}
+
+# Bastion Module: Azure Bastion Host and Linux Jumpbox VM for secure shell administration
+module "bastion" {
+  source              = "./modules/bastion"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  bastion_subnet_id   = module.network.snet_bastion_id
+  mgmt_subnet_id      = module.network.snet_mgmt_id
+  admin_username      = var.jumpbox_admin_username
+  ssh_public_key      = var.jumpbox_ssh_public_key
+}
+
+# Security Module: Managed identities, Workload Identity federations, and role integrations
+module "security" {
+  source                     = "./modules/security"
   resource_group_name        = azurerm_resource_group.rg.name
   location                   = azurerm_resource_group.rg.location
-  vnet_id                    = module.network.vnet_id
-  snet_private_ep_id         = module.network.snet_private_ep_id
-  snet_back_vnet_id          = module.network.snet_back_vnet_id
-  private_dns_zone_cosmos_id = module.network.dns_cosmos_id
-  private_dns_zone_kv_id     = module.network.dns_kv_id
-}
-
-# Compute Module (App Services)
-module "compute" {
-  source              = "./modules/compute"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = var.compute_location        # East Asia to bypass 429 throttle in Japan West
-  snet_front_vnet_id  = module.network.snet_front_vnet_id
-  snet_back_vnet_id   = module.network.snet_back_vnet_id
-  acr_login_server    = module.data.acr_login_server
-  acr_id              = module.data.acr_id
-  keyvault_id         = module.data.keyvault_id
-
-  client_id     = module.identity.client_id
-  client_secret = module.identity.client_secret
-  tenant_id     = module.identity.tenant_id
-}
-
-# Container Apps Module
-module "container_apps" {
-  source              = "./modules/container_apps"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  snet_aca_id         = module.network.snet_aca_id
-  acr_login_server    = module.data.acr_login_server
-  acr_admin_username  = module.data.acr_admin_username
-  acr_admin_password  = module.data.acr_admin_password
-  mongodb_uri         = module.data.mongodb_uri
-}
-
-# App Gateway Module
-module "appgw" {
-  source              = "./modules/appgw"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  snet_appgw_id       = module.network.snet_appgw_id
-  frontend_fqdn       = module.compute.frontend_default_hostname
-  backend_fqdn        = module.container_apps.nginx_fqdn
+  aks_cluster_id             = module.aks.cluster_id
+  aks_oidc_issuer_url        = module.aks.oidc_issuer_url
+  key_vault_id               = module.data.key_vault_id
+  acr_id                     = module.registry.acr_id
+  app_gateway_id             = module.app_gateway.app_gateway_id
+  node_resource_group        = module.aks.node_resource_group
+  kubelet_identity_object_id = module.aks.kubelet_identity_object_id
 }
