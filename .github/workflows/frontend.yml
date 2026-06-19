@@ -1,3 +1,4 @@
+# Trigger rebuild of frontend with updated api URL
 name: Frontend_CI
 
 on:
