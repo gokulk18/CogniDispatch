@@ -56,13 +56,13 @@ resource "azurerm_private_endpoint" "pe_cosmos" {
 
 # Key Vault
 resource "azurerm_key_vault" "kv" {
-  name                        = "cognidispatch-kv"
-  location                    = var.location
-  resource_group_name         = var.resource_group_name
-  tenant_id                   = data.azurerm_client_config.current.tenant_id
-  soft_delete_retention_days  = 7
-  purge_protection_enabled    = false
-  sku_name                    = "standard"
+  name                       = "cognidispatch-kv"
+  location                   = var.location
+  resource_group_name        = var.resource_group_name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  soft_delete_retention_days = 7
+  purge_protection_enabled   = false
+  sku_name                   = "standard"
 
   public_network_access_enabled = true
 

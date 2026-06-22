@@ -7,11 +7,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
   private_dns_zone_id     = var.private_dns_zone_id
 
   default_node_pool {
-    name       = "agentpool"
-    node_count = 1
-    vm_size    = "Standard_D4ds_v6"
-    vnet_subnet_id = var.subnet_id
-    os_disk_size_gb = 128
+    name                = "agentpool"
+    vm_size             = "Standard_D4ds_v6"
+    vnet_subnet_id      = var.subnet_id
+    os_disk_size_gb     = 128
+    enable_auto_scaling = true
+    min_count           = 1
+    max_count           = 3
   }
 
   identity {
@@ -35,5 +37,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
   tags = {
     Environment = "Production"
     Project     = "CogniDispatch"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      default_node_pool[0].node_count
+    ]
   }
 }

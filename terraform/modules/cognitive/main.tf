@@ -1,10 +1,10 @@
 # Azure OpenAI Account
 resource "azurerm_cognitive_account" "openai" {
-  name                  = "cogni-openai"
-  location              = "eastus" # Match active location of OpenAI
-  resource_group_name   = var.resource_group_name
-  kind                  = "OpenAI"
-  sku_name              = "S0"
+  name                          = "cogni-openai"
+  location                      = "eastus" # Match active location of OpenAI
+  resource_group_name           = var.resource_group_name
+  kind                          = "OpenAI"
+  sku_name                      = "S0"
   public_network_access_enabled = false
 
   tags = {
@@ -36,11 +36,11 @@ resource "azurerm_private_endpoint" "pe_openai" {
 
 # Azure Speech Services Account
 resource "azurerm_cognitive_account" "speech" {
-  name                  = "cogni-speech"
-  location              = "eastus" # Match active location of Speech service
-  resource_group_name   = var.resource_group_name
-  kind                  = "SpeechServices"
-  sku_name              = "S0"
+  name                          = "cogni-speech"
+  location                      = "eastus" # Match active location of Speech service
+  resource_group_name           = var.resource_group_name
+  kind                          = "SpeechServices"
+  sku_name                      = "S0"
   public_network_access_enabled = false
 
   tags = {
